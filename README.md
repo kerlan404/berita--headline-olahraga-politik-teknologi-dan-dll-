@@ -1,359 +1,610 @@
-# 📰 SportsFeed - Aplikasi Berita Flutter
-
-Aplikasi mobile berita multi-platform yang dibangun dengan **Flutter** untuk menampilkan headline terkini dari berbagai kategori seperti olahraga, politik, teknologi, dan lainnya. Aplikasi ini menggunakan **NewsAPI** untuk mendapatkan data berita real-time.
-
-## 🎯 Fitur Utama
-
-- ✅ **Tampilan Berita Real-Time** - Mengambil berita terbaru dari News API
-- ✅ **Multiple Platform** - Berjalan di Android, iOS, Web, Windows, macOS, dan Linux
-- ✅ **Kategori Berita** - Olahraga, Politik, Teknologi, dan kategori lainnya
-- ✅ **Pencarian Berita** - Cari berita berdasarkan keyword
-- ✅ **Cache Gambar** - Gambar di-cache untuk performa lebih baik
-- ✅ **WebView Integration** - Baca artikel lengkap dalam aplikasi
-- ✅ **Dark Theme** - Tema gelap untuk kenyamanan mata
-- ✅ **Share Berita** - Bagikan berita ke media sosial
-- ✅ **Loading Shimmer** - Animasi loading yang smooth
-- ✅ **URL Launcher** - Buka link di browser atau dalam aplikasi
+<div align="center">
+  <br>
+  <img src="assets/icon/app_icon.png" alt="SportsFeed Logo" width="120" height="120" style="border-radius: 20px;">
+  <br>
+  <h1>📰 SPORTSFEED</h1>
+  <p><strong>Berita & Headline Terkini</strong></p>
+  <p>
+    Aplikasi berita multi-platform yang dibangun dengan <strong>Flutter</strong> — 
+    menyajikan headline terkini dari berbagai kategori dalam gaya visual <strong>ESPN</strong> 
+    yang tegas, cepat, dan nyaman dibaca.
+  </p>
+  
+  <p>
+    <img src="https://img.shields.io/badge/Flutter-3.44.6-02569B?style=flat-square&logo=flutter" alt="Flutter">
+    <img src="https://img.shields.io/badge/Dart-3.12.2-0175C2?style=flat-square&logo=dart" alt="Dart">
+    <img src="https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web%20%7C%20Desktop-blue?style=flat-square" alt="Platform">
+    <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License">
+    <img src="https://img.shields.io/badge/Status-Active-success?style=flat-square" alt="Status">
+  </p>
+  
+  <br>
+</div>
 
 ---
 
-## 📁 Struktur Project
+## 📋 Daftar Isi
+
+- [✨ Fitur Unggulan](#-fitur-unggulan)
+- [📸 Tampilan Aplikasi](#-tampilan-aplikasi)
+- [🏗️ Arsitektur Project](#️-arsitektur-project)
+- [🛠️ Tech Stack](#️-tech-stack)
+- [🚀 Cara Menjalankan](#-cara-menjalankan)
+- [📁 Struktur Folder Lengkap](#-struktur-folder-lengkap)
+- [📦 Dependencies](#-dependencies)
+- [🧭 Alur Navigasi](#-alur-navigasi)
+- [📱 Cara Menggunakan](#-cara-menggunakan)
+- [🔧 Konfigurasi](#-konfigurasi)
+- [🐛 Troubleshooting](#-troubleshooting)
+- [🤝 Kontribusi](#-kontribusi)
+- [📄 Lisensi](#-lisensi)
+
+---
+
+## ✨ Fitur Unggulan
+
+<table>
+  <tr>
+    <td width="50%">
+      <h3>📰 Berita Real-Time</h3>
+      <p>Headline terkini dari berbagai kategori. Data real-time dari <strong>NewsAPI</strong> dengan infinite scroll & pull-to-refresh.</p>
+    </td>
+    <td width="50%">
+      <h3>🏷️ Kategori Berita</h3>
+      <p>Navigasi kategori cepat via <strong>sidebar drawer</strong> — Olahraga, Teknologi, Bisnis, Hiburan, Kesehatan, dan Semua.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <h3>🔍 Pencarian Cepat</h3>
+      <p>Cari berita berdasarkan kata kunci dengan <strong>debounce 500ms</strong> — hasil muncul real-time saat mengetik.</p>
+    </td>
+    <td width="50%">
+      <h3>💾 Bookmark</h3>
+      <p>Simpan artikel favorit dengan animasi hati ❤️. <strong>Swipe-to-delete</strong> di halaman tersimpan.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <h3>📱 Grid / List Toggle</h3>
+      <p>Ganti tampilan berita antara <strong>list view</strong> (dengan hero card + parallax) dan <strong>grid view</strong> (2 kolom kompak).</p>
+    </td>
+    <td width="50%">
+      <h3>🌐 WebView Built-in</h3>
+      <p>Baca artikel lengkap dalam aplikasi via <strong>WebView</strong> dengan progress bar, error handling, dan fallback browser.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <h3>🎬 Parallax Hero Card</h3>
+      <p>Efek <strong>parallax</strong> pada gambar headline — image bergerak 15% lebih lambat dari card saat di-scroll, menciptakan ilusi depth 3D.</p>
+    </td>
+    <td width="50%">
+      <h3>⬆️ Scroll-to-Top FAB</h3>
+      <p>Floating Action Button muncul otomatis saat scroll > 300px. Klik untuk kembali ke atas dengan animasi smooth.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <h3>🎭 Staggered Animation</h3>
+      <p>Animasi list yang muncul satu per satu (staggered) dengan efek fade + slide — memberikan pengalaman scroll yang premium.</p>
+    </td>
+    <td width="50%">
+      <h3>🌙 Dark Theme ESPN</h3>
+      <p>Tema gelap khas ESPN dengan aksen merah (<code>#D50000</code>), card gelap (<code>#1E1E1E</code>), dan tipografi tebal yang nyaman di mata.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <h3>📤 Share Berita</h3>
+      <p>Bagikan berita ke aplikasi lain via <strong>Share Plus</strong> — judul + link artikel langsung terkirim.</p>
+    </td>
+    <td width="50%">
+      <h3>📱 Multi-Platform</h3>
+      <p>Berjalan di <strong>Android, iOS, Web, Windows, macOS, dan Linux</strong> — satu codebase untuk semua platform.</p>
+    </td>
+  </tr>
+</table>
+
+---
+
+## 📸 Tampilan Aplikasi
 
 ```
-berita--headline-olahraga-politik-teknologi-dan-dll-/
-├── lib/
-│   ├── main.dart                          # Entry point aplikasi
-│   ├── app.dart                           # Konfigurasi MaterialApp dan Provider setup
-│   ├── screens/                           # Halaman-halaman aplikasi
-│   │   ├── splash/
-│   │   │   └── splash_screen.dart        # Splash screen (loading awal)
-│   │   ├── home/
-│   │   │   └── home_screen.dart          # Halaman utama daftar berita
-│   │   ├── detail/
-│   │   │   └── article_detail_screen.dart # Halaman detail artikel
-│   │   ├── search/
-│   │   │   └── search_screen.dart        # Halaman pencarian berita
-│   │   └── webview/
-│   │       └── article_webview_screen.dart # WebView untuk membaca artikel
-│   ├── providers/                        # State management dengan Provider
-│   │   ├── news_list_provider.dart       # Provider untuk daftar berita
-│   │   └── search_provider.dart          # Provider untuk fitur pencarian
-│   ├── models/                           # Data models
-│   │   ├── news.dart                     # Model berita
-│   │   ├── news_response.dart            # Model response API
-│   │   └── article.dart                  # Model artikel
-│   ├── services/                         # API dan layanan eksternal
-│   │   ├── news_service.dart             # Service untuk API NewsAPI
-│   │   └── api_constants.dart            # Konstanta API
-│   ├── core/
-│   │   ├── theme/
-│   │   │   └── app_theme.dart            # Tema aplikasi (Dark theme)
-│   │   └── constants/
-│   │       └── app_constants.dart        # Konstanta aplikasi
-│   ├── widgets/                          # Reusable widgets
-│   │   ├── news_card.dart                # Widget kartu berita
-│   │   ├── news_shimmer.dart             # Widget loading shimmer
-│   │   ├── custom_app_bar.dart           # Custom AppBar
-│   │   └── error_widget.dart             # Widget untuk error state
-│   ├── utils/                            # Utility functions
-│   │   ├── date_formatter.dart           # Format tanggal
-│   │   ├── string_utils.dart             # Utility string
-│   │   └── logger.dart                   # Logging utility
-│   └── config/
-│       └── environment.dart              # Konfigurasi environment
-├── assets/
-│   └── icon/
-│       └── app_icon.png                  # Icon aplikasi
-├── android/                              # Konfigurasi Android
-├── ios/                                  # Konfigurasi iOS
-├── web/                                  # Konfigurasi Web
-├── windows/                              # Konfigurasi Windows
-├── macos/                                # Konfigurasi macOS
-├── linux/                                # Konfigurasi Linux
-├── test/                                 # Unit dan Widget tests
-├── .env                                  # Environment variables
-├── .gitignore                            # Git ignore rules
-├── pubspec.yaml                          # Dependencies dan project config
-├── pubspec.lock                          # Lock file untuk dependencies
-├── analysis_options.yaml                 # Lint rules
-└── README.md                             # File ini
+┌──────────────────────────────────────────────┐
+│               📱 APPS OVERVIEW                │
+├──────────────────────────────────────────────┤
+│                                              │
+│  ┌──────┐  ┌──────────┐  ┌──────────┐       │
+│  │SPLASH│  │   HOME   │  │  GRID    │       │
+│  │  ✨  │  │ ┌──────┐ │  │ ┌──┐ ┌──┐│       │
+│  │FEED  │  │ │📷 HERO│ │  │ │📷│ │📷││       │
+│  │      │  │ │parallax│ │  │ └──┘ └──┘│       │
+│  └──────┘  │ ├───────┤ │  │ ┌──┐ ┌──┐│       │
+│            │ │📷 card│ │  │ │📷│ │📷││       │
+│  ┌──────┐  │ ├───────┤ │  │ └──┘ └──┘│       │
+│  │DETAIL│  │ │📷 card│ │  └──────────┘       │
+│  │      │  │ └───────┘ │                      │
+│  │ 🌐   │  └──────────┘  ┌──────────┐       │
+│  │WebView│               │ BOOKMARK │        │
+│  └──────┘                │ ❤️ ❤️ ❤️  │       │
+│                          │ ← swipe ❌ │      │
+│  ┌─────────┐             └──────────┘       │
+│  │ SEARCH  │                                 │
+│  │ 🔍 ...  │             ┌──────────┐       │
+│  │ Hasil   │             │ PROFILE  │        │
+│  │ hasil   │             │ 👤 Info  │       │
+│  └─────────┘             └──────────┘       │
+│                                              │
+│  ┌────── Bottom Navigation Bar ──────────┐   │
+│  │ 🏠 Home │ 🔍 Cari │ 📑 Simpan │ 👤 Profil│
+│  └────────────────────────────────────────┘   │
+└──────────────────────────────────────────────┘
 ```
+
+---
+
+## 🏗️ Arsitektur Project
+
+Aplikasi ini mengikuti arsitektur berlapis yang rapi dan terstruktur:
+
+```
+┌─────────────────────────────────────────────────┐
+│                   SCREENS (UI)                    │
+│  Splash → Home → Detail → Search → Bookmark     │
+│               ↓ ↑          ↓ ↑        ↓          │
+├─────────────────────────────────────────────────┤
+│                PROVIDERS (State)                  │
+│   NewsListProvider · SearchProvider · Bookmark   │
+│               ↓ ↑                               │
+├─────────────────────────────────────────────────┤
+│              REPOSITORIES (Data Layer)             │
+│              NewsRepository                      │
+│               ↓ ↑                               │
+├─────────────────────────────────────────────────┤
+│                SERVICES (API)                     │
+│              NewsApiService                      │
+│               ↓ ↑                               │
+├─────────────────────────────────────────────────┤
+│               MODELS (Data)                      │
+│              NewsArticle                         │
+└─────────────────────────────────────────────────┘
+```
+
+**Prinsip alur data:** `Screen → Provider → Repository → Service (HTTP) → Model`
+
+- **Tidak ada** pemanggilan API langsung dari widget/screen
+- **Semua** state error, loading, kosong di-handle oleh Provider
+- **Mapping** kategori & error dilakukan di Repository, bukan UI
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Teknologi | Deskripsi |
-|-----------|-----------|
-| **Flutter** | Framework UI multi-platform |
-| **Dart** | Bahasa pemrograman |
-| **Provider** | State management |
-| **HTTP** | Package untuk HTTP requests |
-| **News API** | Source data berita |
-| **Cached Network Image** | Cache gambar dari network |
-| **WebView Flutter** | Menampilkan web content dalam app |
-| **Flutter DotEnv** | Load environment variables |
-| **Intl** | Internationalization & formatting |
-| **URL Launcher** | Membuka URL eksternal |
-| **Shimmer** | Loading animation |
-| **Share Plus** | Share functionality |
+| Kategori | Teknologi | Kegunaan |
+|---|---|---|
+| **Framework** | [Flutter](https://flutter.dev) 3.44.6 | UI multi-platform |
+| **Bahasa** | [Dart](https://dart.dev) 3.12.2 | Logic & structure |
+| **State Management** | [Provider](https://pub.dev/packages/provider) | State management reaktif |
+| **HTTP Client** | [http](https://pub.dev/packages/http) | REST API calls |
+| **API Berita** | [NewsAPI](https://newsapi.org) | Sumber data berita |
+| **Cache Gambar** | [cached_network_image](https://pub.dev/packages/cached_network_image) | Loading & caching gambar |
+| **WebView** | [webview_flutter](https://pub.dev/packages/webview_flutter) | Baca artikel in-app |
+| **Share** | [share_plus](https://pub.dev/packages/share_plus) | Bagikan berita |
+| **URL Launcher** | [url_launcher](https://pub.dev/packages/url_launcher) | Buka link eksternal |
+| **Env Variables** | [flutter_dotenv](https://pub.dev/packages/flutter_dotenv) | API key management |
+| **Animasi Loading** | [shimmer](https://pub.dev/packages/shimmer) | Skeleton loading effect |
+| **Format Tanggal** | [intl](https://pub.dev/packages/intl) | Format waktu relatif |
+| **Ikon Aplikasi** | [flutter_launcher_icons](https://pub.dev/packages/flutter_launcher_icons) | Generate icon multi-resolusi |
 
 ---
 
-## 📋 Dependencies
+## 🚀 Cara Menjalankan
 
-```yaml
-dependencies:
-  flutter:
-    sdk: flutter
-  cupertino_icons: ^1.0.8
-  provider: ^6.1.2              # State management
-  http: ^1.2.1                  # HTTP requests
-  cached_network_image: ^3.3.1  # Image caching
-  webview_flutter: ^4.7.0       # WebView
-  flutter_dotenv: ^5.1.0        # .env file support
-  intl: ^0.19.0                 # Date formatting
-  url_launcher: ^6.3.0          # Open URLs
-  shimmer: ^3.0.0               # Loading animation
-  share_plus: ^10.0.0           # Share content
-```
+### 📋 Prasyarat
 
----
+| Kebutuhan | Versi Minimum |
+|---|---|
+| Flutter SDK | `3.12.2` |
+| Dart SDK | `3.12.2` (bundled with Flutter) |
+| Android SDK | API level 21+ |
+| News API Key | [Daftar gratis](https://newsapi.org) |
 
-## 🚀 Cara Menjalankan Aplikasi
+### 🔧 Langkah-langkah
 
-### Prerequisite (Persyaratan Awal)
-
-1. **Flutter SDK** (v3.12.2 atau lebih tinggi)
-2. **Dart SDK** (sudah included dengan Flutter)
-3. **News API Key** - Daftar gratis di [newsapi.org](https://newsapi.org)
-4. **Android Studio / Xcode** (untuk development)
-5. **Git** untuk clone repository
-
-### Step 1: Clone Repository
+#### 1️⃣ Clone Repository
 
 ```bash
 git clone https://github.com/kerlan404/berita--headline-olahraga-politik-teknologi-dan-dll-.git
 cd berita--headline-olahraga-politik-teknologi-dan-dll-
 ```
 
-### Step 2: Setup Environment Variables
+#### 2️⃣ Setup Environment Variables
 
-Buat atau edit file `.env` di root project:
+Buat file `.env` di root project:
 
 ```env
 NEWS_API_KEY=your_api_key_here
 NEWS_API_BASE_URL=https://newsapi.org/v2
 ```
 
-**Cara mendapatkan API Key:**
-1. Buka https://newsapi.org
-2. Sign up atau login
-3. Copy API key dari dashboard
-4. Paste ke `.env` file
+> **Dapatkan API Key:**
+> 1. Buka [newsapi.org](https://newsapi.org)
+> 2. Register / Login
+> 3. Copy API Key dari dashboard
+> 4. Paste ke file `.env`
 
-### Step 3: Install Dependencies
+#### 3️⃣ Install Dependencies
 
 ```bash
 flutter clean
 flutter pub get
 ```
 
-### Step 4: Generate App Icons (Optional)
+#### 4️⃣ Generate App Icons (opsional)
 
 ```bash
-flutter pub run flutter_launcher_icons
+dart run flutter_launcher_icons
 ```
 
-### Step 5: Run Aplikasi
+#### 5️⃣ Jalankan Aplikasi
 
-#### Di Android Emulator/Device:
 ```bash
+# Android (HP/Emulator)
 flutter run -d android
-# atau untuk build APK
-flutter build apk --release
-```
 
-#### Di iOS Simulator/Device:
-```bash
+# iOS (Simulator/Device — butuh Mac)
 flutter run -d ios
-# atau untuk build IPA
-flutter build ios --release
-```
 
-#### Di Web Browser:
-```bash
+# Web Browser
 flutter run -d web
-# atau untuk build production
-flutter build web
+
+# Desktop
+flutter run -d windows   # Windows
+flutter run -d macos     # macOS
+flutter run -d linux     # Linux
 ```
 
-#### Di Windows:
-```bash
-flutter run -d windows
-```
-
-#### Di macOS:
-```bash
-flutter run -d macos
-```
-
-#### Di Linux:
-```bash
-flutter run -d linux
-```
-
-### Step 6: Verify Devices
+#### 6️⃣ Build Production
 
 ```bash
-flutter devices
+flutter build apk --release           # Android APK
+flutter build appbundle --release     # Android AppBundle
+flutter build ios --release           # iOS IPA
+flutter build web                     # Web
 ```
 
 ---
 
-## 📱 Cara Menggunakan Aplikasi
+## 📁 Struktur Folder Lengkap
+
+```
+📦 berita--headline-olahraga-politik-teknologi-dan-dll-
+├── 📁 lib/                            # 📱 Source code utama
+│   ├── 📄 main.dart                    # Entry point aplikasi
+│   ├── 📄 app.dart                     # MaterialApp + Provider setup
+│   │
+│   ├── 📁 core/                        # ⚙️ Konfigurasi inti
+│   │   ├── 📁 constants/
+│   │   │   └── api_constants.dart      # Base URL, kategori, mapping
+│   │   ├── 📁 theme/
+│   │   │   └── app_theme.dart          # Dark theme ESPN (warna, tipografi)
+│   │   └── 📁 utils/
+│   │       ├── date_formatter.dart     # Format waktu relatif ("2 jam lalu")
+│   │       └── route_transitions.dart  # Animasi navigasi + staggered list
+│   │
+│   ├── 📁 data/                        # 📊 Lapisan data
+│   │   ├── 📁 models/
+│   │   │   └── news_article.dart       # Model berita + fromJson/toJson
+│   │   ├── 📁 services/
+│   │   │   └── news_api_service.dart   # HTTP calls ke NewsAPI
+│   │   └── 📁 repositories/
+│   │       └── news_repository.dart    # Mapping data & error handling
+│   │
+│   ├── 📁 providers/                   # 🗂️ State management
+│   │   ├── news_list_provider.dart     # List berita + pagination
+│   │   ├── search_provider.dart        # Pencarian + debounce
+│   │   └── bookmark_provider.dart      # Bookmark ❤️
+│   │
+│   ├── 📁 screens/                     # 🖥️ Halaman aplikasi
+│   │   ├── 📁 splash/
+│   │   │   └── splash_screen.dart      # Splash dengan animasi fade + slide
+│   │   ├── 📁 main/
+│   │   │   └── main_shell.dart         # Bottom Navigation Bar shell
+│   │   ├── 📁 home/
+│   │   │   └── home_screen.dart        # Beranda (list/grid + kategori + FAB)
+│   │   ├── 📁 search/
+│   │   │   └── search_screen.dart      # Pencarian dengan debounce
+│   │   ├── 📁 detail/
+│   │   │   └── detail_screen.dart      # WebView artikel + share
+│   │   ├── 📁 bookmark/
+│   │   │   └── bookmark_screen.dart    # Artikel tersimpan + swipe-delete
+│   │   └── 📁 profile/
+│   │       └── profile_screen.dart     # Profil & info aplikasi
+│   │
+│   └── 📁 widgets/                     # 🧩 Widget reusable
+│       ├── news_card.dart              # Card list (gambar kiri, teks kanan)
+│       ├── news_hero_card.dart         # Hero card (gambar besar + parallax)
+│       ├── bookmark_button.dart        # Tombol hati dengan animasi bounce
+│       ├── empty_state.dart            # State kosong
+│       ├── error_retry_widget.dart     # State error + tombol retry
+│       ├── loading_indicator.dart      # Spinner loading
+│       └── shimmer_loading.dart        # Skeleton loading (list & grid)
+│
+├── 📁 android/                         # 🤖 Konfigurasi Android
+├── 📁 ios/                             # 🍎 Konfigurasi iOS
+├── 📁 web/                             # 🌐 Konfigurasi Web
+├── 📁 windows/                         # 🪟 Konfigurasi Windows
+├── 📁 macos/                           # 💻 Konfigurasi macOS
+├── 📁 linux/                           # 🐧 Konfigurasi Linux
+├── 📁 assets/
+│   ├── 📁 icon/
+│   │   └── app_icon.png                # Ikon aplikasi sumber
+│   └── 📄 .env                         # Environment variables (TIDAK di-commit)
+│
+├── 📁 dokumen/                         # 📚 Dokumentasi project
+│   ├── prd.md                          # Product Requirements Document
+│   ├── desain.md                       # Panduan desain UI/UX
+│   ├── integrasi.md                    # Panduan teknis integrasi
+│   └── roadmap.md                      # Roadmap pengembangan
+│
+├── 📄 pubspec.yaml                     # Dependencies & konfigurasi
+├── 📄 analysis_options.yaml            # Lint rules
+├── 📄 .gitignore                       # Git ignore rules
+└── 📄 README.md                        # Ini! 👋
+```
+
+---
+
+## 📦 Dependencies
+
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # State Management
+  provider: ^6.1.2
+  
+  # Networking & Data
+  http: ^1.2.1
+  cached_network_image: ^3.4.1
+  
+  # Features
+  webview_flutter: ^4.7.0
+  url_launcher: ^6.3.0
+  share_plus: ^13.2.1
+  flutter_dotenv: ^6.0.1
+  
+  # UI & Animations
+  shimmer: ^3.0.0
+  
+  # Utilities
+  intl: ^0.20.3
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_launcher_icons: ^0.14.4
+  flutter_lints: ^6.0.0
+```
+
+---
+
+## 🧭 Alur Navigasi
+
+```
+🚀 Launch
+    │
+    ▼
+┌──────────┐    FadeThrough    ┌─────────────────────────────────────┐
+│  SPLASH  │ ────────────────→ │           MAIN SHELL                │
+│  Screen  │     (2.5 detik)   │  ┌─ BottomNavigationBar ─────────┐  │
+└──────────┘                   │  │ 🏠 🔍 📑 👤                   │  │
+                               │  └───────────────────────────────┘  │
+                               │         │   │    │     │            │
+                               │    ┌────┘   │    │     └──────┐     │
+                               │    ▼        ▼    ▼            ▼     │
+                               │ ┌──────┐ ┌──────┐ ┌────────┐ ┌───┐ │
+                               │ │ HOME │ │SEARCH│ │BOOKMARK│ │PROF│ │
+                               │ └──┬───┘ └──┬───┘ └───┬────┘ └───┘ │
+                               │    │        │         │            │
+                               │    │  push   │  push   │            │
+                               │    └────┬────┘         │            │
+                               │         ▼              │            │
+                               │    ┌──────────┐       │            │
+                               │    │  DETAIL  │ ←─────┘            │
+                               │    │ (WebView)│                    │
+                               │    └──────────┘                    │
+                               └─────────────────────────────────────┘
+```
+
+---
+
+## 📱 Cara Menggunakan
 
 ### Home Screen
-1. Aplikasi akan menampilkan splash screen selama 2-3 detik
-2. Halaman utama menampilkan daftar berita terbaru
-3. Scroll ke bawah untuk memuat berita lebih banyak
-4. Tap pada kartu berita untuk melihat detail
+| Aksi | Hasil |
+|---|---|
+| 🔽 **Scroll ke bawah** | Infinite scroll — berita baru termuat otomatis |
+| ⬆️ **Scroll > 300px** | FAB ↑ muncul, tap untuk kembali ke atas |
+| 👆 **Tap card berita** | Buka detail artikel via WebView |
+| 🏠 **Tap kategori di sidebar** | Buka menu → pilih kategori berita |
+| 📋 **Tap icon grid/list** | Ganti tampilan antara list dan grid |
+| 🔄 **Pull-to-refresh** | Muat ulang berita terbaru |
+| ❤️ **Tap icon hati** | Simpan / hapus bookmark artikel |
 
-### Search Berita
-1. Tap icon search di AppBar
-2. Ketik keyword berita yang dicari
-3. Hasil pencarian akan ditampilkan secara real-time
+### Search Screen
+| Aksi | Hasil |
+|---|---|
+| 🔍 **Ketik kata kunci** | Pencarian real-time dengan debounce |
+| ❌ **Tap icon clear** | Hapus hasil pencarian |
+| 👆 **Tap hasil** | Buka detail artikel |
 
-### Baca Artikel Lengkap
-1. Tap pada berita untuk membuka detail screen
-2. Tap tombol "Baca Selengkapnya" untuk membuka artikel di WebView
-3. Gunakan tombol back untuk kembali
+### Bookmark Screen
+| Aksi | Hasil |
+|---|---|
+| ❤️ **Lihat artikel tersimpan** | Semua artikel yang di-bookmark |
+| ⬅️ **Swipe ke kiri** | Hapus bookmark |
+| 🗑️ **Tap icon hapus semua** | Konfirmasi → hapus semua bookmark |
 
-### Share Berita
-1. Di detail screen, tap tombol share
-2. Pilih app untuk membagikan berita
+### Detail Screen (WebView)
+| Aksi | Hasil |
+|---|---|
+| ❤️ **Tap hati di AppBar** | Bookmark artikel ini |
+| 📤 **Tap share** | Bagikan ke aplikasi lain |
+| 🌐 **Tap buka browser** | Buka artikel di browser eksternal |
+| 🔄 **Tap retry** | Muat ulang WebView jika error |
 
 ---
 
-## 🔧 Konfigurasi Tambahan
+## 🔧 Konfigurasi
 
 ### Mengubah Tema
-Edit file `lib/core/theme/app_theme.dart`:
+
+Edit `lib/core/theme/app_theme.dart`:
+
 ```dart
-static final darkTheme = ThemeData(
-  // Customize theme di sini
-);
+static const Color primaryAccent = Color(0xFFD50000);  // Ganti warna aksen
+static const Color background = Color(0xFF121212);       // Ganti background
 ```
 
-### Menambah Kategori Berita
-Edit file `lib/services/news_service.dart` dan tambahkan kategori baru:
+### Menambah Kategori
+
+Edit `lib/core/constants/api_constants.dart`:
+
 ```dart
-Future<List<Article>> fetchNewsByCategory(String category) async {
-  // Tambahkan kategori baru sesuai NewsAPI documentation
-}
+static const Map<String, String> categoryMap = {
+  'Semua': 'all',
+  'Olahraga': 'sports',
+  'Teknologi': 'technology',
+  'Bisnis': 'business',
+  'Hiburan': 'entertainment',
+  'Kesehatan': 'health',
+  // Tambah kategori baru di sini
+  'Sains': 'science',
+};
 ```
 
-### Mengubah URL Base API
+### Mengubah API
+
 Edit file `.env`:
+
 ```env
-NEWS_API_BASE_URL=https://newsapi.org/v2  # Base URL API
+NEWS_API_KEY=your_new_key
+NEWS_API_BASE_URL=https://newsapi.org/v2  # Ganti ke API lain jika perlu
 ```
+
+### Mengubah Ikon Aplikasi
+
+1. Ganti `assets/icon/app_icon.png` (1024×1024)
+2. Jalankan `dart run flutter_launcher_icons`
+3. Rebuild aplikasi
 
 ---
 
 ## 🐛 Troubleshooting
 
 | Masalah | Solusi |
-|---------|--------|
-| **API Key tidak valid** | Pastikan API key sudah dicopy dengan benar di `.env` |
-| **Error loading images** | Pastikan koneksi internet stabil |
-| **App crash saat run** | Coba `flutter clean` kemudian `flutter pub get` |
-| **WebView error** | Update WebView ke versi terbaru: `flutter pub upgrade` |
-| **Build error Android** | Update Android SDK ke API level 21+ |
-| **iOS build error** | Jalankan `cd ios && pod update && cd ..` |
+|---|---|
+| **Build error terkait NDK** | Pastikan path project tidak mengandung karakter Unicode/Spasi. Pindahkan ke `C:\projects\` |
+| **"No issues found" tapi API error** | Cek `NEWS_API_KEY` di `.env` — pastikan valid & belum expired |
+| **Gambar tidak muncul** | Cek koneksi internet. `CachedNetworkImage` akan otomatis handle cache |
+| **WebView blank putih** | Pastikan AndroidManifest.xml punya `<uses-permission android:name="android.permission.INTERNET"/>` |
+| **`flutter pub get` error** | Coba `flutter clean && flutter pub get` |
+| **Infinite scroll berhenti** | Cek response API — `pageSize` mungkin perlu disesuaikan |
+| **Keyboard muncul otomatis** | Ini adalah efek `IndexedStack` + autofocus. Sudah diperbaiki dengan menghapus `autofocus` |
+| **Error build "kotlin"** | Upgrade `share_plus` ke versi terbaru & set `android.builtInKotlin=true` di `gradle.properties` |
 
----
-
-## 📚 Resources & Dokumentasi
-
-- [Flutter Documentation](https://flutter.dev/docs)
-- [Dart Language Tour](https://dart.dev/guides/language/language-tour)
-- [News API Documentation](https://newsapi.org/docs)
-- [Provider Package](https://pub.dev/packages/provider)
-- [HTTP Package](https://pub.dev/packages/http)
-
----
-
-## 📝 Tips Pengembangan
-
-### Best Practices
-- Selalu gunakan Provider untuk state management
-- Pisahkan UI dan business logic
-- Gunakan meaningful variable names
-- Comment code yang kompleks
-- Test setiap fitur sebelum commit
-
-### Development Commands Berguna
+### ⚡ Komands Berguna
 
 ```bash
-# Format code
-dart format .
-
-# Analyze code
-flutter analyze
-
-# Run tests
-flutter test
-
-# Build profiling
-flutter run --profile
-
-# Build release
-flutter run --release
-
-# Generate docs
-dart doc
-
-# Check dependencies
-flutter pub outdated
+flutter analyze            # Cek kualitas kode
+dart format .              # Format otomatis
+flutter test               # Jalankan unit test
+flutter pub outdated       # Cek dependency usang
+flutter pub upgrade        # Upgrade semua dependency
+flutter build apk --release # Build APK produksi
+flutter logs               # Lihat log runtime
 ```
 
 ---
 
 ## 🤝 Kontribusi
 
-Untuk berkontribusi:
+Kami sangat terbuka untuk kontribusi! 🎉
 
-1. Fork repository ini
-2. Buat branch feature (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push ke branch (`git push origin feature/AmazingFeature`)
-5. Buat Pull Request
+1. **Fork** repository ini
+2. Buat **branch feature**:
+   ```bash
+   git checkout -b feature/KerenBanget
+   ```
+3. **Commit** perubahan Anda:
+   ```bash
+   git commit -m '✨ Menambahkan fitur keren banget'
+   ```
+4. **Push** ke branch:
+   ```bash
+   git push origin feature/KerenBanget
+   ```
+5. Buat **Pull Request**
+
+### 📝 Style Guide
+
+- Ikuti struktur folder yang sudah ada (lihat [Struktur Folder](#-struktur-folder-lengkap))
+- Gunakan **Provider** untuk state management, jangan setState berlebihan
+- Semua widget pakai `const` constructor jika memungkinkan
+- Ikuti palet warna di `app_theme.dart` — jangan hardcode warna
+- Pastikan `flutter analyze` tidak ada error sebelum commit
 
 ---
 
 ## 📄 Lisensi
 
-Project ini dilisensikan di bawah MIT License - lihat file [LICENSE](LICENSE) untuk detail.
+```
+MIT License
+
+Copyright (c) 2026 kerlan404
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+```
 
 ---
 
 ## 👨‍💻 Author
 
 **kerlan404**
-- GitHub: [@kerlan404](https://github.com/kerlan404)
-- Repository: [berita--headline-olahraga-politik-teknologi-dan-dll-](https://github.com/kerlan404/berita--headline-olahraga-politik-teknologi-dan-dll-)
+
+[![GitHub](https://img.shields.io/badge/GitHub-kerlan404-181717?style=for-the-badge&logo=github)](https://github.com/kerlan404)
+[![Repo](https://img.shields.io/badge/Repo-berita--headline--olahraga-blue?style=for-the-badge)](https://github.com/kerlan404/berita--headline-olahraga-politik-teknologi-dan-dll-)
 
 ---
 
-## 🎉 Terima Kasih
+## 🙏 Credits
 
-- [News API](https://newsapi.org) - Untuk menyediakan API berita
-- [Flutter Team](https://flutter.dev) - Untuk framework yang luar biasa
-- Semua contributors yang telah membantu project ini
+- **[NewsAPI](https://newsapi.org)** — Penyedia data berita
+- **[Flutter Team](https://flutter.dev)** — Framework keren
+- **[ESPN](https://espn.com)** — Inspirasi desain UI/UX
+- **Semua kontributor** — Yang sudah membantu project ini
 
 ---
 
-**Dibuat dengan ❤️ oleh kerlan404**
-
-Last Updated: 2026-07-16
+<div align="center">
+  <br>
+  <p>
+    <strong>Dibuat dengan ❤️ oleh kerlan404</strong>
+  </p>
+  <p>
+    <sub>Last updated: 2026-07-17</sub>
+  </p>
+  <br>
+</div>
