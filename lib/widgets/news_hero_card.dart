@@ -3,15 +3,18 @@ import 'package:flutter/material.dart';
 import '../core/theme/app_theme.dart';
 import '../core/utils/date_formatter.dart';
 import '../data/models/news_article.dart';
+import 'bookmark_button.dart';
 
 class NewsHeroCard extends StatelessWidget {
   final NewsArticle article;
   final VoidCallback onTap;
+  final double scrollOffset;
 
   const NewsHeroCard({
     super.key,
     required this.article,
     required this.onTap,
+    this.scrollOffset = 0.0,
   });
 
   @override
@@ -29,25 +32,34 @@ class NewsHeroCard extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  // Background Image
+                  // Background Image with Parallax
                   if (article.urlToImage != null && article.urlToImage!.isNotEmpty)
-                    CachedNetworkImage(
-                      imageUrl: article.urlToImage!,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        color: Colors.grey[900],
-                        child: const Center(
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryAccent),
+                    ClipRect(
+                      child: Transform.translate(
+                        offset: Offset(0, -scrollOffset * 0.15),
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: double.infinity,
+                          child: CachedNetworkImage(
+                            imageUrl: article.urlToImage!,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Container(
+                              color: Colors.grey[900],
+                              child: const Center(
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryAccent),
+                                ),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) => Container(
+                              color: Colors.grey[900],
+                              child: const Icon(
+                                Icons.broken_image,
+                                size: 40,
+                                color: AppTheme.textSecondary,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        color: Colors.grey[900],
-                        child: const Icon(
-                          Icons.broken_image,
-                          size: 40,
-                          color: AppTheme.textSecondary,
                         ),
                       ),
                     )
@@ -98,6 +110,26 @@ class NewsHeroCard extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
                           letterSpacing: 1.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Top-right bookmark button
+                  Positioned(
+                    top: 12,
+                    right: 12,
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.4),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: BookmarkButton(
+                          article: article,
+                          iconSize: 18,
+                          inactiveColor: Colors.white,
                         ),
                       ),
                     ),

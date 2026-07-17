@@ -6,6 +6,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/date_formatter.dart';
 import '../../data/models/news_article.dart';
+import '../../widgets/bookmark_button.dart';
 
 class DetailScreen extends StatefulWidget {
   final NewsArticle article;
@@ -119,6 +120,10 @@ class _DetailScreenState extends State<DetailScreen> {
           style: const TextStyle(fontSize: 16),
         ),
         actions: [
+          BookmarkButton(
+            article: widget.article,
+            iconSize: 22,
+          ),
           IconButton(
             icon: const Icon(Icons.share),
             tooltip: 'Bagikan Berita',

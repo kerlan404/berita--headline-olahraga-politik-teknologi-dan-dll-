@@ -66,7 +66,7 @@ class _SearchScreenState extends State<SearchScreen> {
           padding: const EdgeInsets.only(right: 16.0),
           child: TextField(
             controller: _searchController,
-            autofocus: true,
+            autofocus: false,
             decoration: InputDecoration(
               hintText: 'Cari topik atau judul berita...',
               hintStyle: const TextStyle(color: AppTheme.textSecondary, fontSize: 16),
