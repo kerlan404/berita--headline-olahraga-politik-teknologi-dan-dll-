@@ -10,7 +10,7 @@ class SearchProvider with ChangeNotifier {
   String _query = '';
   List<NewsArticle> _searchResults = [];
   int _page = 1;
-  final int _pageSize = 5;
+  final int _pageSize = 15;
 
   bool _isLoading = false;
   bool _isLoadingMore = false;

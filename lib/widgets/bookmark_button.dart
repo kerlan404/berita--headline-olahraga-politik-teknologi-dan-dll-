@@ -57,6 +57,8 @@ class _BookmarkButtonState extends State<BookmarkButton>
     final provider = context.read<BookmarkProvider>();
     final wasBookmarked = provider.isBookmarked(widget.article.url);
 
+    // Fire-and-forget: UI updates immediately via notifyListeners(),
+    // database write happens in background
     provider.toggleBookmark(widget.article);
 
     // Play bounce animation only when adding bookmark (not removing)

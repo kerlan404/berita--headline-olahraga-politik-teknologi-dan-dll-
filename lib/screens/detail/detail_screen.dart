@@ -104,9 +104,11 @@ class _DetailScreenState extends State<DetailScreen> {
     }
   }
 
-  void _shareArticle() {
+  Future<void> _shareArticle() async {
     final text = '${widget.article.title}\n\n${widget.article.url}';
-    Share.share(text, subject: widget.article.title);
+    await SharePlus.instance.share(
+      ShareParams(text: text, subject: widget.article.title),
+    );
   }
 
   @override
@@ -152,136 +154,316 @@ class _DetailScreenState extends State<DetailScreen> {
   }
 
   Widget _buildWebFallback() {
+    final hasImage = widget.article.urlToImage != null && widget.article.urlToImage!.isNotEmpty;
+
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Article Image
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              widget.article.urlToImage ?? '',
-              width: double.infinity,
-              height: 220,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
-                height: 200,
-                color: AppTheme.surface,
-                child: const Center(
-                  child: Icon(Icons.image_not_supported, size: 48, color: AppTheme.textSecondary),
+          // ── Hero Image Section ──
+          if (hasImage)
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(24),
+                    bottomRight: Radius.circular(24),
+                  ),
+                  child: Image.network(
+                    widget.article.urlToImage!,
+                    width: double.infinity,
+                    height: 280,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => _buildImageFallback(),
+                  ),
                 ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Source & Time
-          Row(
-            children: [
-              Icon(Icons.source, size: 14, color: AppTheme.primaryAccent),
-              const SizedBox(width: 6),
-              Text(
-                widget.article.sourceName?.toUpperCase() ?? 'NEWS',
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.primaryAccent,
-                  letterSpacing: 1.0,
+                // Gradient overlay
+                Positioned(
+                  left: 0, right: 0, bottom: 0,
+                  height: 160,
+                  child: IgnorePointer(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: [
+                            AppTheme.background.withValues(alpha: 0.95),
+                            AppTheme.background.withValues(alpha: 0.6),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Icon(Icons.schedule, size: 14, color: AppTheme.textSecondary),
-              const SizedBox(width: 4),
-              Text(
-                DateFormatter.getRelativeTime(widget.article.publishedAt),
-                style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          // Title
-          Text(
-            widget.article.title,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.textPrimary,
-              height: 1.3,
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          // Author
-          if (widget.article.author != null && widget.article.author!.isNotEmpty)
+                // Floating source badge
+                Positioned(
+                  left: 20,
+                  top: 20,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryAccent,
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.primaryAccent.withValues(alpha: 0.4),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.source_rounded, size: 12, color: Colors.white),
+                        const SizedBox(width: 6),
+                        Text(
+                          widget.article.sourceName?.toUpperCase() ?? 'NEWS',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            letterSpacing: 1.0,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Title overlaid at bottom
+                Positioned(
+                  left: 20, right: 20,
+                  bottom: 24,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.article.title,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          height: 1.3,
+                          shadows: [
+                            Shadow(color: Colors.black54, blurRadius: 12),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(Icons.schedule_rounded, size: 12, color: Colors.white70),
+                          const SizedBox(width: 4),
+                          Text(
+                            DateFormatter.getRelativeTime(widget.article.publishedAt),
+                            style: const TextStyle(fontSize: 11, color: Colors.white70),
+                          ),
+                          if (widget.article.author != null && widget.article.author!.isNotEmpty) ...[                            const SizedBox(width: 12),
+                            const Icon(Icons.person_rounded, size: 12, color: Colors.white70),
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                widget.article.author!,
+                                style: const TextStyle(fontSize: 11, color: Colors.white70),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            )
+          else
+            // No image — use compact header
             Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.person, size: 14, color: AppTheme.textSecondary),
-                  const SizedBox(width: 6),
+                  // Source & time row
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryAccent.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          widget.article.sourceName?.toUpperCase() ?? 'NEWS',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.primaryAccent,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Icon(Icons.schedule_rounded, size: 12, color: AppTheme.textSecondary),
+                      const SizedBox(width: 4),
+                      Text(
+                        DateFormatter.getRelativeTime(widget.article.publishedAt),
+                        style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
                   Text(
-                    widget.article.author!,
-                    style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+                    widget.article.title,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textPrimary,
+                      height: 1.3,
+                    ),
                   ),
                 ],
               ),
             ),
 
-          // Divider
-          Container(height: 1, color: AppTheme.divider),
-          const SizedBox(height: 16),
+          // ── Article Body ──
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Author (if not shown in hero)
+                if (!hasImage && widget.article.author != null && widget.article.author!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 14,
+                          backgroundColor: AppTheme.primaryAccent.withValues(alpha: 0.15),
+                          child: const Icon(Icons.person_rounded, size: 16, color: AppTheme.primaryAccent),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          widget.article.author!,
+                          style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary, fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
+                  ),
 
-          // Description
-          if (widget.article.description != null && widget.article.description!.isNotEmpty)
-            Text(
-              widget.article.description!,
-              style: const TextStyle(
-                fontSize: 16,
-                color: AppTheme.textPrimary,
-                height: 1.6,
-              ),
-            ),
-          const SizedBox(height: 8),
-
-          // Content
-          if (widget.article.content != null && widget.article.content!.isNotEmpty)
-            Text(
-              widget.article.content!,
-              style: const TextStyle(
-                fontSize: 15,
-                color: AppTheme.textSecondary,
-                height: 1.6,
-              ),
-            ),
-          const SizedBox(height: 32),
-
-          // Open in Browser Button
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: _launchInBrowser,
-              icon: const Icon(Icons.open_in_browser, color: Colors.white),
-              label: const Text(
-                'BUKA ARTIKEL LENGKAP',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.5,
+                // Divider
+                Container(
+                  height: 1,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppTheme.primaryAccent.withValues(alpha: 0.3),
+                        AppTheme.divider,
+                        AppTheme.divider.withValues(alpha: 0.0),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryAccent,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                const SizedBox(height: 20),
+
+                // Description
+                if (widget.article.description != null && widget.article.description!.isNotEmpty)
+                  Text(
+                    widget.article.description!,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: AppTheme.textPrimary,
+                      height: 1.7,
+                    ),
+                  ),
+                if (widget.article.description != null && widget.article.description!.isNotEmpty)
+                  const SizedBox(height: 16),
+
+                // Content
+                if (widget.article.content != null && widget.article.content!.isNotEmpty)
+                  Text(
+                    widget.article.content!,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      color: AppTheme.textSecondary,
+                      height: 1.7,
+                    ),
+                  ),
+
+                const SizedBox(height: 32),
+
+                // Action buttons
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _launchInBrowser,
+                    icon: const Icon(Icons.open_in_new_rounded, color: Colors.white, size: 18),
+                    label: const Text(
+                      'BACA ARTIKEL LENGKAP',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.8,
+                        fontSize: 13,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryAccent,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      elevation: 0,
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: _shareArticle,
+                    icon: const Icon(Icons.share_rounded, size: 18),
+                    label: const Text(
+                      'BAGIKAN ARTIKEL',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                        fontSize: 12,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppTheme.textSecondary,
+                      side: const BorderSide(color: AppTheme.divider),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 40),
+              ],
             ),
           ),
-          const SizedBox(height: 40),
         ],
+      ),
+    );
+  }
+
+  Widget _buildImageFallback() {
+    return Container(
+      height: 200,
+      decoration: BoxDecoration(
+        color: AppTheme.surface,
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(24),
+          bottomRight: Radius.circular(24),
+        ),
+      ),
+      child: const Center(
+        child: Icon(Icons.image_not_supported_rounded, size: 48, color: AppTheme.textSecondary),
       ),
     );
   }

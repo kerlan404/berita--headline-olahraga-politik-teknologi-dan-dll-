@@ -7,10 +7,10 @@ class NewsListProvider with ChangeNotifier {
 
   NewsListProvider({NewsRepository? repository}) : _repository = repository ?? NewsRepository();
 
-  String _currentCategory = 'sports'; // Default category mapping to sports
+  String _currentCategory = 'all'; // Default category — Semua
   List<NewsArticle> _articles = [];
   int _page = 1;
-  final int _pageSize = 5; // Simulating small page size to test pagination
+  final int _pageSize = 15;
 
   bool _isLoading = false;
   bool _isLoadingMore = false;

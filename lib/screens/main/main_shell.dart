@@ -5,7 +5,6 @@ import '../../providers/bookmark_provider.dart';
 import '../bookmark/bookmark_screen.dart';
 import '../home/home_screen.dart';
 import '../profile/profile_screen.dart';
-import '../search/search_screen.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -14,28 +13,64 @@ class MainShell extends StatefulWidget {
   State<MainShell> createState() => _MainShellState();
 }
 
-class _MainShellState extends State<MainShell> {
+class _MainShellState extends State<MainShell>
+    with TickerProviderStateMixin {
   int _currentIndex = 0;
+  late AnimationController _animController;
+  late Animation<double> _scaleAnim;
+  late Animation<double> _fadeAnim;
 
   final List<Widget> _screens = const [
     HomeScreen(),
-    SearchScreen(),
     BookmarkScreen(),
     ProfileScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 350),
+    );
+    _scaleAnim = Tween<double>(begin: 0.96, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
+    _fadeAnim = CurvedAnimation(
+      parent: _animController,
+      curve: Curves.easeOutCubic,
+    );
+    _animController.forward(); // Initial reveal
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
+  }
 
   void _onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
     });
+    _animController.forward(from: 0.0);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
+      body: FadeTransition(
+        opacity: _fadeAnim,
+        child: ScaleTransition(
+          scale: _scaleAnim,
+          child: IndexedStack(
+            index: _currentIndex,
+            children: _screens,
+          ),
+        ),
       ),
       bottomNavigationBar: _buildBottomNav(),
     );
@@ -65,11 +100,6 @@ class _MainShellState extends State<MainShell> {
             icon: Icon(Icons.home_outlined),
             activeIcon: Icon(Icons.home_rounded),
             label: 'Home',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.search_outlined),
-            activeIcon: Icon(Icons.search_rounded),
-            label: 'Cari',
           ),
           BottomNavigationBarItem(
             icon: _buildBookmarkIcon(isActive: false),
