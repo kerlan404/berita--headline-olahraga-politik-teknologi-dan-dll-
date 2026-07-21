@@ -91,11 +91,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void _onCategoryScroll() {
     if (!_categoryScrollController.hasClients) return;
-    setState(() {
-      _showLeftArrow = _categoryScrollController.offset > 10;
-      _showRightArrow = _categoryScrollController.offset <
-          _categoryScrollController.position.maxScrollExtent - 10;
-    });
+    final newLeft = _categoryScrollController.offset > 10;
+    final newRight = _categoryScrollController.offset <
+        _categoryScrollController.position.maxScrollExtent - 10;
+    // Only rebuild when arrow visibility actually changes
+    if (newLeft != _showLeftArrow || newRight != _showRightArrow) {
+      setState(() {
+        _showLeftArrow = newLeft;
+        _showRightArrow = newRight;
+      });
+    }
   }
 
   void _scrollCategoryLeft() {

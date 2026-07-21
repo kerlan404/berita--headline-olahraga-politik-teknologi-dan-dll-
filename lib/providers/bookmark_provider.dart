@@ -29,7 +29,7 @@ class BookmarkProvider with ChangeNotifier {
       _isLoaded = true;
       notifyListeners();
     } catch (e) {
-      print('BookmarkProvider: Failed to load bookmarks: $e');
+      debugPrint('BookmarkProvider: Failed to load bookmarks: $e');
       _isLoaded = true;
     }
   }

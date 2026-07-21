@@ -1,6 +1,7 @@
 # 📊 PROGRES — REEDSFEED (Aplikasi Berita & Headline)
 
 > **Dibuat:** 21 Juli 2026
+> **Diperbarui:** 21 Juli 2026 (sore)
 > **Dokumen terkait:** `prd.md`, `desain.md`, `integrasi.md`, `roadmap.md`
 
 ---
@@ -12,12 +13,12 @@
 | **Nama Aplikasi** | **REEDSFEED** (sebelumnya SportsFeed) |
 | **Versi** | `1.0.0+1` |
 | **Framework** | Flutter 3.44.6 / Dart 3.12.2 |
-| **Total File Dart** | **26 file** |
-| **Total Dependencies** | **12 packages** |
+| **Total File Dart** | **28 file** |
+| **Total Dependencies** | **13 packages** |
 | **Milestone Fondasi (M0)** | ✅ **100% Selesai** |
-| **Milestone MVP (M1)** | ✅ **~95% Selesai** |
-| **Milestone Stabilisasi (M2)** | 🔄 **~60% Selesai** |
-| **Milestone Presentasi (M3)** | ❌ **Belum dimulai** |
+| **Milestone MVP (M1)** | ✅ **~100% Selesai** |
+| **Milestone Stabilisasi (M2)** | ✅ **~85% Selesai** |
+| **Milestone Presentasi (M3)** | 🔄 **~10% Selesai** |
 | **Milestone Lanjutan (M4)** | ✅ **~50% Selesai** (dikerjakan lebih awal) |
 
 ---
@@ -32,17 +33,17 @@
 | `desain.md` | ✅ Selesai | Panduan desain UI/UX |
 | `integrasi.md` | ✅ Selesai | Panduan teknis integrasi |
 | `roadmap.md` | ✅ Selesai | Roadmap pengembangan |
-| **PROGRES.md** | ✅ **BARU** | Dokumen progres ini |
+| **PROGRES.md** | ✅ Diperbarui | Dokumen progres ini |
 
 ---
 
-### Milestone 1 — MVP (Minimum Viable Product) ✅ ~95%
+### Milestone 1 — MVP (Minimum Viable Product) ✅ ~100%
 
 | Item | Status | Keterangan |
 |------|--------|------------|
 | Setup project Flutter + struktur folder | ✅ | Arsitektur berlapis (Screen → Provider → Repository → Service) |
 | Home screen: list berita + infinite scroll | ✅ | Dengan staggered animation + parallax hero card |
-| Kategori berita (Olahraga/Teknologi/Bisnis/dll) | ✅ | **6 kategori** via horizontal scroll bar |
+| Kategori berita (Olahraga/Teknologi/Bisnis/dll) | ✅ | **6 kategori** via horizontal scroll bar + arrow button |
 | Detail berita via WebView | ✅ | Dengan progress bar + error handling + fallback browser |
 | Pencarian berita | ✅ | **Searchbar terintegrasi** di AppBar Home (500ms debounce) |
 | Ikon aplikasi custom terpasang | ✅ | flutter_launcher_icons terkonfigurasi |
@@ -52,29 +53,30 @@
 
 ---
 
-### Milestone 2 — Stabilisasi 🔄 ~60%
+### Milestone 2 — Stabilisasi ✅ ~85%
 
 | Item | Status | Keterangan |
 |------|--------|------------|
 | Error handling lengkap (no internet, API gagal, data kosong) | ✅ | ErrorRetryWidget, EmptyState, LoadingIndicator |
 | Pull-to-refresh | ✅ | Di semua list |
 | Scroll-to-top FAB | ✅ | Muncul saat scroll > 300px |
+| **databaseFactory error fix** | ✅ **BARU** | sqflite_common_ffi + conditional import untuk Desktop/Web |
+| **Lag/berat fix** | ✅ **BARU** | setState hemat di _onCategoryScroll + skip cache jika DB unavailable |
+| **print() → debugPrint cleanup** | ✅ **BARU** | Semua file sudah bersih dari `print()` |
+| **flutter analyze — No issues found!** | ✅ **BARU** | ✅ **0 error, 0 warning** |
+| Offline caching (sqflite) | ✅ | Network-first + 30 menit TTL |
+| Bookmark persist ke database | ✅ | ✅ **Melebihi rencana** |
 | Uji di lebih dari 1 HP | ❌ | Belum dilakukan |
-| Bersihkan warning `flutter analyze` | ⚠️ **Sebagian** | 8 `avoid_print` info tersisa |
-| Review UI vs `desain.md` | ⚠️ **Sebagian** | Tema ESPN konsisten |
-| **Offline caching (sqflite)** | ✅ | ✅ **Melebihi rencana** — network-first + 30 menit TTL |
-| **Bookmark persist ke database** | ✅ | ✅ **Melebihi rencana** |
 | **Unit test** | ❌ **Belum ada** | Hanya widget test default Flutter |
-| **Refactor print() → logging** | ❌ **Belum** | 8 `print()` statements |
-| **HomeScreen ~850+ baris** | ❌ **Perlu dipecah** | Melanggar Single Responsibility |
+| **Pecah HomeScreen** (~850 baris) | ❌ **Belum** | Melanggar Single Responsibility |
 
 ---
 
-### Milestone 3 — Persiapan Presentasi & Laporan ❌ (Belum Dimulai)
+### Milestone 3 — Persiapan Presentasi & Laporan 🔄 ~10%
 
 | Item | Status | Keterangan |
 |------|--------|------------|
-| APK release (`flutter build apk --release`) | ❌ | Belum di-build |
+| APK release (`flutter build apk --release`) | ❌ **Gagal** | ⚠️ Path project mengandung Unicode (ドキュメント) — CMake/ninja error |
 | Screenshot tiap layar | ❌ | Belum diambil |
 | Skrip demo singkat | ❌ | Belum dibuat |
 | Backup video demo | ❌ | Belum dibuat |
@@ -104,7 +106,7 @@
 | 1 | **Berita Real-Time** dari NewsAPI | `news_api_service.dart` | ✅ |
 | 2 | **Mock Data Engine** (tanpa API key) | `news_api_service.dart` | ✅ |
 | 3 | **Kategori Horizontal Scroll Bar** (6 kategori) | `home_screen.dart` | ✅ |
-| 4 | **Arrow Button Scroll** (mobile) | `home_screen.dart` | ✅ |
+| 4 | **Arrow Button Scroll** (mobile only) | `home_screen.dart` | ✅ |
 | 5 | **Searchbar Terintegrasi** (500ms debounce) | `home_screen.dart` | ✅ |
 | 6 | **Clear Button** dengan ListenableBuilder | `home_screen.dart` | ✅ |
 | 7 | **Grid/List Toggle** | `home_screen.dart` | ✅ |
@@ -133,13 +135,14 @@
 | 30 | **Profile Screen** (stats + credits) | `profile_screen.dart` | ✅ |
 | 31 | **Bookmark Badge Count** di Bottom Nav | `main_shell.dart` | ✅ |
 | 32 | **Responsive Category Bar** (mobile vs desktop) | `home_screen.dart` | ✅ |
+| 33 | **Platform Database Init** (Android/iOS/Desktop/Web) | `db_init.dart`, `db_init_native.dart` | ✅ **BARU** |
 
 ---
 
 ## 🏗️ Arsitektur Aplikasi (Terkini)
 
 ```
-📁 lib/  (26 file Dart)
+📁 lib/  (28 file Dart)
 │
 ├── main.dart                          # Entry point: init DB, load .env, run app
 ├── app.dart                           # MultiProvider + MaterialApp + dark theme
@@ -149,6 +152,8 @@
 │   ├── theme/app_theme.dart           # ESPN dark theme (#D50000 accent)
 │   └── utils/
 │       ├── date_formatter.dart        # Format waktu relatif
+│       ├── db_init.dart               # Stub DB init untuk Web
+│       ├── db_init_native.dart        # FFI init untuk Desktop (Windows/macOS/Linux)
 │       └── route_transitions.dart     # Slide + FadeThrough + Staggered anim
 │
 ├── data/
@@ -171,7 +176,7 @@
 │   ├── detail/detail_screen.dart      # WebView + share + bookmark
 │   ├── bookmark/bookmark_screen.dart  # Bookmark list + swipe delete
 │   ├── profile/profile_screen.dart    # Statistik + credits
-│   └── search/search_screen.dart      # ❌ DEAD CODE — sudah dihapus
+│   └── search/                        # ❌ DEAD CODE — sudah dihapus
 │
 └── widgets/
     ├── news_card.dart                 # List card (gambar + teks)
@@ -198,6 +203,21 @@ Screen → Provider → Repository → ApiService/Http (network first)
 | **Bookmark** | **Persistent** — sync ke database setiap mutate |
 | **Startup** | DB eager init + expired cache cleanup + load bookmark |
 
+### Multi-Platform Database Init
+
+```
+main.dart
+  │
+  ├── Web (kIsWeb)
+  │     └── dbService.markUnavailable()  ← caching disabled
+  │
+  ├── Android/iOS (mobile)
+  │     └── sqflite native plugin (auto)
+  │
+  └── Windows/Linux/macOS (desktop)
+        └── db_init_native.dart → sqfliteFfiInit() + databaseFactoryFfi
+```
+
 ---
 
 ## 📊 Statistik Proyek
@@ -206,14 +226,15 @@ Screen → Provider → Repository → ApiService/Http (network first)
 
 | Metrik | Nilai |
 |--------|-------|
-| **Total file Dart** | **26 file** (di `lib/`) |
-| **Dependencies** | 12 packages |
+| **Total file Dart** | **28 file** (di `lib/`) |
+| **Dependencies** | 13 packages |
 | **Widget reusable** | 7 widget |
-| **Screen** | 6 screen (1 dead code) |
+| **Screen** | 6 screen (1 dead code — search/ dihapus) |
 | **Provider** | 3 provider |
 | **Service** | 2 service |
 | **Repository** | 1 repository |
 | **Dokumen** | 5 dokumen |
+| **`dart analyze`** | ✅ **No issues found!** |
 
 ### Dependencies Terpasang
 
@@ -225,6 +246,7 @@ provider: ^6.1.2
 http: ^1.2.1
 cached_network_image: ^3.3.1
 sqflite: ^2.4.3
+sqflite_common_ffi: ^2.3.0      # BARU — untuk Desktop SQLite
 path: ^1.9.0
 
 # Features
@@ -256,6 +278,9 @@ cupertino_icons: ^1.0.8
 | Tab tanpa animasi | ❌ **Diimprovisasi** | ✅ **Fade + Scale transition** 350ms |
 | Splash screen sederhana | ❌ **Diimprovisasi** | ✅ **Staggered animation** (bounce + rotate + slide) |
 | Dark theme saja | ✅ **Sama** | Tema ESPN, belum ada light toggle |
+| sqflite mobile only | ❌ **Diperbaiki** | ✅ Sekarang support Desktop via `sqflite_common_ffi` |
+| `print()` berantakan | ❌ **Dibersihkan** | ✅ Semua ganti `debugPrint` — `dart analyze` clean |
+| Lag saat scroll kategori | ❌ **Diperbaiki** | ✅ setState hanya saat arrow visibility berubah |
 
 ---
 
@@ -263,42 +288,48 @@ cupertino_icons: ^1.0.8
 
 ### 🔴 High Priority
 
-| # | Item | Dampak | Lokasi |
+| # | Item | Dampak | Status |
 |---|------|--------|--------|
-| 1 | **Unit test** (0 test saat ini) | Kode tidak terverifikasi | `test/` |
-| 2 | **Refactor print() statements** (8x) | Tidak profesional | `news_repository.dart`, `main.dart`, `bookmark_provider.dart` |
-| 3 | **Pecah HomeScreen** (~850 baris) | Sulit di-maintain | `home_screen.dart` |
-| 4 | **Flutter analyze warnings** | Kualitas kode | Seluruh project |
+| 1 | **Unit test** (0 test saat ini) | Kode tidak terverifikasi | ❌ **Belum** |
+| 2 | **Pecah HomeScreen** (~850 baris) | Sulit di-maintain | ❌ **Belum** |
+| 3 | **APK release build** | Error Unicode path — perlu solusi | ❌ **Gagal** |
 
 ### 🟡 Medium Priority
 
 | # | Item | Keterangan |
 |---|------|------------|
-| 5 | **Dark/Light theme toggle** | Fitur yang diminta roadmap |
-| 6 | **Breaking News banner** | Seperti ESPN "Live" badge |
-| 7 | **APK release build** | Untuk presentasi & demo |
-| 8 | **Screenshot tiap screen** | Untuk laporan |
-| 9 | **Search history** | Simpan pencarian terakhir |
+| 4 | **Dark/Light theme toggle** | Fitur yang diminta roadmap |
+| 5 | **Breaking News banner** | Seperti ESPN "Live" badge |
+| 6 | **Screenshot tiap screen** | Untuk laporan |
+| 7 | **Skrip demo & laporan** | Persiapan presentasi |
+| 8 | **Search history** | Simpan pencarian terakhir |
 
 ### 🟢 Low Priority (Nice-to-Have)
 
 | # | Item | Keterangan |
 |---|------|------------|
-| 10 | GoRouter / Navigator 2.0 | Navigation modern |
-| 11 | Structured logging | Ganti `print()` dengan `logging` package |
-| 12 | Read time estimation | "5 menit baca" |
-| 13 | Article text-to-speech | Accessibility |
-| 14 | Recently read tracking | Riwayat baca |
+| 9 | GoRouter / Navigator 2.0 | Navigation modern |
+| 10 | Structured logging | Ganti `debugPrint` dengan `logging` package |
+| 11 | Read time estimation | "5 menit baca" |
+| 12 | Article text-to-speech | Accessibility |
+| 13 | Recently read tracking | Riwayat baca |
 
 ---
 
-## 🚀 Timeline Realistik ke Depan
+## 🔧 Kendala Tercatat
 
-| Fase | Estimasi | Status |
-|------|----------|--------|
-| **Fase 1 — Stabilisasi & Kualitas** (unit test, refactor, logging) | ~3-4 hari | ⏳ **Belum dimulai** |
-| **Fase 2 — Persiapan Presentasi** (APK, screenshot, demo script, laporan) | ~2-3 hari | ❌ **Belum dimulai** |
-| **Fase 3 — Fitur Tambahan** (theme toggle, banner, search history) | ~3-5 hari | 🔜 Opsional |
+### APK Build Gagal — Path Unicode
+
+**Masalah:** `flutter build apk --release` gagal karena path project mengandung karakter Unicode (ドキュメント). CMake/ninja di Windows tidak bisa handle karakter tersebut.
+
+```
+Error: chdir to 'C:/Users/REZY/OneDrive/??????/... - Invalid argument
+```
+
+**Solusi sementara:**
+1. Copy project ke path tanpa Unicode, misal: `C:\projects\reedsfeed`
+2. Build APK dari sana
+3. Atau jalankan: `flutter build apk --release` dari direktori yang sudah dipindah
 
 ---
 
@@ -312,13 +343,14 @@ cupertino_icons: ^1.0.8
 - ✅ **Error handling** lengkap (loading, error, empty state)
 - ✅ **Offline first** dengan cache fallback
 - ✅ **Dark theme** konsisten ESPN
+- ✅ **Multi-platform database** — mobile native + desktop FFI + web skip
+- ✅ **`dart analyze` — No issues found!**
 
 ### Kekurangan yang Perlu Dibersihkan
 - ❌ **0 unit test** — prioritas tertinggi
-- ❌ `print()` statements — belum production-ready
 - ❌ `HomeScreen` ~850 baris — perlu dipecah
 - ❌ Provider dibuat inline di `app.dart` — susah di-test
-- ❌ Masih ada `search_screen.dart` (dead code, mungkin belum dihapus dari Git)
+- ❌ APK belum bisa di-build karena Unicode path
 - ❌ Navigation masih `Navigator.push/pop` (1.0)
 
 ---
@@ -326,6 +358,6 @@ cupertino_icons: ^1.0.8
 <div align="center">
   <br>
   <p><strong>Dokumen ini diperbarui secara berkala seiring perkembangan aplikasi</strong></p>
-  <p><sub>Last updated: 21 Juli 2026</sub></p>
+  <p><sub>Last updated: 21 Juli 2026 (sore)</sub></p>
   <br>
 </div>

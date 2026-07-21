@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show debugPrint;
 import '../models/news_article.dart';
 import '../services/news_api_service.dart';
 import '../services/local_database_service.dart';
@@ -27,8 +28,10 @@ class NewsRepository {
         pageSize: pageSize,
       );
 
-      // Cache successful response asynchronously (don't wait)
-      _cacheCategoryNews(category, page, articles);
+      // Cache successful response asynchronously if DB is available
+      if (_dbService.isAvailable) {
+        _cacheCategoryNews(category, page, articles);
+      }
 
       return articles;
     } catch (e) {
@@ -38,11 +41,10 @@ class NewsRepository {
         page: page,
       );
       if (cached != null && cached.isNotEmpty) {
-        print('NewsRepository: Using cached data for $category (page $page)');
+        debugPrint('NewsRepository: Using cached data for $category (page $page)');
         return cached;
       }
       // No cache available either — rethrow
-      _handleException(e);
       rethrow;
     }
   }
@@ -62,8 +64,10 @@ class NewsRepository {
         pageSize: pageSize,
       );
 
-      // Cache successful response
-      _cacheSearchResults(query, page, articles);
+      // Cache successful response if DB is available
+      if (_dbService.isAvailable) {
+        _cacheSearchResults(query, page, articles);
+      }
 
       return articles;
     } catch (e) {
@@ -73,10 +77,9 @@ class NewsRepository {
         page: page,
       );
       if (cached != null && cached.isNotEmpty) {
-        print('NewsRepository: Using cached search for "$query" (page $page)');
+        debugPrint('NewsRepository: Using cached search for "$query" (page $page)');
         return cached;
       }
-      _handleException(e);
       rethrow;
     }
   }
@@ -87,15 +90,11 @@ class NewsRepository {
     int page,
     List<NewsArticle> articles,
   ) async {
-    try {
-      await _dbService.cacheCategoryNews(
-        category: category,
-        page: page,
-        articles: articles,
-      );
-    } catch (e) {
-      print('NewsRepository: Failed to cache category news: $e');
-    }
+    await _dbService.cacheCategoryNews(
+      category: category,
+      page: page,
+      articles: articles,
+    );
   }
 
   /// Cache search results in the background (fire-and-forget)
@@ -104,19 +103,11 @@ class NewsRepository {
     int page,
     List<NewsArticle> articles,
   ) async {
-    try {
-      await _dbService.cacheSearchResults(
-        query: query,
-        page: page,
-        articles: articles,
-      );
-    } catch (e) {
-      print('NewsRepository: Failed to cache search results: $e');
-    }
-  }
-
-  void _handleException(dynamic e) {
-    print('NewsRepository Error: $e');
+    await _dbService.cacheSearchResults(
+      query: query,
+      page: page,
+      articles: articles,
+    );
   }
 }
 
