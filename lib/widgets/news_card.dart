@@ -20,7 +20,8 @@ class NewsCard extends StatelessWidget {
     return Card(
       child: InkWell(
         onTap: onTap,
-        borderRadius: const BorderRadius.all(Radius.circular(8)),          child: Padding(
+        borderRadius: const BorderRadius.all(Radius.circular(8)),
+        child: Padding(
             padding: const EdgeInsets.all(12.0),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,

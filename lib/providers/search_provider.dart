@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import '../data/models/news_article.dart';
 import '../data/repositories/news_repository.dart';
+import 'recent_activity_provider.dart';
 
 class SearchProvider with ChangeNotifier {
   final NewsRepository _repository;
+  RecentActivityProvider? _recentActivity;
 
   SearchProvider({NewsRepository? repository}) : _repository = repository ?? NewsRepository();
+
+  /// Bind to RecentActivityProvider for search history
+  void bindRecentActivity(RecentActivityProvider provider) {
+    _recentActivity = provider;
+  }
 
   String _query = '';
   List<NewsArticle> _searchResults = [];
@@ -25,6 +32,9 @@ class SearchProvider with ChangeNotifier {
   bool get hasMore => _hasMore;
   String? get errorMessage => _errorMessage;
 
+  /// Search history (delegated to RecentActivityProvider)
+  List<String> get searchHistory => _recentActivity?.searchHistory ?? [];
+
   // Perform search
   Future<void> search(String query, {bool isRefresh = false}) async {
     if (query.trim().isEmpty) {
@@ -39,6 +49,11 @@ class SearchProvider with ChangeNotifier {
     }
 
     _query = query;
+
+    // Record search history on new search
+    if (isRefresh) {
+      _recentActivity?.addSearchQuery(query);
+    }
 
     if (isRefresh) {
       _page = 1;
@@ -120,6 +135,12 @@ class SearchProvider with ChangeNotifier {
     _isLoadingMore = false;
     _hasMore = true;
     _errorMessage = null;
+    notifyListeners();
+  }
+
+  /// Clear search history
+  void clearHistory() {
+    _recentActivity?.clearSearchHistory();
     notifyListeners();
   }
 }

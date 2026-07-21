@@ -5,7 +5,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/utils/route_transitions.dart';
 import '../../providers/bookmark_provider.dart';
 import '../../widgets/news_card.dart';
-import '../detail/article_preview_screen.dart';
+import '../detail/detail_screen.dart';
 
 class BookmarkScreen extends StatelessWidget {
   const BookmarkScreen({super.key});
@@ -123,7 +123,7 @@ class BookmarkScreen extends StatelessWidget {
                   article: article,
                   onTap: () {
                     Navigator.of(context).push(
-                      SlideRightRoute(page: ArticlePreviewScreen(article: article)),
+                      SlideRightRoute(page: DetailScreen(article: article)),
                     );
                   },
                 ),

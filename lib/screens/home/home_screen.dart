@@ -9,14 +9,16 @@ import '../../core/utils/route_transitions.dart';
 import '../../data/models/news_article.dart';
 import '../../providers/news_list_provider.dart';
 import '../../providers/search_provider.dart';
-import '../../widgets/bookmark_button.dart';
+import '../../widgets/breaking_news_banner.dart';
+import '../../widgets/category_bar.dart';
+import '../../widgets/compact_grid_card.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/error_retry_widget.dart';
 import '../../widgets/loading_indicator.dart';
 import '../../widgets/news_card.dart';
 import '../../widgets/news_hero_card.dart';
 import '../../widgets/shimmer_loading.dart';
-import '../detail/article_preview_screen.dart';
+import '../detail/detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,7 +30,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   final ScrollController _searchScrollController = ScrollController();
-  final ScrollController _categoryScrollController = ScrollController();
   late AnimationController _staggeredController;
 
   // Search state
@@ -41,9 +42,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   bool _isGridView = false;
   DateTime _lastParallaxUpdate = DateTime.now();
 
-  // Category scroll tracking
-  bool _showLeftArrow = false;
-  bool _showRightArrow = true;
+  // Scroll-to-top FAB
+  bool _showFab = false;
+
+  // Breaking News banner
+  bool _showBreakingNews = true;
 
   @override
   void initState() {
@@ -63,14 +66,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _scrollController.addListener(_onScroll);
     _searchScrollController.addListener(_onSearchScroll);
     _searchController.addListener(_onSearchChanged);
-    _categoryScrollController.addListener(_onCategoryScroll);
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
     _searchScrollController.dispose();
-    _categoryScrollController.dispose();
     _staggeredController.dispose();
     _searchController.dispose();
     _searchFocusNode.dispose();
@@ -86,6 +87,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       _lastParallaxUpdate = now;
     }
 
+    // Show/hide FAB
+    final showFab = _scrollController.hasClients && _scrollController.offset > 400;
+    if (showFab != _showFab && mounted) {
+      setState(() => _showFab = showFab);
+    }
+
+    // Infinite scroll trigger
     if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
       context.read<NewsListProvider>().loadMore();
     }
@@ -98,36 +106,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     }
   }
 
-  void _onCategoryScroll() {
-    if (!_categoryScrollController.hasClients) return;
-    final newLeft = _categoryScrollController.offset > 10;
-    final newRight = _categoryScrollController.offset <
-        _categoryScrollController.position.maxScrollExtent - 10;
-    // Only rebuild when arrow visibility actually changes
-    if (newLeft != _showLeftArrow || newRight != _showRightArrow) {
-      setState(() {
-        _showLeftArrow = newLeft;
-        _showRightArrow = newRight;
-      });
-    }
-  }
-
-  void _scrollCategoryLeft() {
-    final currentOffset = _categoryScrollController.offset;
-    final target = (currentOffset - 200).clamp(0.0, _categoryScrollController.position.maxScrollExtent);
-    _categoryScrollController.animateTo(
-      target,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOutCubic,
-    );
-  }
-
-  void _scrollCategoryRight() {
-    final currentOffset = _categoryScrollController.offset;
-    final target = (currentOffset + 200).clamp(0.0, _categoryScrollController.position.maxScrollExtent);
-    _categoryScrollController.animateTo(
-      target,
-      duration: const Duration(milliseconds: 300),
+  void _scrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 500),
       curve: Curves.easeOutCubic,
     );
   }
@@ -145,7 +127,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         _searchFocusNode.unfocus();
         context.read<SearchProvider>().clearSearch();
       } else {
-        // Focus after a frame so the text field is built
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _searchFocusNode.requestFocus();
         });
@@ -154,7 +135,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _onSearchChanged() {
-    // Clear button visibility handled by ListenableBuilder — no need for setState
     if (_debounceTimer?.isActive ?? false) _debounceTimer?.cancel();
 
     final query = _searchController.text;
@@ -165,35 +145,51 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     });
   }
 
-  String _getCurrentLabel(String category) {
-    for (final entry in ApiConstants.categoryMap.entries) {
-      if (entry.value == category) return entry.key;
-    }
-    return ApiConstants.allCategory;
-  }
-
-  IconData _getCategoryIcon(String label) {
-    switch (label) {
-      case 'Semua': return Icons.explore;
-      case 'Olahraga': return Icons.sports_soccer;
-      case 'Teknologi': return Icons.computer;
-      case 'Bisnis': return Icons.business_center;
-      case 'Hiburan': return Icons.movie;
-      case 'Kesehatan': return Icons.favorite;
-      case 'Politik': return Icons.account_balance;
-      default: return Icons.article;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _isSearching ? _buildSearchAppBar() : _buildNormalAppBar(),
+      floatingActionButton: _showFab && !_isSearching
+          ? FloatingActionButton.small(
+              onPressed: _scrollToTop,
+              backgroundColor: AppTheme.surface,
+              elevation: 4,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: AppTheme.primaryAccent.withValues(alpha: 0.4),
+                    width: 1.5,
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.keyboard_arrow_up_rounded,
+                  color: AppTheme.primaryAccent,
+                ),
+              ),
+            )
+          : null,
       body: Column(
         children: [
-          // ── Category Scroll Bar (sembunyi saat search) ──
-          if (!_isSearching) _buildCategoryBar(),
-          // ── Main Content ──
+          // Category bar (hidden during search)
+          if (!_isSearching)
+            CategoryBar(onCategoryChanged: _triggerStaggeredAnimation),
+          // Breaking News banner (hidden during search)
+          if (!_isSearching && _showBreakingNews)
+            Consumer<NewsListProvider>(
+              builder: (context, provider, child) {
+                if (provider.articles.isEmpty) return const SizedBox.shrink();
+                final breakingNews = provider.articles.length > 3
+                    ? provider.articles.sublist(0, 3)
+                    : provider.articles;
+                return BreakingNewsBanner(
+                  articles: breakingNews,
+                  onArticleTap: (index) => _openArticleDetail(context, breakingNews[index]),
+                  onDismiss: () => setState(() => _showBreakingNews = false),
+                );
+              },
+            ),
+          // Main Content
           Expanded(
             child: _isSearching ? _buildSearchBody() : _buildNewsBody(),
           ),
@@ -202,9 +198,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  // ──────────────────────────────────────────────
-  // Normal App Bar (tanpa menu drawer)
-  // ──────────────────────────────────────────────
+  // ─── App Bars ───────────────────────────────
 
   PreferredSizeWidget _buildNormalAppBar() {
     return AppBar(
@@ -240,18 +234,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
           tooltip: _isGridView ? 'Tampilan List' : 'Tampilan Grid',
           onPressed: () {
-            setState(() {
-              _isGridView = !_isGridView;
-            });
+            setState(() => _isGridView = !_isGridView);
           },
         ),
       ],
     );
   }
-
-  // ──────────────────────────────────────────────
-  // Search App Bar
-  // ──────────────────────────────────────────────
 
   PreferredSizeWidget _buildSearchAppBar() {
     return AppBar(
@@ -293,197 +281,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  // ──────────────────────────────────────────────
-  // Horizontal Category Scroll Bar
-  // ──────────────────────────────────────────────
-
-  Widget _buildCategoryBar() {
-    final categories = ApiConstants.categories;
-
-    return Container(
-      height: 52,
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        border: Border(
-          bottom: BorderSide(color: AppTheme.divider.withValues(alpha: 0.5)),
-        ),
-      ),
-      child: Consumer<NewsListProvider>(
-        builder: (context, provider, child) {
-          final currentLabel = _getCurrentLabel(provider.currentCategory);
-
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              final isMobile = constraints.maxWidth < 600;
-
-              return Row(
-                children: [
-                  // Left scroll arrow (mobile only)
-                  if (isMobile)
-                    _buildArrowButton(
-                      icon: Icons.chevron_left_rounded,
-                      onTap: _scrollCategoryLeft,
-                      isVisible: _showLeftArrow,
-                    ),
-
-                  // Categories horizontal scroll
-                  Expanded(
-                    child: ListView.builder(
-                      controller: _categoryScrollController,
-                      scrollDirection: Axis.horizontal,
-                      physics: const BouncingScrollPhysics(),
-                      padding: EdgeInsets.only(
-                        left: isMobile ? 0 : 12,
-                        right: isMobile ? 0 : 12,
-                      ),
-                      itemCount: categories.length,
-                      itemBuilder: (context, index) {
-                        final label = categories[index];
-                        final isSelected = label == currentLabel;
-                        return _buildCategoryPill(
-                          label: label,
-                          icon: _getCategoryIcon(label),
-                          isSelected: isSelected,
-                          onTap: () {
-                            final apiKeyName = ApiConstants.categoryMap[label] ?? 'all';
-                            provider.setCategory(apiKeyName);
-                            _triggerStaggeredAnimation();
-                          },
-                        );
-                      },
-                    ),
-                  ),
-
-                  // Right scroll arrow (mobile only)
-                  if (isMobile)
-                    _buildArrowButton(
-                      icon: Icons.chevron_right_rounded,
-                      onTap: _scrollCategoryRight,
-                      isVisible: _showRightArrow,
-                    ),
-                ],
-              );
-            },
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildArrowButton({
-    required IconData icon,
-    required VoidCallback onTap,
-    required bool isVisible,
-  }) {
-    return AnimatedOpacity(
-      opacity: isVisible ? 1.0 : 0.0,
-      duration: const Duration(milliseconds: 200),
-      child: IgnorePointer(
-        ignoring: !isVisible,
-        child: Container(
-          width: 32,
-          height: 52,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                AppTheme.surface,
-                AppTheme.surface.withValues(alpha: 0.0),
-              ],
-              begin: icon == Icons.chevron_left_rounded
-                  ? Alignment.centerLeft
-                  : Alignment.centerRight,
-              end: icon == Icons.chevron_left_rounded
-                  ? Alignment.centerRight
-                  : Alignment.centerLeft,
-            ),
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: isVisible ? onTap : null,
-              borderRadius: BorderRadius.circular(8),
-              child: Icon(
-                icon,
-                size: 20,
-                color: AppTheme.textSecondary,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCategoryPill({
-    required String label,
-    required IconData icon,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(10),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeOutCubic,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? AppTheme.primaryAccent.withValues(alpha: 0.15)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: isSelected
-                    ? AppTheme.primaryAccent.withValues(alpha: 0.4)
-                    : AppTheme.divider.withValues(alpha: 0.3),
-                width: isSelected ? 1.5 : 1.0,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  icon,
-                  size: 16,
-                  color: isSelected ? AppTheme.primaryAccent : AppTheme.textSecondary,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    color: isSelected ? AppTheme.textPrimary : AppTheme.textSecondary,
-                    letterSpacing: 0.3,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ──────────────────────────────────────────────
-  // News Body
-  // ──────────────────────────────────────────────
+  // ─── News Body ───────────────────────────────
 
   Widget _buildNewsBody() {
     return Consumer<NewsListProvider>(
-      builder: (context, provider, child) {
-        return _buildNewsContent(provider);
-      },
+      builder: (context, provider, child) => _buildNewsContent(provider),
     );
   }
-
-  // ──────────────────────────────────────────────
-  // News Content
-  // ──────────────────────────────────────────────
 
   Widget _buildNewsContent(NewsListProvider provider) {
     if (provider.isLoading && provider.articles.isEmpty) {
@@ -519,9 +323,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return _buildListContent(provider);
   }
 
-  // ──────────────────────────────────────────────
-  // List View
-  // ──────────────────────────────────────────────
+  // ─── List View ──────────────────────────────
 
   Widget _buildListContent(NewsListProvider provider) {
     return RefreshIndicator(
@@ -582,9 +384,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  // ──────────────────────────────────────────────
-  // Grid View
-  // ──────────────────────────────────────────────
+  // ─── Grid View ──────────────────────────────
 
   Widget _buildGridContent(NewsListProvider provider) {
     return RefreshIndicator(
@@ -614,145 +414,27 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           }
 
           final article = provider.articles[index];
-          return _buildCompactGridCard(context, article);
+          return CompactGridCard(
+            article: article,
+            onTap: () => _openArticleDetail(context, article),
+          );
         },
       ),
     );
   }
 
-  Widget _buildCompactGridCard(BuildContext context, NewsArticle article) {
-    return GestureDetector(
-      onTap: () => _openArticleDetail(context, article),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppTheme.surface,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: AppTheme.divider),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Image
-            AspectRatio(
-              aspectRatio: 16 / 10,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  if (article.urlToImage != null && article.urlToImage!.isNotEmpty)
-                    CachedNetworkImage(
-                      imageUrl: article.urlToImage!,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        color: Colors.grey[850],
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        color: Colors.grey[900],
-                        child: const Icon(Icons.broken_image, color: AppTheme.textSecondary, size: 28),
-                      ),
-                    )
-                  else
-                    Container(
-                      color: Colors.grey[900],
-                      child: const Icon(Icons.image_not_supported, color: AppTheme.textSecondary, size: 28),
-                    ),
-                  // Gradient overlay
-                  Positioned(
-                    left: 0, right: 0, bottom: 0,
-                    height: 40,
-                    child: IgnorePointer(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                            colors: [
-                              Colors.black.withValues(alpha: 0.6),
-                              Colors.transparent,
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  // Bookmark overlay
-                  Positioned(
-                    top: 6,
-                    right: 6,
-                    child: BookmarkButton(
-                      article: article,
-                      iconSize: 16,
-                      inactiveColor: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // Content
-            Padding(
-              padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    article.sourceName?.toUpperCase() ?? 'NEWS',
-                    style: const TextStyle(
-                      fontSize: 9,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.primaryAccent,
-                      letterSpacing: 0.5,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    article.title,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textPrimary,
-                      height: 1.3,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    DateFormatter.getRelativeTime(article.publishedAt),
-                    style: const TextStyle(
-                      fontSize: 10,
-                      color: AppTheme.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ──────────────────────────────────────────────
-  // Search Body
-  // ──────────────────────────────────────────────
+  // ─── Search Body ────────────────────────────
 
   Widget _buildSearchBody() {
     return Consumer<SearchProvider>(
       builder: (context, provider, child) {
         if (provider.query.trim().isEmpty) {
-          return const EmptyState(
-            title: 'Cari Berita',
-            description: 'Ketik kata kunci judul atau deskripsi berita di atas.',
-            icon: Icons.search,
-          );
+          return _buildSearchHistory(provider);
         }
 
+        // Show shimmer loading while searching
         if (provider.isLoading && provider.searchResults.isEmpty) {
-          return const LoadingIndicator();
+          return const ShimmerList(itemCount: 4);
         }
 
         if (provider.errorMessage != null && provider.searchResults.isEmpty) {
@@ -784,11 +466,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               padding: const EdgeInsets.only(bottom: 8.0),
               child: NewsCard(
                 article: article,
-                onTap: () {
-                  Navigator.of(context).push(
-                    SlideRightRoute(page: ArticlePreviewScreen(article: article)),
-                  );
-                },
+                onTap: () => _openArticleDetail(context, article),
               ),
             );
           },
@@ -797,9 +475,73 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
+  Widget _buildSearchHistory(SearchProvider provider) {
+    final history = provider.searchHistory;
+    if (history.isEmpty) {
+      return const EmptyState(
+        title: 'Cari Berita',
+        description: 'Ketik kata kunci judul atau deskripsi berita di atas.',
+        icon: Icons.search,
+      );
+    }
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(left: 4, bottom: 12),
+          child: Row(
+            children: [
+              Icon(Icons.history_rounded, size: 16, color: AppTheme.textSecondary),
+              SizedBox(width: 6),
+              Text(
+                'RIWAYAT PENCARIAN',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textSecondary,
+                  letterSpacing: 0.8,
+                ),
+              ),
+            ],
+          ),
+        ),
+        ...history.reversed.map((q) => ListTile(
+          dense: true,
+          leading: const Icon(Icons.history_rounded, size: 18, color: AppTheme.textSecondary),
+          title: Text(q, style: const TextStyle(fontSize: 14, color: AppTheme.textPrimary)),
+          trailing: IconButton(
+            icon: const Icon(Icons.arrow_forward_rounded, size: 16, color: AppTheme.textSecondary),
+            onPressed: () {
+              _searchController.text = q;
+              _searchController.selection = TextSelection.fromPosition(
+                TextPosition(offset: q.length),
+              );
+              context.read<SearchProvider>().search(q, isRefresh: true);
+            },
+          ),
+          contentPadding: EdgeInsets.zero,
+        )),
+        if (history.length > 1)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: TextButton(
+              onPressed: () => context.read<SearchProvider>().clearHistory(),
+              child: const Text(
+                'Hapus Riwayat',
+                style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
   void _openArticleDetail(BuildContext context, NewsArticle article) {
+    // Record as recently read
+    context.read<NewsListProvider>().recordRead(article);
     Navigator.of(context).push(
-      SlideRightRoute(page: ArticlePreviewScreen(article: article)),
+      SlideRightRoute(page: DetailScreen(article: article)),
     );
   }
 }

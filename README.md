@@ -125,13 +125,18 @@
 
 | Tanggal | Perubahan |
 |---------|-----------|
+| **Jul 2026** | **🎯 AI Editor REEDSFEED** — Sistem analisis artikel otomatis (OpenAI API + Local Engine) — ekstraksi judul saran, inti berita, poin kunci 5W+1H |
+| **Jul 2026** | **🌙 Dark/Light Theme Toggle** — Beralih tema dengan animasi + persist ke SharedPreferences |
+| **Jul 2026** | **📢 Breaking News Banner** — Banner berita teratas ala ESPN dengan dismiss & auto-scroll |
+| **Jul 2026** | **🧭 Icon Kompas Baru** — Desain kompas dengan arah mata angin (U/S/T/B) + background merah gradien |
+| **Jul 2026** | **🔐 CORS Proxy Server** — Node.js proxy untuk akses NewsAPI dari web (zero dependencies) |
+| **Jul 2026** | **🔄 Fallback Mock Data** — Semua API call otomatis fallback ke mock data jika gagal — aplikasi tidak pernah kosong! |
+| **Jul 2026** | **ℹ️ Panel Info Lengkap** — Penulis, sumber, domain, publikasi, estimasi baca, URL + copy di DetailScreen |
 | **Jul 2026** | **Icon RF Baru** — Red gradient + 'RF' monogram, generate pake Python + Pillow, adaptive icon config |
 | **Jul 2026** | **Article Preview Screen** — Tap berita lihat preview dulu (hero, title, author, deskripsi) sebelum buka WebView |
 | **Jul 2026** | **Kategori Politik** — Kategori ke-7 dengan mock data realistik tentang politik Indonesia |
 | **Jul 2026** | **Auto-Refresh** — Berita di-refresh otomatis setiap 6 jam |
-| **Jul 2026** | **Redesign Total** — Profile premium (tech badges, gradient cards), Bookmark (decorative empty state), Splash (glow effect) |
-| **Jul 2026** | **Offline Caching Fix** — Conditional import untuk Desktop/Web, graceful fallback jika DB tidak tersedia |
-| **Jul 2026** | **Optimasi Lag** — setState hemat di category scroll, hapus print(), skip cache percuma jika DB unavailable |
+| **Jul 2026** | **Provider Fix** — MultiProvider pindah ke main.dart — context.read<>() crash diperbaiki |
 
 ---
 

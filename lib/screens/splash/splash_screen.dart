@@ -42,16 +42,7 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     // ── Logo: scale bounce + rotation ──
-    _logoScale = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween(begin: 0.0, end: 1.15),
-        weight: 35,
-      ),
-      TweenSequenceItem(
-        tween: Tween(begin: 1.15, end: 1.0),
-        weight: 10,
-      ),
-    ]).animate(
+    _logoScale = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
         curve: const Interval(0.0, 0.30, curve: Curves.easeOutBack),

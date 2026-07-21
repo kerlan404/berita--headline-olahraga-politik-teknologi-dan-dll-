@@ -1,11 +1,23 @@
 import 'package:flutter/material.dart';
 import '../data/models/news_article.dart';
 import '../data/repositories/news_repository.dart';
+import 'recent_activity_provider.dart';
 
 class NewsListProvider with ChangeNotifier {
   final NewsRepository _repository;
+  RecentActivityProvider? _recentActivity;
 
   NewsListProvider({NewsRepository? repository}) : _repository = repository ?? NewsRepository();
+
+  /// Bind to RecentActivityProvider for read tracking
+  void bindRecentActivity(RecentActivityProvider provider) {
+    _recentActivity = provider;
+  }
+
+  /// Record article as recently read via the activity provider
+  void recordRead(NewsArticle article) {
+    _recentActivity?.recordRead(article);
+  }
 
   String _currentCategory = 'all'; // Default category — Semua
   List<NewsArticle> _articles = [];

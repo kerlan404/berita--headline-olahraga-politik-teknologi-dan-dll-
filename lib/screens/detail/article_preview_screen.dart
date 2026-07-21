@@ -1,11 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/date_formatter.dart';
+import '../../core/utils/route_transitions.dart';
 import '../../data/models/news_article.dart';
 import '../../widgets/bookmark_button.dart';
+import 'detail_screen.dart';
 
 class ArticlePreviewScreen extends StatelessWidget {
   final NewsArticle article;
@@ -15,22 +16,10 @@ class ArticlePreviewScreen extends StatelessWidget {
     required this.article,
   });
 
-  Future<void> _openFullArticle(BuildContext context) async {
-    final uri = Uri.parse(article.url);
-    try {
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Gagal membuka artikel: $e'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    }
+  void _openFullArticle(BuildContext context) {
+    Navigator.of(context).push(
+      SlideRightRoute(page: DetailScreen(article: article)),
+    );
   }
 
   Future<void> _shareArticle() async {
@@ -376,7 +365,7 @@ class ArticlePreviewScreen extends StatelessWidget {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            'Ketuk tombol "BACA LENGKAP" di bawah untuk membuka artikel ini di sumber aslinya.',
+                            'Ketuk tombol "BACA LENGKAP" untuk melihat artikel ini di WebView, lalu buka di browser jika ingin lebih lengkap.',
                             style: TextStyle(fontSize: 12, color: AppTheme.textSecondary.withValues(alpha: 0.8), height: 1.4),
                           ),
                         ),

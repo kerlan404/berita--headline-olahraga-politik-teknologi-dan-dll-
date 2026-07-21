@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../providers/bookmark_provider.dart';
-import '../../providers/news_list_provider.dart';
+import '../../providers/theme_provider.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -83,33 +83,10 @@ class ProfileScreen extends StatelessWidget {
                   subtitle: 'Berita yang sudah dimuat akan di-cache selama 30 menit, bisa dibaca tanpa internet.',
                 ),
 
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
 
-                // ── TechStack Badges ──
-                const Text(
-                  'TECH STACK',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.textSecondary,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  alignment: WrapAlignment.center,
-                  children: [
-                    _buildTechBadge('Flutter', Icons.flutter_dash, const Color(0xFF4FC3F7)),
-                    _buildTechBadge('Dart', Icons.code_rounded, const Color(0xFF81C784)),
-                    _buildTechBadge('Provider', Icons.alt_route_rounded, const Color(0xFFCE93D8)),
-                    _buildTechBadge('SQFlite', Icons.storage_rounded, const Color(0xFFFFB74D)),
-                    _buildTechBadge('NewsAPI', Icons.api_rounded, AppTheme.primaryAccent),
-                    _buildTechBadge('WebView', Icons.web_rounded, const Color(0xFF90CAF9)),
-                  ],
-                ),
-
+                // ── Theme Toggle ──
+                _buildThemeToggle(context),
                 const SizedBox(height: 32),
 
                 // ── Credits ──
@@ -432,29 +409,129 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTechBadge(String name, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withValues(alpha: 0.15)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: color),
-          const SizedBox(width: 6),
-          Text(
-            name,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: color.withValues(alpha: 0.9),
-            ),
+  Widget _buildThemeToggle(BuildContext context) {
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppTheme.surface,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppTheme.divider),
           ),
-        ],
-      ),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: themeProvider.isDarkMode
+                        ? [const Color(0xFF4FC3F7), const Color(0xFF0288D1)]
+                        : [const Color(0xFFFFB74D), const Color(0xFFF57C00)],
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF4FC3F7).withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  themeProvider.isDarkMode ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                  color: Colors.white,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      themeProvider.isDarkMode ? 'Tema Gelap' : 'Tema Terang',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      themeProvider.isDarkMode
+                          ? 'Beralih ke tema terang untuk tampilan yang lebih cerah'
+                          : 'Beralih ke tema gelap khas ESPN untuk kenyamanan membaca',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: AppTheme.textSecondary.withValues(alpha: 0.8),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Animated toggle switch
+              GestureDetector(
+                onTap: () => themeProvider.toggleTheme(),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeOutCubic,
+                  width: 52,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(14),
+                    gradient: LinearGradient(
+                      colors: themeProvider.isDarkMode
+                          ? [const Color(0xFF4FC3F7), const Color(0xFF0288D1)]
+                          : [const Color(0xFFFFB74D), const Color(0xFFF57C00)],
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: (themeProvider.isDarkMode
+                                ? const Color(0xFF4FC3F7)
+                                : const Color(0xFFFFB74D))
+                            .withValues(alpha: 0.4),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(3),
+                  alignment: themeProvider.isDarkMode
+                      ? Alignment.centerLeft
+                      : Alignment.centerRight,
+                  child: Container(
+                    width: 22,
+                    height: 22,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.15),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      themeProvider.isDarkMode ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                      size: 12,
+                      color: themeProvider.isDarkMode
+                          ? const Color(0xFF0288D1)
+                          : const Color(0xFFF57C00),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
+
 }
+

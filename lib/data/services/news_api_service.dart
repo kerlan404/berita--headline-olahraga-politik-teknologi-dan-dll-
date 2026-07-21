@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import '../models/news_article.dart';
@@ -11,9 +12,32 @@ class NewsApiService {
   NewsApiService({http.Client? client}) : _client = client ?? http.Client();
 
   String get _apiKey => dotenv.env['NEWS_API_KEY'] ?? '';
-  String get _baseUrl => dotenv.env['NEWS_API_BASE_URL'] ?? 'https://newsapi.org/v2';
+  String? get _corsProxyUrl => dotenv.env['CORS_PROXY_URL'];
 
-  bool get isMockMode => _apiKey.isEmpty || _apiKey == 'isi_api_key_disini';
+  /// On web with CORS proxy: use proxy URL as base
+  /// On native or web without proxy: use direct NewsAPI URL
+  String get _baseUrl {
+    if (kIsWeb) {
+      final proxy = _corsProxyUrl;
+      if (proxy != null && proxy.isNotEmpty) {
+        return proxy;
+      }
+    }
+    return dotenv.env['NEWS_API_BASE_URL'] ?? 'https://newsapi.org/v2';
+  }
+
+  // Web without CORS proxy → use mock data (NewsAPI blocks CORS)
+  // Native (Android/iOS/Desktop) → real API when key is available
+  bool get isMockMode {
+    if (kIsWeb) {
+      final proxy = _corsProxyUrl;
+      // If proxy is configured, use real API via proxy
+      if (proxy != null && proxy.isNotEmpty) return false;
+      // No proxy on web → must use mock
+      return true;
+    }
+    return _apiKey.isEmpty || _apiKey == 'isi_api_key_disini';
+  }
 
   Future<List<NewsArticle>> fetchTopHeadlines({
     required String category,
@@ -30,20 +54,26 @@ class NewsApiService {
       return _fetchAllCategories(page: page, pageSize: pageSize);
     }
 
-    final url = Uri.parse('$_baseUrl/top-headlines?category=$category&page=$page&pageSize=$pageSize&apiKey=$_apiKey');
+    // NewsAPI doesn't support 'politics' category — map to 'general'
+    final apiCategory = (category == 'politics') ? 'general' : category;
+
+    final url = Uri.parse('$_baseUrl/top-headlines?category=$apiCategory&page=$page&pageSize=$pageSize&apiKey=$_apiKey');
     
     try {
       final response = await _client.get(url);
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
         final List<dynamic> articlesJson = data['articles'] ?? [];
-        return articlesJson.map((json) => NewsArticle.fromJson(json)).toList();
-      } else {
-        final Map<String, dynamic> errorData = json.decode(response.body);
-        throw Exception(errorData['message'] ?? 'Gagal memuat berita dari API (${response.statusCode})');
+        if (articlesJson.isNotEmpty) {
+          return articlesJson.map((json) => NewsArticle.fromJson(json)).toList();
+        }
       }
+      // API gagal atau tidak ada artikel → fallback ke mock data
+      debugPrint('NewsApiService: API returned no data, using mock fallback');
+      return _getMockHeadlines(category, page, pageSize);
     } catch (e) {
-      throw Exception('Kesalahan jaringan: $e');
+      debugPrint('NewsApiService: API error, using mock fallback — $e');
+      return _getMockHeadlines(category, page, pageSize);
     }
   }
 
@@ -59,6 +89,12 @@ class NewsApiService {
       final futures = categories.map((cat) => _fetchSingleCategory(cat, 1, articlesPerCategory));
       final results = await Future.wait(futures);
       
+      // Jika semua kategori gagal (API key invalid / network error)
+      final allEmpty = results.every((r) => r.isEmpty);
+      if (allEmpty) {
+        return _getMockHeadlines('all', page, pageSize);
+      }
+
       // Interleave results from all categories
       final combined = <NewsArticle>[];
       final maxLen = results.map((r) => r.length).reduce(max);
@@ -77,12 +113,15 @@ class NewsApiService {
       final endIndex = startIndex + pageSize;
       return combined.sublist(startIndex, endIndex > combined.length ? combined.length : endIndex);
     } catch (e) {
-      throw Exception('Kesalahan jaringan: $e');
+      // Fallback ke mock data
+      return _getMockHeadlines('all', page, pageSize);
     }
   }
 
   Future<List<NewsArticle>> _fetchSingleCategory(String category, int page, int pageSize) async {
-    final url = Uri.parse('$_baseUrl/top-headlines?category=$category&page=$page&pageSize=$pageSize&apiKey=$_apiKey');
+    // NewsAPI doesn't support 'politics' category — map to 'general'
+    final apiCategory = (category == 'politics') ? 'general' : category;
+    final url = Uri.parse('$_baseUrl/top-headlines?category=$apiCategory&page=$page&pageSize=$pageSize&apiKey=$_apiKey');
     final response = await _client.get(url);
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
@@ -111,13 +150,15 @@ class NewsApiService {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
         final List<dynamic> articlesJson = data['articles'] ?? [];
-        return articlesJson.map((json) => NewsArticle.fromJson(json)).toList();
-      } else {
-        final Map<String, dynamic> errorData = json.decode(response.body);
-        throw Exception(errorData['message'] ?? 'Gagal melakukan pencarian (${response.statusCode})');
+        if (articlesJson.isNotEmpty) {
+          return articlesJson.map((json) => NewsArticle.fromJson(json)).toList();
+        }
       }
+      // API gagal → fallback ke mock search
+      return _getMockSearch(query, page, pageSize);
     } catch (e) {
-      throw Exception('Kesalahan jaringan: $e');
+      // Fallback ke mock search
+      return _getMockSearch(query, page, pageSize);
     }
   }
 

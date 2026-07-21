@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:provider/provider.dart';
 import '../core/theme/app_theme.dart';
 import '../data/models/news_article.dart';
@@ -41,10 +42,7 @@ class _BookmarkButtonState extends State<BookmarkButton>
       TweenSequenceItem(tween: Tween(begin: 1.4, end: 0.9), weight: 20),
       TweenSequenceItem(tween: Tween(begin: 0.9, end: 1.2), weight: 25),
       TweenSequenceItem(tween: Tween(begin: 1.2, end: 1.0), weight: 25),
-    ]).animate(CurvedAnimation(
-      parent: _animController,
-      curve: Curves.easeInOut,
-    ));
+    ]).animate(_animController);
   }
 
   @override
@@ -60,6 +58,9 @@ class _BookmarkButtonState extends State<BookmarkButton>
     // Fire-and-forget: UI updates immediately via notifyListeners(),
     // database write happens in background
     provider.toggleBookmark(widget.article);
+
+    // Haptic feedback for mobile
+    HapticFeedback.mediumImpact();
 
     // Play bounce animation only when adding bookmark (not removing)
     if (!wasBookmarked) {

@@ -2,10 +2,16 @@ import 'package:flutter/foundation.dart'
     show debugPrint, defaultTargetPlatform, kIsWeb, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
 import 'core/utils/db_init.dart'
     if (dart.library.io) 'core/utils/db_init_native.dart';
 import 'app.dart';
 import 'data/services/local_database_service.dart';
+import 'providers/bookmark_provider.dart';
+import 'providers/news_list_provider.dart';
+import 'providers/recent_activity_provider.dart';
+import 'providers/search_provider.dart';
+import 'providers/theme_provider.dart';
 
 void main() async {
   // Ensure Flutter widgets are initialized
@@ -41,5 +47,18 @@ void main() async {
     }
   }
 
-  runApp(const MyApp());
+  runApp(
+    // Providers must be ANCESTORS of any widget that reads them.
+    // Placed here so context.read<>() works everywhere in the app.
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => RecentActivityProvider()),
+        ChangeNotifierProvider(create: (_) => BookmarkProvider()),
+        ChangeNotifierProvider(create: (_) => NewsListProvider()),
+        ChangeNotifierProvider(create: (_) => SearchProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }

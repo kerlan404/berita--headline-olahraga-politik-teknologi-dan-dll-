@@ -1,7 +1,7 @@
 # 📊 PROGRES — REEDSFEED (Aplikasi Berita & Headline)
 
 > **Dibuat:** 21 Juli 2026
-> **Diperbarui:** 21 Juli 2026 (malam)
+> **Diperbarui:** 21 Juli 2026 (final)
 > **Dokumen terkait:** `prd.md`, `desain.md`, `integrasi.md`, `roadmap.md`, `README.md`
 
 ---
@@ -13,38 +13,42 @@
 | **Nama Aplikasi** | **REEDSFEED** (sebelumnya SportsFeed) |
 | **Versi** | `1.0.0+1` |
 | **Framework** | Flutter 3.44.6 / Dart 3.12.2 |
-| **Total File Dart** | **29 file** (+1: `article_preview_screen.dart`) |
-| **Total Dependencies** | **14 packages** (+1: `sqflite_common_ffi`) |
-| **Script Eksternal** | **1 file** (`scripts/generate_icon.py` — Python + Pillow) |
-| **Icon Aplikasi** | ✅ **RF Logo baru** (red gradient + 'RF' monogram) |
+| **Total File Dart** | **~32 file** |
+| **Total Dependencies** | **16 packages** |
+| **Script Eksternal** | **2 file** (`scripts/generate_icon.py` + `server/proxy.js`) |
+| **Icon Aplikasi** | ✅ **🧭 Icon Kompas** (desain kompas + arah mata angin) |
 | **Milestone Fondasi (M0)** | ✅ **100% Selesai** |
 | **Milestone MVP (M1)** | ✅ **100% Selesai** |
-| **Milestone Stabilisasi (M2)** | ✅ **~95% Selesai** |
-| **Milestone Presentasi (M3)** | 🔄 **~30% Selesai** |
-| **Milestone Lanjutan (M4)** | ✅ **~70% Selesai** |
+| **Milestone Stabilisasi (M2)** | ✅ **~98% Selesai** |
+| **Milestone Presentasi (M3)** | 🔄 **~50% Selesai** |
+| **Milestone Lanjutan (M4)** | ✅ **~95% Selesai** |
 
 ---
 
-## 🆕 Yang Baru di Sesi Ini (21 Juli malam)
+## 🆕 Yang Baru di Sesi Terakhir (21 Juli — Final)
 
 | # | Perubahan | Detail |
 |---|-----------|--------|
-| 1 | **Kategori Politik** | Kategori ke-7 di `api_constants.dart` + mock data 6 artikel politik Indonesia |
-| 2 | **ArticlePreviewScreen** | **File baru!** — Preview hero image + title + meta + deskripsi sebelum ke WebView. Tombol "BACA LENGKAP" + "BUKA BROWSER" di bottom bar |
-| 3 | **Navigasi preview** | Home screen + Bookmark screen → buka ArticlePreviewScreen dulu, baru bisa ke WebView |
-| 4 | **Auto-refresh 6 jam** | `NewsListProvider` mencatat `_lastFetchTime`, auto-refresh jika >6 jam sejak fetch terakhir |
-| 5 | **Redesign Profile** | Premium UI: gradient icon containers, info cards dengan gradient warna, tech stack badges (Flutter, Dart, Provider, dll) |
-| 6 | **Redesign Bookmark** | Empty state premium: decorative dots, animated icon container, badge di AppBar |
-| 7 | **Redesign Splash** | Glow effect di sekitar logo, RF teks di dalam icon, loading bar gradient, durasi 2.8 detik |
-| 8 | **App Icon RF Baru** | Generate pake Python + Pillow: 1024×1024, red gradient background + white 'RF' + "REEDSFEED" text. Android mipmap icons regenerate. |
-| 9 | **`scripts/generate_icon.py`** | **File baru!** — Script Python untuk generate icon programmatically |
-| 10 | **Adaptive icon config** | `pubspec.yaml` — adaptive_icon_background: "#D50000" |
-| 11 | **Perbaikan: redundant if/else** | `home_screen.dart` initState — `if (provider.articles.isEmpty || provider.needsRefresh)` |
-| 12 | **Perbaikan: dead code** | `news_list_provider.dart` — hapus `tryAutoRefresh()` yang tidak dipanggil |
-| 13 | **Perbaikan: Consumer2** | `profile_screen.dart` — ganti `Consumer2` dengan single `Consumer` |
-| 14 | **Perbaikan: _DismissibleWrapper** | `bookmark_screen.dart` — hapus class wrapper yang tidak berguna |
-| 15 | **README.md update besar** | Struktur + fitur + arsitektur terbaru + changelog |
-| 16 | **PROGRES.md update** | Dokumen ini! |
+| 1 | **🧭 Icon Kompas Baru** | Desain kompas dengan PIL: kompas rose + arah U/S/T/B, background merah gradien |
+| 2 | **🌙 Dark/Light Theme Toggle** | Toggle tema di Profile Screen + persist ke SharedPreferences |
+| 3 | **📢 Breaking News Banner** | Banner ESPN-style di halaman utama dengan 3 artikel teratas + dismiss |
+| 4 | **🎯 AI Editor REEDSFEED** | Sistem analisis artikel: `ArticleAnalysisService` + `ArticleAnalysis` model + DetailScreen integration |
+| 5 | **OpenAI API Integration** | AI mode menggunakan OpenAI Chat Completions API dengan `response_format: json_object` |
+| 6 | **Local Engine AI** | Fallback jika AI API gagal — ekstraksi 5W+1H dari deskripsi & konten |
+| 7 | **ℹ️ Panel Info Lengkap** | Penulis, sumber, domain, publikasi, estimasi baca, URL + copy di DetailScreen |
+| 8 | **DetailScreen Rewrite** | Merge konten ArticlePreviewScreen langsung — skip preview, langsung ke konten + analisis |
+| 9 | **🔐 CORS Proxy Server** | `server/proxy.js` — Node.js proxy zero-dependency untuk akses NewsAPI dari web |
+| 10 | **🔄 Fallback Mock Data** | Semua API call fallback ke mock data — aplikasi tidak pernah kosong meski API gagal |
+| 11 | **🐛 Provider Crash Fix** | MultiProvider pindah dari `app.dart` → `main.dart` — `context.read<>()` crash diperbaiki |
+| 12 | **🐛 TweenSequence Fix** | Hapus `CurvedAnimation` dari `TweenSequence` di bookmark_button & splash_screen |
+| 13 | **🐛 API Key Invalid Fix** | Deteksi NewsAPI key invalid + auto-fallback ke mock data di semua kategori |
+| 14 | **🔑 OpenAI API Key Setup** | Setup `.env` + panduan lengkap untuk API key |
+| 15 | **🆕 BACA LENGKAP Smart** | Tombol hilang setelah diklik + notifikasi "Artikel dibuka di browser" |
+| 16 | **🗑️ Tech Stack Dihapus** | Bagian Tech Stack di Profile Screen dihapus |
+| 17 | **📝 README & PROGRES Update** | Dokumentasi terbaru dengan semua fitur baru |
+| 18 | **`server/proxy.js`** | **File baru!** — CORS proxy server Node.js |
+| 19 | **`ArticleAnalysis` model** | **File baru!** — Model data hasil analisis editor |
+| 20 | **`article_analysis_service.dart`** | **File baru!** — Service analisis AI + Local Engine |
 
 ---
 

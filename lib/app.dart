@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'core/theme/app_theme.dart';
 import 'providers/bookmark_provider.dart';
 import 'providers/news_list_provider.dart';
+import 'providers/recent_activity_provider.dart';
 import 'providers/search_provider.dart';
+import 'providers/theme_provider.dart';
 import 'screens/splash/splash_screen.dart';
 
 class MyApp extends StatefulWidget {
@@ -17,26 +18,29 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    // Load bookmarks from database after providers are created
+    // Post-frame: providers are now ANCESTORS (wrapped in main.dart),
+    // so context.read<>() will find them correctly.
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<ThemeProvider>().loadTheme();
       context.read<BookmarkProvider>().loadFromDatabase();
+      final activity = context.read<RecentActivityProvider>();
+      context.read<NewsListProvider>().bindRecentActivity(activity);
+      context.read<SearchProvider>().bindRecentActivity(activity);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => BookmarkProvider()),
-        ChangeNotifierProvider(create: (_) => NewsListProvider()),
-        ChangeNotifierProvider(create: (_) => SearchProvider()),
-      ],
-      child: MaterialApp(
-        title: 'ReedsFeed',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.darkTheme,
-        home: const SplashScreen(),
-      ),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return MaterialApp(
+          title: 'ReedsFeed',
+          debugShowCheckedModeBanner: false,
+          theme: themeProvider.theme,
+          home: const SplashScreen(),
+        );
+      },
     );
   }
 }
