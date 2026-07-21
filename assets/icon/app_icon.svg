@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D50000"/>
+      <stop offset="50%" stop-color="#FF1744"/>
+      <stop offset="100%" stop-color="#FF5252"/>
+    </linearGradient>
+    <linearGradient id="bgOverlay" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FF6D00" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#D50000" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.12"/>
+      <stop offset="40%" stop-color="#FFFFFF" stop-opacity="0.02"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="glow">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#D50000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Background rounded rect -->
+  <rect x="0" y="0" width="1024" height="1024" rx="224" ry="224" fill="url(#bgGrad)" filter="url(#glow)"/>
+
+  <!-- Subtle gradient overlay for depth -->
+  <rect x="0" y="0" width="1024" height="1024" rx="224" ry="224" fill="url(#bgOverlay)"/>
+
+  <!-- Top-left shine effect -->
+  <rect x="0" y="0" width="1024" height="1024" rx="224" ry="224" fill="url(#shine)"/>
+
+  <!-- Inner subtle border -->
+  <rect x="8" y="8" width="1008" height="1008" rx="220" ry="220" fill="none" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="2"/>
+
+  <!-- Outer border ring -->
+  <rect x="3" y="3" width="1018" height="1018" rx="222" ry="222" fill="none" stroke="#FFFFFF" stroke-opacity="0.05" stroke-width="1.5"/>
+
+  <!-- R letter - left side -->
+  <g transform="translate(512, 512)">
+    <!-- R letter -->
+    <text x="-132" y="52" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="640" font-weight="900" fill="#FFFFFF" letter-spacing="-20" text-anchor="middle" dominant-baseline="central">
+      R
+    </text>
+
+    <!-- F letter - offset right -->
+    <text x="148" y="52" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="640" font-weight="900" fill="#FFFFFF" letter-spacing="-4" text-anchor="middle" dominant-baseline="central" opacity="0.95">
+      F
+    </text>
+  </g>
+
+  <!-- Bottom right accent mark -->
+  <circle cx="824" cy="824" r="120" fill="#FFFFFF" fill-opacity="0.04"/>
+
+  <!-- Top left accent mark -->
+  <circle cx="200" cy="200" r="80" fill="#FFFFFF" fill-opacity="0.03"/>
+</svg>

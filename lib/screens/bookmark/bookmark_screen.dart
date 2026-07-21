@@ -5,7 +5,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/utils/route_transitions.dart';
 import '../../providers/bookmark_provider.dart';
 import '../../widgets/news_card.dart';
-import '../detail/detail_screen.dart';
+import '../detail/article_preview_screen.dart';
 
 class BookmarkScreen extends StatelessWidget {
   const BookmarkScreen({super.key});
@@ -14,9 +14,25 @@ class BookmarkScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'TERSIMPAN',
-          style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.5),
+        title: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [AppTheme.primaryAccent, AppTheme.secondaryAccent],
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.bookmark_rounded, color: Colors.white, size: 18),
+            ),
+            const SizedBox(width: 10),
+            const Text(
+              'TERSIMPAN',
+              style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.5),
+            ),
+          ],
         ),
         actions: [
           Consumer<BookmarkProvider>(
@@ -102,14 +118,12 @@ class BookmarkScreen extends StatelessWidget {
                   ),
                 ),
                 confirmDismiss: (_) => _confirmDismiss(context, provider, article.url),
-                onDismissed: (_) {
-                  // Already handled by confirmDismiss
-                },
+                onDismissed: (_) {},
                 child: NewsCard(
                   article: article,
                   onTap: () {
                     Navigator.of(context).push(
-                      SlideRightRoute(page: DetailScreen(article: article)),
+                      SlideRightRoute(page: ArticlePreviewScreen(article: article)),
                     );
                   },
                 ),
@@ -128,37 +142,81 @@ class BookmarkScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Animated icon container
             Container(
-              width: 88,
-              height: 88,
+              width: 120,
+              height: 120,
               decoration: BoxDecoration(
-                color: AppTheme.primaryAccent.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(24),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    AppTheme.primaryAccent.withValues(alpha: 0.15),
+                    AppTheme.secondaryAccent.withValues(alpha: 0.05),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(32),
+                border: Border.all(
+                  color: AppTheme.primaryAccent.withValues(alpha: 0.15),
+                  width: 1.5,
+                ),
               ),
-              child: const Icon(
-                Icons.bookmark_rounded,
-                size: 42,
-                color: AppTheme.primaryAccent,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.bookmark_rounded,
+                    size: 48,
+                    color: AppTheme.primaryAccent.withValues(alpha: 0.5),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '0',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                      color: AppTheme.textSecondary.withValues(alpha: 0.4),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 28),
             const Text(
               'Belum Ada Artikel Tersimpan',
               style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
                 color: AppTheme.textPrimary,
+                letterSpacing: -0.3,
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             Text(
-              'Tap ikon hati ♥ pada berita untuk menyimpannya di sini.',
+              'Tap ikon hati ❤️ pada setiap berita untuk\nmenyimpannya di sini.',
               style: TextStyle(
                 fontSize: 14,
-                color: AppTheme.textSecondary,
-                height: 1.5,
+                color: AppTheme.textSecondary.withValues(alpha: 0.7),
+                height: 1.6,
               ),
               textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            // Decorative dots
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                5,
+                (i) => Container(
+                  width: 6 + i * 2.0,
+                  height: 6 + i * 2.0,
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryAccent.withValues(alpha: 0.15 - i * 0.025),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -192,7 +250,6 @@ class BookmarkScreen extends StatelessWidget {
       ),
     );
 
-    // Remove bookmark only if user does NOT tap BATAL
     Future.delayed(const Duration(seconds: 3), () async {
       if (!completer.isCompleted) {
         await provider.removeBookmark(url);
@@ -243,7 +300,7 @@ class BookmarkScreen extends StatelessWidget {
               if (!context.mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: const Text('Semua artikel dihapus'),
+                  content: const Text('Semua bookmark berhasil dihapus'),
                   behavior: SnackBarBehavior.floating,
                   backgroundColor: AppTheme.surface,
                   duration: const Duration(seconds: 2),

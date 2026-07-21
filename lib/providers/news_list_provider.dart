@@ -17,6 +17,10 @@ class NewsListProvider with ChangeNotifier {
   bool _hasMore = true;
   String? _errorMessage;
 
+  // Last fetch timestamp for auto-refresh
+  DateTime? _lastFetchTime;
+  static const Duration _autoRefreshDuration = Duration(hours: 6);
+
   // Getters
   String get currentCategory => _currentCategory;
   List<NewsArticle> get articles => _articles;
@@ -24,6 +28,13 @@ class NewsListProvider with ChangeNotifier {
   bool get isLoadingMore => _isLoadingMore;
   bool get hasMore => _hasMore;
   String? get errorMessage => _errorMessage;
+  DateTime? get lastFetchTime => _lastFetchTime;
+
+  /// Check if news should be auto-refreshed (more than 6 hours since last fetch)
+  bool get needsRefresh {
+    if (_lastFetchTime == null) return true;
+    return DateTime.now().difference(_lastFetchTime!) > _autoRefreshDuration;
+  }
 
   // Set category and trigger fetch
   void setCategory(String category) {
@@ -61,6 +72,7 @@ class NewsListProvider with ChangeNotifier {
       }
       
       _errorMessage = null;
+      _lastFetchTime = DateTime.now();
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
       _articles = [];

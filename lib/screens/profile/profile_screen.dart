@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../providers/bookmark_provider.dart';
+import '../../providers/news_list_provider.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -10,15 +11,31 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'PROFIL',
-          style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.5),
+        title: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [AppTheme.primaryAccent, AppTheme.secondaryAccent],
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.person_rounded, color: Colors.white, size: 18),
+            ),
+            const SizedBox(width: 10),
+            const Text(
+              'PROFIL',
+              style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.5),
+            ),
+          ],
         ),
       ),
       body: ListView(
         children: [
-          // ── Hero Section ──
-          _buildHeroSection(context),
+          // ── Premium Hero Section ──
+          _buildPremiumHero(context),
           const SizedBox(height: 20),
 
           // ── Content ──
@@ -27,48 +44,90 @@ class ProfileScreen extends StatelessWidget {
             child: Column(
               children: [
                 // Stats Row
-                _buildStatsRow(context),
+                Consumer<BookmarkProvider>(
+                  builder: (context, bookmark, child) {
+                    return _buildPremiumStats(
+                      bookmarkCount: bookmark.count,
+                      categories: 7,
+                    );
+                  },
+                ),
                 const SizedBox(height: 20),
 
-                // Info Cards
-                _buildInfoCard(
-                  icon: Icons.info_outline_rounded,
-                  iconBgColor: const Color(0xFF4FC3F7).withValues(alpha: 0.15),
-                  iconColor: const Color(0xFF4FC3F7),
-                  title: 'Tentang Aplikasi',
-                  subtitle: 'Aplikasi berita dan headline terkini yang menyajikan informasi dari berbagai kategori terpercaya.',
+                // ── Info Cards ──
+                _buildPremiumInfoCard(
+                  icon: Icons.bolt_rounded,
+                  gradientColors: const [Color(0xFFD50000), Color(0xFFFF6D00)],
+                  title: 'Berita Cepat & Terpercaya',
+                  subtitle: 'Headline terkini dari 7 kategori berbeda yang diperbarui secara real-time langsung dari NewsAPI.',
                 ),
                 const SizedBox(height: 10),
-                _buildInfoCard(
-                  icon: Icons.category_rounded,
-                  iconBgColor: const Color(0xFF81C784).withValues(alpha: 0.15),
-                  iconColor: const Color(0xFF81C784),
-                  title: 'Kategori Berita',
-                  subtitle: 'Olahraga, Teknologi, Bisnis, Hiburan, Kesehatan, dan masih banyak lagi.',
+                _buildPremiumInfoCard(
+                  icon: Icons.dark_mode_rounded,
+                  gradientColors: const [Color(0xFF4FC3F7), Color(0xFF0288D1)],
+                  title: 'Tema Gelap Premium',
+                  subtitle: 'Desain dark theme khas ESPN dengan aksen merah yang elegan, nyaman dibaca kapan saja.',
                 ),
                 const SizedBox(height: 10),
-                _buildInfoCard(
+                _buildPremiumInfoCard(
                   icon: Icons.bookmark_rounded,
-                  iconBgColor: const Color(0xFFFFB74D).withValues(alpha: 0.15),
-                  iconColor: const Color(0xFFFFB74D),
-                  title: 'Bookmark',
-                  subtitle: 'Simpan artikel favorit Anda dengan menekan ikon bookmark pada setiap berita.',
+                  gradientColors: const [Color(0xFFFFB74D), Color(0xFFF57C00)],
+                  title: 'Bookmark Offline',
+                  subtitle: 'Simpan artikel favorit dan baca nanti — data tersimpan aman di perangkat Anda.',
+                ),
+                const SizedBox(height: 10),
+                _buildPremiumInfoCard(
+                  icon: Icons.offline_bolt_rounded,
+                  gradientColors: const [Color(0xFF81C784), Color(0xFF388E3C)],
+                  title: 'Cache Offline',
+                  subtitle: 'Berita yang sudah dimuat akan di-cache selama 30 menit, bisa dibaca tanpa internet.',
                 ),
 
                 const SizedBox(height: 32),
 
-                // Credits
+                // ── TechStack Badges ──
+                const Text(
+                  'TECH STACK',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textSecondary,
+                    letterSpacing: 2.0,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.center,
+                  children: [
+                    _buildTechBadge('Flutter', Icons.flutter_dash, const Color(0xFF4FC3F7)),
+                    _buildTechBadge('Dart', Icons.code_rounded, const Color(0xFF81C784)),
+                    _buildTechBadge('Provider', Icons.alt_route_rounded, const Color(0xFFCE93D8)),
+                    _buildTechBadge('SQFlite', Icons.storage_rounded, const Color(0xFFFFB74D)),
+                    _buildTechBadge('NewsAPI', Icons.api_rounded, AppTheme.primaryAccent),
+                    _buildTechBadge('WebView', Icons.web_rounded, const Color(0xFF90CAF9)),
+                  ],
+                ),
+
+                const SizedBox(height: 32),
+
+                // ── Credits ──
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   child: Column(
                     children: [
-                      Icon(Icons.favorite_rounded, size: 14, color: AppTheme.primaryAccent.withValues(alpha: 0.5)),
+                      Icon(
+                        Icons.favorite_rounded,
+                        size: 16,
+                        color: AppTheme.primaryAccent.withValues(alpha: 0.5),
+                      ),
                       const SizedBox(height: 8),
-                      const Text(
+                      Text(
                         'Data berita disediakan oleh NewsAPI.org',
                         style: TextStyle(
                           fontSize: 11,
-                          color: AppTheme.textSecondary,
+                          color: AppTheme.textSecondary.withValues(alpha: 0.6),
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -77,7 +136,7 @@ class ProfileScreen extends StatelessWidget {
                         'ReedsFeed v1.0.0',
                         style: TextStyle(
                           fontSize: 10,
-                          color: AppTheme.textSecondary.withValues(alpha: 0.6),
+                          color: AppTheme.textSecondary.withValues(alpha: 0.4),
                         ),
                       ),
                     ],
@@ -92,63 +151,79 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeroSection(BuildContext context) {
+  Widget _buildPremiumHero(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 28),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppTheme.primaryAccent.withValues(alpha: 0.15),
-            AppTheme.primaryAccent.withValues(alpha: 0.05),
+            AppTheme.primaryAccent.withValues(alpha: 0.12),
+            AppTheme.primaryAccent.withValues(alpha: 0.03),
             AppTheme.background,
           ],
         ),
         border: Border(
-          bottom: BorderSide(color: AppTheme.divider),
+          bottom: BorderSide(color: AppTheme.divider.withValues(alpha: 0.5)),
         ),
       ),
       child: Column(
         children: [
-          // App Icon
+          // ── App Icon with glow ──
           Container(
-            width: 80,
-            height: 80,
+            width: 88,
+            height: 88,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
                   AppTheme.primaryAccent,
-                  AppTheme.primaryAccent.withValues(alpha: 0.7),
+                  AppTheme.secondaryAccent,
                 ],
               ),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(22),
               boxShadow: [
                 BoxShadow(
                   color: AppTheme.primaryAccent.withValues(alpha: 0.35),
-                  blurRadius: 20,
+                  blurRadius: 24,
                   offset: const Offset(0, 8),
+                ),
+                BoxShadow(
+                  color: AppTheme.secondaryAccent.withValues(alpha: 0.15),
+                  blurRadius: 40,
+                  offset: const Offset(0, 16),
                 ),
               ],
             ),
-            child: const Icon(
-              Icons.sports_kabaddi_outlined,
-              color: Colors.white,
-              size: 42,
+            child: const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.explore_rounded, color: Colors.white, size: 36),
+                SizedBox(height: 2),
+                Text(
+                  'RF',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 16),
 
-          // App Name
+          // ── App Name ──
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
                 'REEDS',
                 style: TextStyle(
-                  fontSize: 26,
+                  fontSize: 28,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1.2,
                   color: AppTheme.textPrimary,
@@ -157,7 +232,7 @@ class ProfileScreen extends StatelessWidget {
               const Text(
                 'FEED',
                 style: TextStyle(
-                  fontSize: 26,
+                  fontSize: 28,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1.2,
                   color: AppTheme.primaryAccent,
@@ -165,14 +240,21 @@ class ProfileScreen extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            'BERITA & HEADLINE TERKINI',
-            style: TextStyle(
-              fontSize: 10,
-              letterSpacing: 2.5,
-              color: AppTheme.textSecondary.withValues(alpha: 0.7),
-              fontWeight: FontWeight.w600,
+          const SizedBox(height: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppTheme.primaryAccent.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Text(
+              'BERITA & HEADLINE TERKINI',
+              style: TextStyle(
+                fontSize: 10,
+                letterSpacing: 2.0,
+                color: AppTheme.primaryAccent,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
           const SizedBox(height: 14),
@@ -199,60 +281,67 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsRow(BuildContext context) {
-    return Consumer<BookmarkProvider>(
-      builder: (context, provider, child) {
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          decoration: BoxDecoration(
-            color: AppTheme.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppTheme.divider),
+  Widget _buildPremiumStats({
+    required int bookmarkCount,
+    required int categories,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      decoration: BoxDecoration(
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.divider),
+      ),
+      child: Row(
+        children: [
+          _buildPremiumStatItem(
+            icon: Icons.bookmark_rounded,
+            value: '$bookmarkCount',
+            label: 'Tersimpan',
+            color: AppTheme.primaryAccent,
           ),
-          child: Row(
-            children: [
-              _buildStatItem(
-                icon: Icons.bookmark_rounded,
-                value: '${provider.count}',
-                label: 'Tersimpan',
-                iconColor: AppTheme.primaryAccent,
-              ),
-              _buildDivider(),
-              _buildStatItem(
-                icon: Icons.category_rounded,
-                value: '${6}',
-                label: 'Kategori',
-                iconColor: const Color(0xFF81C784),
-              ),
-              _buildDivider(),
-              _buildStatItem(
-                icon: Icons.language_rounded,
-                value: 'ID',
-                label: 'Bahasa',
-                iconColor: const Color(0xFF4FC3F7),
-              ),
-            ],
+          _buildStatDivider(),
+          _buildPremiumStatItem(
+            icon: Icons.category_rounded,
+            value: '$categories',
+            label: 'Kategori',
+            color: const Color(0xFF81C784),
           ),
-        );
-      },
+          _buildStatDivider(),
+          _buildPremiumStatItem(
+            icon: Icons.language_rounded,
+            value: 'ID',
+            label: 'Bahasa',
+            color: const Color(0xFF4FC3F7),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildStatItem({
+  Widget _buildPremiumStatItem({
     required IconData icon,
     required String value,
     required String label,
-    required Color iconColor,
+    required Color color,
   }) {
     return Expanded(
       child: Column(
         children: [
-          Icon(icon, size: 22, color: iconColor),
-          const SizedBox(height: 6),
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, size: 20, color: color),
+          ),
+          const SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(
-              fontSize: 18,
+            style: TextStyle(
+              fontSize: 20,
               fontWeight: FontWeight.w800,
               color: AppTheme.textPrimary,
             ),
@@ -260,9 +349,9 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
-              color: AppTheme.textSecondary,
+              color: AppTheme.textSecondary.withValues(alpha: 0.7),
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -271,18 +360,17 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDivider() {
+  Widget _buildStatDivider() {
     return Container(
       width: 1,
-      height: 36,
+      height: 48,
       color: AppTheme.divider,
     );
   }
 
-  Widget _buildInfoCard({
+  Widget _buildPremiumInfoCard({
     required IconData icon,
-    required Color iconBgColor,
-    required Color iconColor,
+    required List<Color> gradientColors,
     required String title,
     required String subtitle,
   }) {
@@ -297,13 +385,22 @@ class ProfileScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
-              color: iconBgColor,
-              borderRadius: BorderRadius.circular(12),
+              gradient: LinearGradient(
+                colors: gradientColors,
+              ),
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: gradientColors.first.withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-            child: Icon(icon, color: iconColor, size: 22),
+            child: Icon(icon, color: Colors.white, size: 22),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -313,7 +410,7 @@ class ProfileScreen extends StatelessWidget {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 15,
+                    fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: AppTheme.textPrimary,
                   ),
@@ -321,13 +418,39 @@ class ProfileScreen extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppTheme.textSecondary,
+                    color: AppTheme.textSecondary.withValues(alpha: 0.8),
                     height: 1.5,
                   ),
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTechBadge(String name, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withValues(alpha: 0.15)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 6),
+          Text(
+            name,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: color.withValues(alpha: 0.9),
             ),
           ),
         ],

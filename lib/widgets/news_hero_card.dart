@@ -44,12 +44,7 @@ class NewsHeroCard extends StatelessWidget {
                             imageUrl: article.urlToImage!,
                             fit: BoxFit.cover,
                             placeholder: (context, url) => Container(
-                              color: Colors.grey[900],
-                              child: const Center(
-                                child: CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryAccent),
-                                ),
-                              ),
+                              color: Colors.grey[850],
                             ),
                             errorWidget: (context, url, error) => Container(
                               color: Colors.grey[900],

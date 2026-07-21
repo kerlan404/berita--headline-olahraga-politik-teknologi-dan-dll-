@@ -11,6 +11,7 @@ class ApiConstants {
     'Bisnis': 'business',
     'Hiburan': 'entertainment',
     'Kesehatan': 'health',
+    'Politik': 'politics',
   };
 
   static List<String> get categories => categoryMap.keys.toList();

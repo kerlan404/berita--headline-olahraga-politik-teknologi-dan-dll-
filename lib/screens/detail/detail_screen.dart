@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/date_formatter.dart';
@@ -84,26 +83,6 @@ class _DetailScreenState extends State<DetailScreen> {
     }
   }
 
-  Future<void> _launchInBrowser() async {
-    final Uri url = Uri.parse(widget.article.url);
-    try {
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-      } else {
-        throw 'Tidak bisa membuka tautan';
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Gagal membuka browser: $e'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    }
-  }
-
   Future<void> _shareArticle() async {
     final text = '${widget.article.title}\n\n${widget.article.url}';
     await SharePlus.instance.share(
@@ -130,11 +109,6 @@ class _DetailScreenState extends State<DetailScreen> {
             icon: const Icon(Icons.share),
             tooltip: 'Bagikan Berita',
             onPressed: _shareArticle,
-          ),
-          IconButton(
-            icon: const Icon(Icons.open_in_browser),
-            tooltip: 'Buka di Browser',
-            onPressed: _launchInBrowser,
           ),
         ],
         bottom: !kIsWeb && _progress < 100 && !_isError
@@ -394,32 +368,7 @@ class _DetailScreenState extends State<DetailScreen> {
 
                 const SizedBox(height: 32),
 
-                // Action buttons
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: _launchInBrowser,
-                    icon: const Icon(Icons.open_in_new_rounded, color: Colors.white, size: 18),
-                    label: const Text(
-                      'BACA ARTIKEL LENGKAP',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.8,
-                        fontSize: 13,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryAccent,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      elevation: 0,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
+                // Share button
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(
@@ -496,7 +445,7 @@ class _DetailScreenState extends State<DetailScreen> {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    'Ada masalah saat memuat halaman web ini. Silakan coba lagi atau buka langsung di browser bawaan HP.',
+                    'Ada masalah saat memuat halaman web ini. Silakan coba lagi.',
                     style: TextStyle(
                       fontSize: 14,
                       color: AppTheme.textSecondary,
@@ -521,16 +470,7 @@ class _DetailScreenState extends State<DetailScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      ElevatedButton.icon(
-                        onPressed: _launchInBrowser,
-                        icon: const Icon(Icons.open_in_browser, color: Colors.white),
-                        label: const Text('Buka di Browser', style: TextStyle(color: Colors.white)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primaryAccent,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        ),
-                      ),
+
                     ],
                   ),
                 ],

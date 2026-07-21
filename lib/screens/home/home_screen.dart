@@ -16,7 +16,7 @@ import '../../widgets/loading_indicator.dart';
 import '../../widgets/news_card.dart';
 import '../../widgets/news_hero_card.dart';
 import '../../widgets/shimmer_loading.dart';
-import '../detail/detail_screen.dart';
+import '../detail/article_preview_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -39,6 +39,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   double _scrollOffset = 0.0;
   bool _isGridView = false;
+  DateTime _lastParallaxUpdate = DateTime.now();
 
   // Category scroll tracking
   bool _showLeftArrow = false;
@@ -49,11 +50,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     super.initState();
     _staggeredController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 400),
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<NewsListProvider>().fetchNews(isRefresh: true);
+      final provider = context.read<NewsListProvider>();
+      if (provider.articles.isEmpty || provider.needsRefresh) {
+        provider.fetchNews(isRefresh: true);
+      }
     });
 
     _scrollController.addListener(_onScroll);
@@ -75,7 +79,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _onScroll() {
-    _scrollOffset = _scrollController.hasClients ? _scrollController.offset : 0.0;
+    // Throttle parallax updates to every 50ms to reduce GPU load
+    final now = DateTime.now();
+    if (now.difference(_lastParallaxUpdate).inMilliseconds > 50) {
+      _scrollOffset = _scrollController.hasClients ? _scrollController.offset : 0.0;
+      _lastParallaxUpdate = now;
+    }
 
     if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
       context.read<NewsListProvider>().loadMore();
@@ -171,6 +180,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       case 'Bisnis': return Icons.business_center;
       case 'Hiburan': return Icons.movie;
       case 'Kesehatan': return Icons.favorite;
+      case 'Politik': return Icons.account_balance;
       default: return Icons.article;
     }
   }
@@ -560,10 +570,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             );
           }
 
-          return StaggeredListAnimation(
-            index: index,
-            controller: _staggeredController,
-            child: cardWidget,
+          return RepaintBoundary(
+            child: StaggeredListAnimation(
+              index: index,
+              controller: _staggeredController,
+              child: cardWidget,
+            ),
           );
         },
       ),
@@ -633,16 +645,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       imageUrl: article.urlToImage!,
                       fit: BoxFit.cover,
                       placeholder: (context, url) => Container(
-                        color: Colors.grey[900],
-                        child: const Center(
-                          child: SizedBox(
-                            width: 18, height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryAccent),
-                            ),
-                          ),
-                        ),
+                        color: Colors.grey[850],
                       ),
                       errorWidget: (context, url, error) => Container(
                         color: Colors.grey[900],
@@ -783,7 +786,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 article: article,
                 onTap: () {
                   Navigator.of(context).push(
-                    SlideRightRoute(page: DetailScreen(article: article)),
+                    SlideRightRoute(page: ArticlePreviewScreen(article: article)),
                   );
                 },
               ),
@@ -796,7 +799,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void _openArticleDetail(BuildContext context, NewsArticle article) {
     Navigator.of(context).push(
-      SlideRightRoute(page: DetailScreen(article: article)),
+      SlideRightRoute(page: ArticlePreviewScreen(article: article)),
     );
   }
 }

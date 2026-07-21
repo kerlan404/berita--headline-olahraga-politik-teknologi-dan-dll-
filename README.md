@@ -5,12 +5,11 @@
   <h1>📰 REEDSFEED</h1>
   <p><strong>Berita & Headline Terkini — Multi-Platform</strong></p>
   <p>
-    Aplikasi berita multi-platform yang dibangun dengan <strong>Flutter</strong> — 
-    menyajikan headline terkini dari berbagai kategori dalam gaya visual <strong>ESPN</strong> 
-    yang tegas, cepat, dan nyaman dibaca. Dilengkapi <strong>offline caching</strong>,
-    <strong>animasi premium</strong>, dan <strong>bookmark persisten</strong>.
+    Aplikasi berita multi-platform yang dibangun dengan <strong>Flutter</strong> —
+    menyajikan headline terkini dari <strong>7 kategori</strong> dengan <strong>preview artikel</strong>,
+    <strong>offline caching</strong>, <strong>animasi premium</strong>, dan <strong>bookmark persisten</strong>.
   </p>
-  
+
   <p>
     <img src="https://img.shields.io/badge/Flutter-3.44.6-02569B?style=flat-square&logo=flutter" alt="Flutter">
     <img src="https://img.shields.io/badge/Dart-3.12.2-0175C2?style=flat-square&logo=dart" alt="Dart">
@@ -18,8 +17,9 @@
     <img src="https://img.shields.io/badge/Storage-sqflite-orange?style=flat-square" alt="sqflite">
     <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License">
     <img src="https://img.shields.io/badge/Status-Active-success?style=flat-square" alt="Status">
+    <img src="https://img.shields.io/badge/Icon-RF%20Logo-red?style=flat-square" alt="RF Icon">
   </p>
-  
+
   <br>
 </div>
 
@@ -28,6 +28,7 @@
 ## 📋 Daftar Isi
 
 - [✨ Fitur Unggulan](#-fitur-unggulan)
+- [🆕 Yang Baru](#-yang-baru)
 - [📸 Tampilan Aplikasi](#-tampilan-aplikasi)
 - [🏗️ Arsitektur Project](#️-arsitektur-project)
 - [🛠️ Tech Stack](#️-tech-stack)
@@ -48,152 +49,172 @@
 <table>
   <tr>
     <td width="50%">
-      <h3>📰 Berita Real-Time</h3>
-      <p>Headline terkini dari berbagai kategori. Data real-time dari <strong>NewsAPI</strong> dengan infinite scroll & pull-to-refresh. <strong>pageSize 15</strong> untuk performa optimal.</p>
+      <h3>📰 Preview Artikel</h3>
+      <p>Tap berita → lihat <strong>preview informatif</strong> dulu (hero image, title, meta, deskripsi, konten) sebelum decide mau baca full artikel. Tombol <strong>"BACA LENGKAP"</strong> untuk ke WebView.</p>
     </td>
     <td width="50%">
-      <h3>🏷️ Kategori Scroll Bar</h3>
-      <p>Navigasi kategori cepat via <strong>horizontal scroll bar</strong> dengan arrow button di mobile. Di desktop, semua kategori tampil tanpa scroll. Animasi pill saat kategori dipilih.</p>
+      <h3>🏷️ 7 Kategori Berita</h3>
+      <p>Navigasi kategori via <strong>horizontal scroll bar</strong> dengan arrow button di mobile. Ada <strong>7 kategori</strong>: Semua, Olahraga, Teknologi, Bisnis, Hiburan, Kesehatan, dan <strong>Politik</strong>.</p>
     </td>
   </tr>
   <tr>
     <td width="50%">
       <h3>🔍 Searchbar Terintegrasi</h3>
-      <p>Searchbar langsung di halaman utama dengan <strong>debounce 500ms</strong>. Hasil real-time saat mengetik, tombol clear (X) yang muncul/hilang otomatis dengan <strong>ListenableBuilder</strong> optimasi.</p>
+      <p>Searchbar langsung di halaman utama dengan <strong>debounce 500ms</strong>. Hasil real-time, tombol clear (X) otomatis muncul/hilang via <strong>ListenableBuilder</strong> — zero widget rebuild.</p>
     </td>
     <td width="50%">
       <h3>💾 Bookmark Persisten</h3>
-      <p>Simpan artikel favorit dengan animasi hati ❤️. Bookmark tersimpan ke <strong>database sqflite</strong> — tetap ada meskipun aplikasi ditutup. Swipe-to-delete dengan undo snackbar.</p>
+      <p>Simpan artikel favorit ❤️ ke <strong>database sqflite</strong> — tetap ada meskipun aplikasi ditutup. Swipe-to-delete dengan <strong>undo snackbar</strong> (3 detik). Empty state premium dengan dekorasi dots.</p>
     </td>
   </tr>
   <tr>
     <td width="50%">
-      <h3>📱 Grid / List Toggle</h3>
-      <p>Ganti tampilan berita antara <strong>list view</strong> (dengan hero card + parallax depth 3D) dan <strong>grid view</strong> (2 kolom kompak dengan efek staggered).</p>
+      <h3>🔄 Auto-Refresh Harian</h3>
+      <p>Berita di-refresh otomatis setiap <strong>6 jam</strong>. Provider mencatat timestamp fetch terakhir — aplikasi tidak perlu fetch ulang jika masih fresh.</p>
     </td>
     <td width="50%">
-      <h3>🌐 WebView Built-in</h3>
-      <p>Baca artikel lengkap dalam aplikasi via <strong>WebView</strong> dengan progress bar, error handling, dan fallback browser eksternal.</p>
+      <h3>📱 Grid / List Toggle</h3>
+      <p>Ganti tampilan antara <strong>list view</strong> (hero card + parallax depth 3D) dan <strong>grid view</strong> (2 kolom kompak + staggered animation).</p>
     </td>
   </tr>
   <tr>
     <td width="50%">
       <h3>📤 Offline Caching</h3>
-      <p><strong>Network-first strategy</strong> — coba API dulu, jika gagal fallback otomatis ke cache sqflite. Cache TTL <strong>30 menit</strong>. Cache dibersihkan otomatis saat startup.</p>
+      <p><strong>Network-first strategy</strong> — coba API dulu, gagal → fallback otomatis ke cache sqflite. Cache TTL <strong>30 menit</strong>. Desktop & mobile support via conditional imports. Web fallback graceful.</p>
     </td>
+    <td width="50%">
+      <h3>🌐 WebView Built-in</h3>
+      <p>Baca artikel lengkap via <strong>WebView</strong> dengan progress bar, error handling, bookmark & share buttons, dan fallback browser eksternal.</p>
+    </td>
+  </tr>
+  <tr>
     <td width="50%">
       <h3>🎬 Parallax Hero Card</h3>
-      <p>Efek <strong>parallax</strong> pada gambar headline — image bergerak 15% lebih lambat dari card saat di-scroll, menciptakan ilusi depth 3D yang dramatis.</p>
+      <p>Efek <strong>parallax</strong> pada gambar headline — image bergerak 15% lebih lambat dari card saat di-scroll, menciptakan ilusi depth 3D dramatis.</p>
+    </td>
+    <td width="50%">
+      <h3>🎭 Staggered Animation</h3>
+      <p>Animasi list yang muncul satu per satu dengan efek fade + slide (delay 80ms per item) — memberikan pengalaman scroll yang premium.</p>
     </td>
   </tr>
   <tr>
     <td width="50%">
-      <h3>⬆️ Scroll-to-Top FAB</h3>
-      <p>Floating Action Button muncul otomatis saat scroll > 300px. Klik untuk kembali ke atas dengan animasi smooth.</p>
-    </td>
-    <td width="50%">
-      <h3>🎭 Tab Transitions</h3>
-      <p>Animasi <strong>Fade-in (0→1)</strong> + <strong>Scale-in (0.96→1.0)</strong> setiap ganti tab — 350ms easeOutCubic. State screen tetap terjaga via <strong>IndexedStack</strong>.</p>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <h3>✨ Splash Screen Animasi</h3>
-      <p>Splash dengan <strong>staggered animation</strong> — logo scale bounce + rotation, teks slide-up, dan gradient progress bar. Transisi <strong>FadeThrough</strong> ke halaman utama.</p>
+      <h3>✨ Splash Screen Premium</h3>
+      <p>Splash dengan <strong>glow effect</strong>, logo 'RF' scale bounce + rotation, teks slide-up, dan gradient progress bar. Transisi <strong>FadeThrough</strong> ke halaman utama (2.8 detik).</p>
     </td>
     <td width="50%">
       <h3>🌙 Dark Theme ESPN</h3>
-      <p>Tema gelap khas ESPN dengan aksen merah (<code>#D50000</code>), card gelap (<code>#1E1E1E</code>), dan tipografi tebal yang nyaman di mata.</p>
+      <p>Tema gelap khas ESPN dengan aksen merah (<code>#D50000</code>), card gelap (<code>#1E1E1E</code>), dan tipografi tebal yang nyaman di mata sepanjang hari.</p>
     </td>
   </tr>
   <tr>
     <td width="50%">
-      <h3>📤 Share Berita</h3>
-      <p>Bagikan berita ke aplikasi lain via <strong>Share Plus</strong> (API terbaru) — judul + link artikel langsung terkirim.</p>
+      <h3>💻 Multi-Platform</h3>
+      <p>Berjalan di <strong>Android, iOS, Web, Windows, macOS, dan Linux</strong> — satu codebase untuk semua platform. Conditional import untuk database (sqflite native / FFI desktop / disabled web).</p>
     </td>
     <td width="50%">
-      <h3>💻 Multi-Platform</h3>
-      <p>Berjalan di <strong>Android, iOS, Web, Windows, macOS, dan Linux</strong> — satu codebase untuk semua platform.</p>
+      <h3>📤 Share Berita</h3>
+      <p>Bagikan berita ke aplikasi lain via <strong>Share Plus</strong> (API terbaru) — judul + link artikel langsung terkirim ke WhatsApp, Telegram, dll.</p>
     </td>
   </tr>
 </table>
 
 ---
 
+## 🆕 Yang Baru
+
+| Tanggal | Perubahan |
+|---------|-----------|
+| **Jul 2026** | **Icon RF Baru** — Red gradient + 'RF' monogram, generate pake Python + Pillow, adaptive icon config |
+| **Jul 2026** | **Article Preview Screen** — Tap berita lihat preview dulu (hero, title, author, deskripsi) sebelum buka WebView |
+| **Jul 2026** | **Kategori Politik** — Kategori ke-7 dengan mock data realistik tentang politik Indonesia |
+| **Jul 2026** | **Auto-Refresh** — Berita di-refresh otomatis setiap 6 jam |
+| **Jul 2026** | **Redesign Total** — Profile premium (tech badges, gradient cards), Bookmark (decorative empty state), Splash (glow effect) |
+| **Jul 2026** | **Offline Caching Fix** — Conditional import untuk Desktop/Web, graceful fallback jika DB tidak tersedia |
+| **Jul 2026** | **Optimasi Lag** — setState hemat di category scroll, hapus print(), skip cache percuma jika DB unavailable |
+
+---
+
 ## 📸 Tampilan Aplikasi
 
 ```
-┌──────────────────────────────────────────────┐
-│               📱 APPS OVERVIEW                │
-├──────────────────────────────────────────────┤
-│                                              │
-│  ┌────────┐  ┌──────────┐  ┌──────────┐     │
-│  │ SPLASH │  │   HOME   │  │  GRID    │     │
-│  │  ✨    │  │🏷️[Semua]~│  │ ┌──┐ ┌──┐│     │
-│  │ REEDS  │  │ ┌──────┐ │  │ │📷│ │📷││     │
-│  │ FEED   │  │ │📷 HERO│ │  │ └──┘ └──┘│     │
-│  └────────┘  │ │parallax│ │  │ ┌──┐ ┌──┐│     │
-│              │ ├───────┤ │  │ │📷│ │📷││     │
-│  ┌────────┐  │ │📷 card│ │  │ └──┘ └──┘│     │
-│  │ DETAIL │  │ ├───────┤ │  └──────────┘     │
-│  │ 🌐     │  │ │📷 card│ │                    │
-│  │ WebView│  │ └───────┘ │  ┌──────────┐     │
-│  │ ❤️ 📤 │  └──────────┘  │ BOOKMARK  │     │
-│  └────────┘               │ ❤️ ❤️ ❤️  │     │
-│                           │ ← swipe ❌ │     │
-│  ┌─────────┐              └──────────┘       │
-│  │ SEARCH  │                                  │
-│  │ (in-app)│              ┌──────────┐       │
-│  │ 🔍 ...  │              │ PROFILE  │       │
-│  └─────────┘              │ 👤 Info  │       │
-│                           └──────────┘       │
-│  ┌────── Bottom Navigation Bar ──────────┐   │
-│  │ 🏠 Home │ 📑 Simpan │ 👤 Profil       │   │
-│  └────────────────────────────────────────┘   │
-└──────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────┐
+│               📱 APPS OVERVIEW                    │
+├──────────────────────────────────────────────────┤
+│                                                  │
+│  ┌──────────┐  ┌──────────────┐  ┌──────────┐   │
+│  │  SPLASH  │  │     HOME     │  │  GRID    │   │
+│  │   ✨     │  │ 🏷️[Olah]~    │  │ ┌──┐ ┌──┐│   │
+│  │  GLOW RF │  │ ┌──────────┐ │  │ │📷│ │📷││   │
+│  │  Loading │  │ │📷 HERO   │ │  │ └──┘ └──┘│   │
+│  └──────────┘  │ │ parallax │ │  │ ┌──┐ ┌──┐│   │
+│                │ ├──────────┤ │  │ │📷│ │📷││   │
+│  ┌──────────┐  │ │📷 card   │ │  │ └──┘ └──┘│   │
+│  │ PREVIEW  │  │ ├──────────┤ │  └──────────┘   │
+│  │ 📰 Hero  │  │ │📷 card   │ │                  │
+│  │ Title    │  │ └──────────┘ │  ┌──────────┐   │
+│  │ Author   │  └──────────────┘  │ BOOKMARK │   │
+│  │ 📝 Desc  │                    │ ❤️ ❤️ ❤️  │   │
+│  │ [BACA]   │                    │ ← swipe ❌ │   │
+│  └────┬─────┘                    └──────────┘   │
+│       │                                           │
+│       ▼                                           │
+│  ┌──────────┐                    ┌──────────┐   │
+│  │  DETAIL  │                    │ PROFILE  │   │
+│  │  🌐 Web  │                    │ 👤 Hero  │   │
+│  │  View    │                    │ 📊 Stats │   │
+│  │  ❤️ 📤   │                    │ 🏷️ Tech  │   │
+│  └──────────┘                    └──────────┘   │
+│                                                  │
+│  ┌────────── Bottom Navigation Bar ──────────┐   │
+│  │ 🏠 Home │ 📑 Simpan │ 👤 Profil           │   │
+│  └────────────────────────────────────────────┘   │
+└──────────────────────────────────────────────────┘
 ```
 
 ---
 
 ## 🏗️ Arsitektur Project
 
-Aplikasi ini mengikuti arsitektur berlapis yang rapi dan terstruktur:
-
 ```
 ┌──────────────────────────────────────────────────┐
 │                   SCREENS (UI)                     │
-│  Splash → Home → Detail → Bookmark → Profile     │
-│               ↓ ↑          ↓ ↑        ↓           │
+│  Splash → Home → ArticlePreview → Detail(WebView) │
+│            → Bookmark → Profile                    │
+│               ↓ ↑                                  │
 ├──────────────────────────────────────────────────┤
 │                PROVIDERS (State)                   │
 │   NewsListProvider · SearchProvider · Bookmark    │
+│   (auto-refresh 6h)   (debounce)   (sqflite)     │
 │               ↓ ↑                                │
 ├──────────────────────────────────────────────────┤
 │              REPOSITORIES (Data Layer)              │
 │              NewsRepository                       │
+│        (network-first + cache fallback)           │
 │               ↓ ↑                                │
 ├──────────────────────────────────────────────────┤
 │              SERVICES (API + Cache)                │
 │      NewsApiService (HTTP) · LocalDatabaseService  │
-│               ↓ ↑                    (sqflite)    │
+│       (mock data engine)    (sqflite + FFI)       │
+│               ↓ ↑                                 │
 ├──────────────────────────────────────────────────┤
 │               MODELS (Data)                       │
 │              NewsArticle                          │
 └──────────────────────────────────────────────────┘
 ```
 
-**Prinsip alur data:** `Screen → Provider → Repository → Service → Model`
+**Alur Data:** `Screen → Provider → Repository → Service → Model`
 
-**Strategi Caching: Network-first**
+**Strategi Caching:** Network-first
 1. Coba fetch dari **NewsAPI** (via HTTP)
 2. Jika berhasil → simpan ke **cache sqflite** (fire-and-forget)
-3. Jika gagal (offline/error) → **fallback otomatis** ke cache
+3. Jika gagal (offline/error) → **fallback otomatis** ke cache lokal
 4. Cache TTL **30 menit** — expired cache dibersihkan saat startup
 
-**Bookmark Persistence:**
-- Setiap toggle bookmark → langsung sync ke database sqflite
-- Saat startup → load semua bookmark dari database
-- Data tetap ada meskipun aplikasi ditutup paksa
+**Multi-Platform Database:**
+- **Android/iOS:** sqflite native
+- **Windows/macOS/Linux:** sqflite_common_ffi
+- **Web:** database dinonaktifkan graceful (no crash)
 
 ---
 
@@ -204,17 +225,19 @@ Aplikasi ini mengikuti arsitektur berlapis yang rapi dan terstruktur:
 | **Framework** | [Flutter](https://flutter.dev) 3.44.6 | UI multi-platform |
 | **Bahasa** | [Dart](https://dart.dev) 3.12.2 | Logic & structure |
 | **State Management** | [Provider](https://pub.dev/packages/provider) | State management reaktif |
-| **HTTP Client** | [http](https://pub.dev/packages/http) | REST API calls |
+| **HTTP Client** | [http](https://pub.dev/packages/http) | REST API calls (NewsAPI) |
 | **API Berita** | [NewsAPI](https://newsapi.org) | Sumber data berita |
 | **Local Database** | [sqflite](https://pub.dev/packages/sqflite) | Offline cache & bookmark persist |
-| **Cache Gambar** | [cached_network_image](https://pub.dev/packages/cached_network_image) | Loading & caching gambar dari URL |
+| **Desktop DB** | [sqflite_common_ffi](https://pub.dev/packages/sqflite_common_ffi) | Database di Windows/macOS/Linux |
+| **Cache Gambar** | [cached_network_image](https://pub.dev/packages/cached_network_image) | Loading & caching gambar |
 | **WebView** | [webview_flutter](https://pub.dev/packages/webview_flutter) | Baca artikel in-app |
 | **Share** | [share_plus](https://pub.dev/packages/share_plus) | Bagikan berita (API terbaru) |
 | **URL Launcher** | [url_launcher](https://pub.dev/packages/url_launcher) | Buka link eksternal |
 | **Env Variables** | [flutter_dotenv](https://pub.dev/packages/flutter_dotenv) | API key management |
 | **Animasi Loading** | [shimmer](https://pub.dev/packages/shimmer) | Skeleton loading effect |
 | **Format Tanggal** | [intl](https://pub.dev/packages/intl) | Format waktu relatif |
-| **Ikon Aplikasi** | [flutter_launcher_icons](https://pub.dev/packages/flutter_launcher_icons) | Generate icon multi-resolusi |
+| **Ikon Generator** | [flutter_launcher_icons](https://pub.dev/packages/flutter_launcher_icons) | Generate icon multi-resolusi |
+| **Icon Design** | [Python + Pillow](https://python-pillow.org) | Generate app icon programmatically |
 
 ---
 
@@ -227,7 +250,10 @@ Aplikasi ini mengikuti arsitektur berlapis yang rapi dan terstruktur:
 | Flutter SDK | `3.12.2` |
 | Dart SDK | `3.12.2` (bundled with Flutter) |
 | Android SDK | API level 21+ |
-| News API Key | [Daftar gratis](https://newsapi.org) |
+| News API Key | [Daftar gratis di newsapi.org](https://newsapi.org) |
+
+> **⚠️ Penting:** Path project TIDAK boleh mengandung karakter Unicode/Spasi
+> untuk Android build. Jika ada, copy ke `C:\projects\reedsfeed\` dulu.
 
 ### 🔧 Langkah-langkah
 
@@ -253,6 +279,9 @@ NEWS_API_BASE_URL=https://newsapi.org/v2
 > 3. Copy API Key dari dashboard
 > 4. Paste ke file `.env`
 
+> **Mode Mock:** Biarkan `NEWS_API_KEY` kosong — aplikasi akan otomatis
+> menggunakan **mock data engine** (data dummy realistik untuk semua kategori).
+
 #### 3️⃣ Install Dependencies
 
 ```bash
@@ -263,25 +292,28 @@ flutter pub get
 #### 4️⃣ Generate App Icons (opsional)
 
 ```bash
+# Source icon sudah ada di assets/icon/app_icon.png
 dart run flutter_launcher_icons
 ```
 
 #### 5️⃣ Jalankan Aplikasi
 
 ```bash
-# Android (HP/Emulator)
+# Android (HP/Emulator) — recommended
 flutter run -d android
-
-# iOS (Simulator/Device — butuh Mac)
-flutter run -d ios
 
 # Web Browser
 flutter run -d web
 
-# Desktop
-flutter run -d windows   # Windows
-flutter run -d macos     # macOS
-flutter run -d linux     # Linux
+# Windows Desktop
+flutter run -d windows
+
+# iOS (butuh Mac)
+flutter run -d ios
+
+# macOS / Linux
+flutter run -d macos
+flutter run -d linux
 ```
 
 #### 6️⃣ Build Production
@@ -289,8 +321,9 @@ flutter run -d linux     # Linux
 ```bash
 flutter build apk --release           # Android APK
 flutter build appbundle --release     # Android AppBundle
-flutter build ios --release           # iOS IPA
+flutter build ios --release           # iOS IPA (butuh Mac)
 flutter build web                     # Web
+flutter build windows                 # Windows (butuh Visual Studio)
 ```
 
 ---
@@ -298,57 +331,61 @@ flutter build web                     # Web
 ## 📁 Struktur Folder Lengkap
 
 ```
-📦 berita--headline-olahraga-politik-teknologi-dan-dll-
+📦 reedsfeed
 ├── 📁 lib/                            # 📱 Source code utama
-│   ├── 📄 main.dart                    # Entry point — init DB, load .env, run app
-│   ├── 📄 app.dart                     # MaterialApp + MultiProvider + load bookmark
+│   ├── 📄 main.dart                    # Entry point — init DB, load .env
+│   ├── 📄 app.dart                     # MaterialApp + MultiProvider
 │   │
 │   ├── 📁 core/                        # ⚙️ Konfigurasi inti
 │   │   ├── 📁 constants/
-│   │   │   └── api_constants.dart      # Base URL, kategori, mapping
+│   │   │   └── api_constants.dart      # 7 kategori: Semua, Olahraga...Politik
 │   │   ├── 📁 theme/
-│   │   │   └── app_theme.dart          # Dark theme ESPN (warna, tipografi)
+│   │   │   └── app_theme.dart          # Dark theme ESPN
 │   │   └── 📁 utils/
-│   │       ├── date_formatter.dart     # Format waktu relatif ("2 jam lalu")
-│   │       └── route_transitions.dart  # Animasi navigasi + staggered list
+│   │       ├── date_formatter.dart     # Format waktu relatif
+│   │       ├── route_transitions.dart  # Animasi navigasi + staggered list
+│   │       ├── db_init.dart            # Stub DB init (web — no-op)
+│   │       └── db_init_native.dart     # FFI DB init (desktop — sqflite_common_ffi)
 │   │
 │   ├── 📁 data/                        # 📊 Lapisan data
 │   │   ├── 📁 models/
-│   │   │   └── news_article.dart       # Model berita + fromJson/toJson
+│   │   │   └── news_article.dart       # Model dengan fromJson/toJson
 │   │   ├── 📁 services/
-│   │   │   ├── news_api_service.dart   # HTTP calls ke NewsAPI + mock data fallback
-│   │   │   └── local_database_service.dart # sqflite — cache & bookmark persist
+│   │   │   ├── news_api_service.dart   # HTTP + mock data engine (7 kategori)
+│   │   │   └── local_database_service.dart # sqflite: cache + bookmark
 │   │   └── 📁 repositories/
 │   │       └── news_repository.dart    # Network-first + cache fallback
 │   │
 │   ├── 📁 providers/                   # 🗂️ State management
-│   │   ├── news_list_provider.dart     # List berita + pagination (pageSize: 15)
-│   │   ├── search_provider.dart        # Pencarian + debounce 500ms
-│   │   └── bookmark_provider.dart      # Bookmark ❤️ persist ke database
+│   │   ├── news_list_provider.dart     # Auto-refresh 6 jam + pagination
+│   │   ├── search_provider.dart        # Pencarian + debounce
+│   │   └── bookmark_provider.dart      # Bookmark persist ke sqflite
 │   │
 │   ├── 📁 screens/                     # 🖥️ Halaman aplikasi
 │   │   ├── 📁 splash/
-│   │   │   └── splash_screen.dart      # Splash animasi staggered (scale + rotation + slide)
+│   │   │   └── splash_screen.dart      # Splash + glow effect + RF logo
 │   │   ├── 📁 main/
-│   │   │   └── main_shell.dart         # Bottom Nav Bar + tab transitions (fade + scale)
+│   │   │   └── main_shell.dart         # Bottom Nav + tab transitions
 │   │   ├── 📁 home/
-│   │   │   └── home_screen.dart        # Beranda (category scroll bar, searchbar,
-│   │   │                               #   grid/list toggle, parallax hero, FAB)
+│   │   │   └── home_screen.dart        # Beranda: scroll kategori, searchbar,
+│   │   │                               #   grid/list toggle, parallax hero
 │   │   ├── 📁 detail/
-│   │   │   └── detail_screen.dart      # WebView artikel + share + bookmark button
+│   │   │   ├── article_preview_screen.dart # PREVIEW fitur BARU — lihat info
+│   │   │   │                               #   artikel sebelum buka WebView
+│   │   │   └── detail_screen.dart      # WebView artikel + share + bookmark
 │   │   ├── 📁 bookmark/
-│   │   │   └── bookmark_screen.dart    # Artikel tersimpan + swipe-delete + undo
+│   │   │   └── bookmark_screen.dart    # Premium empty state + swipe delete
 │   │   └── 📁 profile/
-│   │       └── profile_screen.dart     # Profil & info aplikasi (statistik, credits)
+│   │       └── profile_screen.dart     # Premium UI + tech badges + stats
 │   │
 │   └── 📁 widgets/                     # 🧩 Widget reusable
 │       ├── news_card.dart              # Card list (gambar kiri, teks kanan)
-│       ├── news_hero_card.dart         # Hero card (gambar besar + parallax depth)
-│       ├── bookmark_button.dart        # Tombol hati dengan animasi bounce
-│       ├── empty_state.dart            # State kosong (ilustrasi + pesan)
-│       ├── error_retry_widget.dart     # State error + tombol retry
-│       ├── loading_indicator.dart      # Spinner loading
-│       └── shimmer_loading.dart        # Skeleton loading (list & grid variant)
+│       ├── news_hero_card.dart         # Hero card + parallax depth
+│       ├── bookmark_button.dart        # Tombol hati + animasi bounce
+│       ├── empty_state.dart            # State kosong
+│       ├── error_retry_widget.dart     # Error + retry button
+│       ├── loading_indicator.dart      # Spinner
+│       └── shimmer_loading.dart        # Skeleton (list + grid variants)
 │
 ├── 📁 android/                         # 🤖 Konfigurasi Android
 ├── 📁 ios/                             # 🍎 Konfigurasi iOS
@@ -358,18 +395,23 @@ flutter build web                     # Web
 ├── 📁 linux/                           # 🐧 Konfigurasi Linux
 ├── 📁 assets/
 │   ├── 📁 icon/
-│   │   └── app_icon.png                # Ikon aplikasi sumber
+│   │   └── app_icon.png                # RF icon (red gradient + RF logo)
+│   ├── 📁 screenshots/
 │   └── 📄 .env                         # Environment variables (TIDAK di-commit)
+│
+├── 📁 scripts/                         # 🔧 Utility scripts
+│   └── generate_icon.py                # Generate app icon (Python + Pillow)
 │
 ├── 📁 dokumen/                         # 📚 Dokumentasi project
 │   ├── prd.md                          # Product Requirements Document
 │   ├── desain.md                       # Panduan desain UI/UX
-│   ├── integrasi.md                    # Panduan teknis integrasi
-│   └── roadmap.md                      # Roadmap pengembangan
+│   ├── integrasi.md                    # Panduan integrasi
+│   ├── roadmap.md                      # Roadmap pengembangan
+│   └── PROGRES.md                      # Progres tracking
 │
 ├── 📄 pubspec.yaml                     # Dependencies & konfigurasi
 ├── 📄 analysis_options.yaml            # Lint rules
-├── 📄 .gitignore                       # Git ignore rules
+├── 📄 .gitignore                       # Git ignore
 └── 📄 README.md                        # Ini! 👋
 ```
 
@@ -389,8 +431,9 @@ dependencies:
   http: ^1.2.1
   cached_network_image: ^3.3.1
 
-  # Local Database (Offline Cache + Bookmark)
+  # Local Database (Offline Cache + Bookmark Persist)
   sqflite: ^2.4.3
+  sqflite_common_ffi: ^2.3.0    # Desktop DB support
   path: ^1.9.0
 
   # Features
@@ -421,38 +464,57 @@ dev_dependencies:
 🚀 Launch
     │
     ▼
-┌──────────────┐    FadeThrough    ┌────────────────────────────────────────┐
-│   SPLASH     │ ────────────────→ │             MAIN SHELL                 │
-│   Screen     │     (2.5 detik)   │  ┌─ BottomNavigationBar ────────────┐  │
-│ ✨ Animasi   │                   │  │ 🏠 Home │ 📑 Simpan │ 👤 Profil │  │
-│ staggered    │                   │  └──────────────────────────────────┘  │
-└──────────────┘                   │           │          │                │
-                                   │           │          │                │
-                                   │    ┌──────┘          └───────┐        │
-                                   │    ▼                          ▼        │
-                                   │ ┌──────────┐           ┌──────────┐   │
-                                   │ │   HOME   │           │ BOOKMARK │   │
-                                   │ │ 📰 berita│           │ ❤️ saved  │   │
-                                   │ │ 🔍 search│           │ ⬅️ swipe  │   │
-                                   │ └─────┬────┘           └──────────┘   │
-                                   │       │                                │
-                                   │       │ push(SlideRight)               │
-                                   │       ▼                                │
-                                   │  ┌──────────┐                         │
-                                   │  │  DETAIL  │  ┌──────────┐           │
-                                   │  │🌐 WebView│  │ PROFILE  │           │
-                                   │  │❤️ bookmark│  │ 👤 info   │           │
-                                   │  │📤 share   │  │ stats    │           │
-                                   │  └──────────┘  └──────────┘           │
-                                   └────────────────────────────────────────┘
+┌──────────────────┐    FadeThrough     ┌──────────────────────────────────────┐
+│     SPLASH       │ ──────────────────→ │            MAIN SHELL                │
+│  ✨ Glow Effect  │      (2.8 detik)    │  ┌─ BottomNavigationBar ──────────┐  │
+│  Scale + Rotate  │                     │  │ 🏠 Home │ 📑 Simpan │ 👤 Profil │  │
+│  RF Logo + Load  │                     │  └────────────────────────────────┘  │
+└──────────────────┘                     │         │            │              │
+                                         │         │            │              │
+                                         │  ┌──────┘            └──────┐       │
+                                         │  ▼                          ▼       │
+                                         │ ┌──────────┐          ┌──────────┐ │
+                                         │ │   HOME   │          │ BOOKMARK │ │
+                                         │ │🏷️ Kategori│         │ ❤️ saved  │ │
+                                         │ │🔍 Search │          │ ⬅️ swipe  │ │
+                                         │ └─────┬────┘          └──────────┘ │
+                                         │       │                              │
+                                         │       │ push(SlideRight)             │
+                                         │       ▼                              │
+                                         │  ┌──────────────────────┐           │
+                                         │  │  ARTICLE PREVIEW     │ ◀── FITUR │
+                                         │  │  🖼️ Hero Image      │    BARU!  │
+                                         │  │  📝 Title + Author   │           │
+                                         │  │  📄 Description      │           │
+                                         │  │  📖 Konten Singkat   │           │
+                                         │  └──────┬───────────────┘           │
+                                         │         │                            │
+                                         │    ┌────┴────┐                      │
+                                         │    ▼         ▼                      │
+                                         │ ┌────────┐ ┌──────────┐            │
+                                         │ │BROWSER │ │  DETAIL  │            │
+                                         │ │External │ │🌐 WebView│            │
+                                         │ │(opsional)││❤️ bookmark│            │
+                                         │ └────────┘ │📤 share   │            │
+                                         │            └──────────┘            │
+                                         │                                     │
+                                         │  ┌──────────┐                      │
+                                         │  │ PROFILE  │                      │
+                                         │  │ 👤 Hero  │ 📊 Stats             │
+                                         │  │ 🏷️ Tech  │ 📋 Info Cards        │
+                                         │  └──────────┘                      │
+                                         └──────────────────────────────────────┘
 ```
 
-### Tab Transitions
-Setiap ganti tab di Bottom Navigation Bar:
-- **Fade-in** (opacity: 0 → 1)
-- **Scale-in** (scale: 0.96 → 1.0)
-- Durasi **350ms** dengan **easeOutCubic**
-- State screen tetap terjaga via **IndexedStack**
+### Tab & Page Transitions
+
+| Transisi | Animasi | Durasi |
+|----------|---------|--------|
+| **Tab ganti** (Nav Bar) | Fade-in + Scale-in (0.96→1.0) easeOutCubic | 350ms |
+| **Buka artikel** (push) | SlideRight (0.3→0 offset) + Fade easeOutCubic | 350ms |
+| **Splash → Main** | FadeThrough + Scale (0.95→1.0) | 300ms |
+| **List items** (staggered) | Fade (0→1) + SlideUp (0.15→0 offset) per item | 600ms total |
+| **Bookmark toggle** | Scale bounce (1.0→1.4→0.9→1.2→1.0) | 300ms |
 
 ---
 
@@ -463,38 +525,40 @@ Setiap ganti tab di Bottom Navigation Bar:
 |---|---|
 | 🔽 **Scroll ke bawah** | Infinite scroll — berita baru termuat otomatis (pageSize 15) |
 | ⬆️ **Scroll > 300px** | FAB ↑ muncul, tap untuk kembali ke atas |
-| 👆 **Tap card berita** | Buka detail artikel via WebView (SlideRight animasi) |
-| 👆 **Tap category pill** | Filter berita berdasarkan kategori — **"Semua"** default |
-| ➡️ **Tap arrow → / ←** | Scroll kategori ke kanan/kiri (mobile) — scroll 200px per tap |
-| 🔢 **Tap icon grid/list** | Ganti tampilan antara list (hero + parallax) dan grid (2 kolom) |
+| 👆 **Tap card berita** | Buka **ArticlePreview** — lihat info singkat dulu |
+| 👆 **Tap "BACA LENGKAP"** | Buka artikel full via WebView |
+| 👆 **Tap category pill** | Filter berita — 7 kategori tersedia |
+| ➡️ **Tap arrow → / ←** | Scroll kategori ke kanan/kiri (mobile) |
+| 🔢 **Tap icon grid/list** | Ganti tampilan list ↔ grid |
 | 🔄 **Pull-to-refresh** | Muat ulang berita terbaru |
-| ❤️ **Tap icon hati** | Simpan / hapus bookmark artikel (tersimpan ke database) |
-| 🔍 **Tap search icon** | Buka searchbar di AppBar — ketik untuk mencari real-time |
+| ❤️ **Tap icon hati** | Simpan / hapus bookmark |
+| 🔍 **Tap search icon** | Buka searchbar — cari real-time |
 | ❌ **Tap X di searchbar** | Hapus query pencarian |
+
+### Article Preview Screen (Fitur Baru!)
+| Aksi | Hasil |
+|---|---|
+| 👆 **Scroll** | Scroll konten preview (hero, title, meta, deskripsi) |
+| 👆 **Tap "BACA LENGKAP"** | Buka WebView artikel lengkap |
+| 👆 **Tap "BUKA BROWSER"** | Buka artikel di browser eksternal |
+| ❤️ **Tap bookmark** | Simpan artikel ini |
+| 📤 **Tap share** | Bagikan ke aplikasi lain |
+| 🔙 **Tap back** | Kembali ke daftar berita |
 
 ### Bookmark Screen
 | Aksi | Hasil |
 |---|---|
-| ❤️ **Lihat artikel tersimpan** | Semua artikel yang di-bookmark — tersimpan persisten |
-| ⬅️ **Swipe ke kiri** | Hapus bookmark dengan **undo snackbar** (3 detik) |
-| 🗑️ **Tap icon hapus semua** | Konfirmasi → hapus semua bookmark |
-
-### Detail Screen (WebView)
-| Aksi | Hasil |
-|---|---|
-| ❤️ **Tap hati di AppBar** | Bookmark / unbookmark artikel ini |
-| 📤 **Tap share** | Bagikan ke aplikasi lain (judul + link) via Share Plus |
-| 🌐 **Tap buka browser** | Buka artikel di browser eksternal (fallback jika WebView error) |
-| 🔄 **Tap retry** | Muat ulang WebView jika error loading |
-| 📊 **Progress bar** | Indikator loading WebView di bagian atas |
+| ❤️ **Lihat artikel tersimpan** | Semua bookmark — persisten di database |
+| ⬅️ **Swipe ke kiri** | Hapus bookmark dengan undo snackbar (3 detik) |
+| 🗑️ **Tap hapus semua** | Konfirmasi → hapus semua bookmark |
 
 ### Profile Screen
 | Aksi | Hasil |
 |---|---|
-| 👤 **Lihat info profil** | Avatar, nama, bio |
-| 📊 **Statistik** | Jumlah bookmark tersimpan |
-| 🎨 **Info tema** | Informasi tema ESPN yang digunakan |
-| 🙏 **Credits** | Tech stack & sumber daya yang digunakan |
+| 👤 **Hero section** | RF logo, nama app, versi |
+| 📊 **Statistik** | Jumlah bookmark, kategori, bahasa |
+| 📋 **Info cards** | Premium gradient cards: fitur, tema, bookmark, cache |
+| 🏷️ **Tech badges** | Flutter, Dart, Provider, SQFlite, NewsAPI, WebView |
 
 ---
 
@@ -505,8 +569,8 @@ Setiap ganti tab di Bottom Navigation Bar:
 Edit `lib/core/theme/app_theme.dart`:
 
 ```dart
-static const Color primaryAccent = Color(0xFFD50000);  // Ganti warna aksen
-static const Color background = Color(0xFF121212);       // Ganti background
+static const Color primaryAccent = Color(0xFFD50000);  // Warna aksen
+static const Color background = Color(0xFF121212);       // Background
 ```
 
 ### Menambah Kategori
@@ -521,12 +585,31 @@ static const Map<String, String> categoryMap = {
   'Bisnis': 'business',
   'Hiburan': 'entertainment',
   'Kesehatan': 'health',
-  // Tambah kategori baru di sini
+  'Politik': 'politics',
+  // Tambah di sini:
   'Sains': 'science',
 };
 ```
 
-Kategori baru akan **otomatis muncul** di horizontal scroll bar tanpa perlu perubahan lain.
+Kategori baru **otomatis muncul** di scroll bar tanpa perubahan lain.
+Jangan lupa tambah icon di `_getCategoryIcon()` di `home_screen.dart`.
+
+### Mengubah PageSize & Auto-Refresh
+
+Edit `lib/providers/news_list_provider.dart`:
+
+```dart
+final int _pageSize = 15;            // Jumlah berita per halaman
+static const Duration _autoRefreshDuration = Duration(hours: 6); // Interval refresh
+```
+
+### Mengubah Cache TTL
+
+Edit `lib/data/services/local_database_service.dart`:
+
+```dart
+static const int _cacheTTL = 30 * 60 * 1000; // 30 menit
+```
 
 ### Mengubah API
 
@@ -534,32 +617,22 @@ Edit file `.env`:
 
 ```env
 NEWS_API_KEY=your_new_key
-NEWS_API_BASE_URL=https://newsapi.org/v2  # Ganti ke API lain jika perlu
+NEWS_API_BASE_URL=https://newsapi.org/v2
 ```
+
+Kosongkan `NEWS_API_KEY` untuk mengaktifkan **Mock Mode** (data dummy).
 
 ### Mengubah Ikon Aplikasi
 
-1. Ganti `assets/icon/app_icon.png` (1024×1024)
-2. Jalankan `dart run flutter_launcher_icons`
-3. Rebuild aplikasi
+```bash
+# 1. Generate icon baru (butuh Python + Pillow)
+python scripts/generate_icon.py
 
-### Mengatur Cache TTL
+# 2. Generate semua platform icons
+dart run flutter_launcher_icons
 
-Edit `lib/data/services/local_database_service.dart`:
-
-```dart
-static const int _cacheTTL = 30 * 60 * 1000; // 30 menit dalam milidetik
-// Ubah sesuai kebutuhan, misal 60 menit:
-// static const int _cacheTTL = 60 * 60 * 1000;
-```
-
-### Mengubah pageSize
-
-Edit provider yang sesuai:
-
-```dart
-// lib/providers/news_list_provider.dart dan search_provider.dart
-final int _pageSize = 15; // Default 15, sesuaikan dengan kebutuhan
+# 3. Rebuild aplikasi
+flutter run
 ```
 
 ---
@@ -568,20 +641,20 @@ final int _pageSize = 15; // Default 15, sesuaikan dengan kebutuhan
 
 | Masalah | Solusi |
 |---|---|
-| **Build error terkait NDK** | Pastikan path project tidak mengandung karakter Unicode/Spasi. Pindahkan ke `C:\projects\` |
-| **"No issues found" tapi API error** | Cek `NEWS_API_KEY` di `.env` — pastikan valid & belum expired |
-| **Gambar tidak muncul** | Cek koneksi internet. `CachedNetworkImage` otomatis handle cache |
-| **WebView blank putih** | Pastikan AndroidManifest.xml punya `<uses-permission android:name="android.permission.INTERNET"/>` |
+| **Build error NDK** | Path project tidak boleh mengandung Unicode/Spasi → copy ke `C:\projects\` |
+| **API error terus** | Cek `NEWS_API_KEY` di `.env` — atau kosongkan untuk Mock Mode |
+| **Gambar tidak muncul** | Cek koneksi internet. CachedNetworkImage handle cache otomatis |
+| **WebView blank putih** | Pastikan ada `<uses-permission android:name="android.permission.INTERNET"/>` di AndroidManifest |
 | **`flutter pub get` error** | Coba `flutter clean && flutter pub get` |
-| **Data tidak muncul (offline)** | Cache sqflite akan terpakai jika sebelumnya pernah loading saat online |
-| **Keyboard muncul otomatis** | Sudah diperbaiki dengan menghapus autofocus pada searchbar |
-| **Error build "kotlin"** | Upgrade `share_plus` ke versi terbaru & set `android.builtInKotlin=true` di `gradle.properties` |
-| **Database error saat startup** | Hapus file database di direktori app: `reedsfeed_cache.db` |
+| **Database error startup** | Hapus file `reedsfeed_cache.db` di direktori app |
+| **Keyboard muncul otomatis** | Sudah diperbaiki — autofocus dihapus dari searchbar |
+| **Aplikasi terasa berat** | Cek `dart analyze` — pastikan tidak ada print() statements |
+| **dart:io error di Web** | Sudah diperbaiki dengan conditional import pattern |
 
-### ⚡ Komands Berguna
+### ⚡ Command Berguna
 
 ```bash
-flutter analyze            # Cek kualitas kode
+flutter analyze            # Cek kualitas kode — TARGET: 0 issues
 dart format .              # Format otomatis
 flutter test               # Jalankan unit test
 flutter pub outdated       # Cek dependency usang
@@ -613,11 +686,12 @@ Kami sangat terbuka untuk kontribusi! 🎉
 
 ### 📝 Style Guide
 
-- Ikuti struktur folder yang sudah ada (lihat [Struktur Folder](#-struktur-folder-lengkap))
-- Gunakan **Provider** untuk state management, jangan setState berlebihan
-- Semua widget pakai `const` constructor jika memungkinkan
-- Ikuti palet warna di `app_theme.dart` — jangan hardcode warna
-- Pastikan `flutter analyze` tidak ada error sebelum commit
+- Ikuti struktur folder yang sudah ada
+- Gunakan **Provider** untuk state management
+- Widget pakai `const` constructor jika memungkinkan
+- Ikuti palet warna di `app_theme.dart`
+- Pastikan `flutter analyze` — **No issues found** sebelum commit
+- Jangan gunakan `print()` — gunakan `debugPrint()` dari `package:flutter/foundation.dart`
 
 ---
 
@@ -665,7 +739,7 @@ copies or substantial portions of the Software.
     <strong>Dibuat dengan ❤️ oleh kerlan404</strong>
   </p>
   <p>
-    <sub>Last updated: 2026-07-20</sub>
+    <sub>Last updated: 2026-07-21</sub>
   </p>
   <br>
 </div>

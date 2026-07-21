@@ -129,7 +129,7 @@ class NewsApiService {
     // Handle 'all' category — combine all categories
     if (category == 'all') {
       final combined = <NewsArticle>[];
-      final categories = ['sports', 'technology', 'business', 'entertainment', 'health'];
+      final categories = ['sports', 'technology', 'business', 'entertainment', 'health', 'politics'];
       for (final cat in categories) {
         combined.addAll(_getMockHeadlines(cat, 1, 6));
       }
@@ -395,6 +395,69 @@ class NewsApiService {
           urlToImage: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800',
           publishedAt: now.subtract(const Duration(hours: 18)).toIso8601String(),
           content: 'Tempe kembali mencuri perhatian dunia...',
+        ),
+      ]);
+    } else if (category == 'politics') {
+      allArticles.addAll([
+        NewsArticle(
+          title: 'DPR Sahkan RUU Omnibus Law Versi Revisi: Dampak Besar bagi Dunia Usaha',
+          description: 'Setelah melalui pembahasan alot selama 8 bulan, DPR akhirnya mengesahkan RUU kontroversial ini dengan 287 suara setuju.',
+          sourceName: 'Kompas Politik',
+          author: 'Parlementaria',
+          url: 'https://www.kompas.com',
+          urlToImage: 'https://images.unsplash.com/photo-1529543544282-ea114074bc5e?w=800',
+          publishedAt: now.subtract(const Duration(hours: 2)).toIso8601String(),
+          content: 'Sidang paripurna DRI berlangsung alot hingga larut malam...',
+        ),
+        NewsArticle(
+          title: 'Pemilihan Kepala Daerah Serentak: 37 Provinsi Siap Gelar Pemilihan November Mendatang',
+          description: 'KPU menyatakan kesiapan penuh dengan daftar pemilih tetap mencapai 180 juta jiwa dan 1.200 pasangan calon terdaftar.',
+          sourceName: 'Detik News',
+          author: 'Pemilu Watch',
+          url: 'https://www.detik.com',
+          urlToImage: 'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?w=800',
+          publishedAt: now.subtract(const Duration(hours: 5)).toIso8601String(),
+          content: 'Tahapan Pilkada Serentak 2026 memasuki babak krusial...',
+        ),
+        NewsArticle(
+          title: 'Presiden dan Oposisi Sepakat Bentuk Tim Reformasi Birokrasi untuk Pemberantasan Korupsi',
+          description: 'Kesepakatan bersejarah ini disambut positif oleh publik dan menandai babak baru kerja sama partai politik di Indonesia.',
+          sourceName: 'TempoNews',
+          author: 'Reformis Muda',
+          url: 'https://www.tempo.com',
+          urlToImage: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800',
+          publishedAt: now.subtract(const Duration(hours: 8)).toIso8601String(),
+          content: 'Isu pemberantasan korupsi kembali menghangat di panggung politik...',
+        ),
+        NewsArticle(
+          title: 'Menteri Luar Negeri Dorong Kerja Sama ASEAN Hadapi Krisis Regional Myamar',
+          description: 'Indonesia kembali mengambil peran sebagai mediator dalam konflik yang telah berlangsung lebih dari 5 tahun di kawasan.',
+          sourceName: 'Antara News',
+          author: 'Diplomat Watch',
+          url: 'https://www.antaranews.com',
+          urlToImage: 'https://images.unsplash.com/photo-1559827291-baf8f0f60cef?w=800',
+          publishedAt: now.subtract(const Duration(hours: 12)).toIso8601String(),
+          content: 'Politik luar negeri Indonesia kembali diuji...',
+        ),
+        NewsArticle(
+          title: 'APBN 2026 Disepakati: Alokasi Pendidikan dan Kesehatan di Atas 20% Total Anggaran',
+          description: 'Kesepakatan antara DPR dan pemerintah menempatkan pendidikan dan kesehatan sebagai prioritas utama pembangunan nasional 2026.',
+          sourceName: 'CNBC Indonesia',
+          author: 'Anggaran Ahli',
+          url: 'https://www.cnbcindonesia.com',
+          urlToImage: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800',
+          publishedAt: now.subtract(const Duration(hours: 18)).toIso8601String(),
+          content: 'Postur APBN tahun ini dinilai lebih berpihak pada rakyat...',
+        ),
+        NewsArticle(
+          title: 'Partai Politik Baru Resmi Terdaftar di KPU, Targetkan Kursi DPR pada Pemilu 2029',
+          description: 'Partai dengan basis pemilih milenial ini mengusung platform transparansi digital dan anti-korupsi sebagai isu utama.',
+          sourceName: 'Kumparan News',
+          author: 'Politisi Millennial',
+          url: 'https://www.kumparan.com',
+          urlToImage: 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=800',
+          publishedAt: now.subtract(const Duration(days: 1)).toIso8601String(),
+          content: 'Kancah politik Indonesia kedatangan pemain baru...',
         ),
       ]);
     }
