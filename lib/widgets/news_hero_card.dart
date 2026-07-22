@@ -44,10 +44,10 @@ class NewsHeroCard extends StatelessWidget {
                             imageUrl: article.urlToImage!,
                             fit: BoxFit.cover,
                             placeholder: (context, url) => Container(
-                              color: Colors.grey[850],
+                              color: AppTheme.surface,
                             ),
                             errorWidget: (context, url, error) => Container(
-                              color: Colors.grey[900],
+                              color: AppTheme.surface,
                               child: const Icon(
                                 Icons.broken_image,
                                 size: 40,
@@ -60,7 +60,7 @@ class NewsHeroCard extends StatelessWidget {
                     )
                   else
                     Container(
-                      color: Colors.grey[900],
+                      color: AppTheme.surface,
                       child: const Icon(
                         Icons.image_not_supported,
                         size: 40,

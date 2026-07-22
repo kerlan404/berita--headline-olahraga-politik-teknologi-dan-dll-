@@ -18,6 +18,7 @@ class SearchProvider with ChangeNotifier {
   List<NewsArticle> _searchResults = [];
   int _page = 1;
   final int _pageSize = 15;
+  int _requestId = 0; // #2 fix: cancel request basi
 
   bool _isLoading = false;
   bool _isLoadingMore = false;
@@ -49,6 +50,7 @@ class SearchProvider with ChangeNotifier {
     }
 
     _query = query;
+    _requestId++; // #2 fix: cancel request basi saat query baru
 
     // Record search history on new search
     if (isRefresh) {
@@ -60,6 +62,7 @@ class SearchProvider with ChangeNotifier {
       _hasMore = true;
     }
 
+    final currentRequestId = _requestId;
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -70,6 +73,9 @@ class SearchProvider with ChangeNotifier {
         page: _page,
         pageSize: _pageSize,
       );
+
+      // #2 fix: skip jika ada request yang lebih baru
+      if (currentRequestId != _requestId) return;
 
       if (isRefresh) {
         _searchResults = results;
@@ -83,12 +89,15 @@ class SearchProvider with ChangeNotifier {
 
       _errorMessage = null;
     } catch (e) {
+      if (currentRequestId != _requestId) return;
       _errorMessage = e.toString().replaceAll('Exception: ', '');
       _searchResults = [];
       _hasMore = false;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      if (currentRequestId == _requestId) {
+        _isLoading = false;
+        notifyListeners();
+      }
     }
   }
 
@@ -96,18 +105,24 @@ class SearchProvider with ChangeNotifier {
   Future<void> loadMore() async {
     if (_isLoadingMore || !_hasMore || _query.trim().isEmpty) return;
 
+    final currentRequestId = _requestId;
     _isLoadingMore = true;
     _errorMessage = null;
     notifyListeners();
 
-    _page++;
+    final targetPage = _page + 1; // #2 fix: simpan target di variable
 
     try {
       final nextResults = await _repository.searchNews(
         query: _query,
-        page: _page,
+        page: targetPage,
         pageSize: _pageSize,
       );
+
+      // #2 fix: skip jika ada request yang lebih baru
+      if (currentRequestId != _requestId) return;
+
+      _page = targetPage;
 
       if (nextResults.isEmpty) {
         _hasMore = false;
@@ -119,11 +134,13 @@ class SearchProvider with ChangeNotifier {
       }
       _errorMessage = null;
     } catch (e) {
+      if (currentRequestId != _requestId) return;
       _errorMessage = e.toString().replaceAll('Exception: ', '');
-      _page--; // Rollback page on failure
     } finally {
-      _isLoadingMore = false;
-      notifyListeners();
+      if (currentRequestId == _requestId) {
+        _isLoadingMore = false;
+        notifyListeners();
+      }
     }
   }
 
