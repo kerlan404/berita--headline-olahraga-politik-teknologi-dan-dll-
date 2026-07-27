@@ -19,40 +19,50 @@ class NewsHeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: AppTheme.dividerFor(isDark).withValues(alpha: 0.5),
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(4),
+      ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Hero Image (16:9) with gradient overlay
+            // Hero image 16:9 with overlay
             AspectRatio(
               aspectRatio: 16 / 9,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  // Background Image with Parallax
+                  // Background image with parallax
                   if (article.urlToImage != null && article.urlToImage!.isNotEmpty)
                     ClipRect(
                       child: Transform.translate(
                         offset: Offset(0, -scrollOffset * 0.15),
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: double.infinity,
+                        child: ColorFiltered(
+                          colorFilter: const ColorFilter.matrix(<double>[
+                            0.33, 0.33, 0.33, 0, 0,
+                            0.33, 0.33, 0.33, 0, 0,
+                            0.33, 0.33, 0.33, 0, 0,
+                            0, 0, 0, 1, 0,
+                          ]),
                           child: CachedNetworkImage(
                             imageUrl: article.urlToImage!,
                             fit: BoxFit.cover,
-                            placeholder: (context, url) => Container(
-                              color: AppTheme.surface,
+                            placeholder: (_, __) => Container(
+                              color: AppTheme.cardBgFor(isDark),
                             ),
-                            errorWidget: (context, url, error) => Container(
-                              color: AppTheme.surface,
-                              child: const Icon(
-                                Icons.broken_image,
-                                size: 40,
-                                color: AppTheme.textSecondary,
-                              ),
+                            errorWidget: (_, __, ___) => Container(
+                              color: AppTheme.cardBgFor(isDark),
+                              child: const Icon(Icons.broken_image, size: 40,
+                                  color: AppTheme.textSecondary),
                             ),
                           ),
                         ),
@@ -60,19 +70,15 @@ class NewsHeroCard extends StatelessWidget {
                     )
                   else
                     Container(
-                      color: AppTheme.surface,
-                      child: const Icon(
-                        Icons.image_not_supported,
-                        size: 40,
-                        color: AppTheme.textSecondary,
-                      ),
+                      color: AppTheme.cardBgFor(isDark),
+                      child: const Icon(Icons.image_not_supported, size: 40,
+                          color: AppTheme.textSecondary),
                     ),
-                  // Gradient Overlay - bottom to top
+
+                  // Gradient overlay - bottom to top
                   Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    height: 120,
+                    left: 0, right: 0, bottom: 0,
+                    height: 140,
                     child: IgnorePointer(
                       child: Container(
                         decoration: BoxDecoration(
@@ -88,34 +94,31 @@ class NewsHeroCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Top-left accent badge
+
+                  // HEADLINE badge top-left
                   Positioned(
                     top: 12,
                     left: 12,
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryAccent,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
+                      color: AppTheme.primaryContainer,
                       child: Text(
                         'HEADLINE',
-                        style: TextStyle(
+                        style: AppTheme.labelBold.copyWith(
                           fontSize: 10,
-                          fontWeight: FontWeight.w700,
                           color: Colors.white,
                           letterSpacing: 1.0,
                         ),
                       ),
                     ),
                   ),
-                  // Top-right bookmark button
+
+                  // Bookmark top-right
                   Positioned(
                     top: 12,
                     right: 12,
                     child: Container(
-                      width: 36,
-                      height: 36,
+                      width: 36, height: 36,
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(alpha: 0.4),
                         shape: BoxShape.circle,
@@ -129,53 +132,46 @@ class NewsHeroCard extends StatelessWidget {
                       ),
                     ),
                   ),
+
                   // Title overlay at bottom
                   Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
+                    left: 0, right: 0, bottom: 0,
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Source & Time
+                          // Time & Source
                           Row(
                             children: [
-                              Icon(
-                                Icons.schedule,
-                                size: 12,
-                                color: Colors.white.withValues(alpha: 0.8),
-                              ),
+                              Icon(Icons.schedule, size: 12,
+                                  color: Colors.white.withValues(alpha: 0.8)),
                               const SizedBox(width: 4),
                               Text(
-                                DateFormatter.getRelativeTime(article.publishedAt),
-                                style: TextStyle(
-                                  fontSize: 11,
+                                DateFormatter.getRelativeTime(article.publishedAt).toUpperCase(),
+                                style: AppTheme.labelSm.copyWith(
+                                  fontSize: 10,
                                   color: Colors.white.withValues(alpha: 0.8),
                                 ),
                               ),
                               const SizedBox(width: 12),
                               Text(
                                 article.sourceName?.toUpperCase() ?? 'NEWS',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
+                                style: AppTheme.labelBold.copyWith(
+                                  fontSize: 10,
                                   color: Colors.white.withValues(alpha: 0.8),
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 6),
-                          // Title
+                          const SizedBox(height: 8),
+                          // Title - Anton uppercase
                           Text(
                             article.title,
-                            style: const TextStyle(
+                            style: AppTheme.headlineMd.copyWith(
                               color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              height: 1.3,
-                              shadows: [
+                              fontSize: 20,
+                              shadows: const [
                                 Shadow(
                                   color: Colors.black54,
                                   blurRadius: 8,
@@ -193,13 +189,17 @@ class NewsHeroCard extends StatelessWidget {
                 ],
               ),
             ),
-            // Description section below image
+
+            // Description below image
             if (article.description != null && article.description!.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
                 child: Text(
                   article.description!,
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: AppTheme.bodyMd.copyWith(
+                    color: AppTheme.textSecondaryFor(isDark),
+                    fontSize: 14,
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),

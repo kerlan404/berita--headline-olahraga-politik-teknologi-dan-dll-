@@ -31,40 +31,44 @@ class ArticlePreviewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final hasImage = article.urlToImage != null && article.urlToImage!.isNotEmpty;
 
     return Scaffold(
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // ── SliverAppBar with hero image ──
+          // Hero image
           SliverAppBar(
             expandedHeight: hasImage ? 340 : 120,
             pinned: true,
-            backgroundColor: AppTheme.background,
+            backgroundColor: isDark ? AppTheme.darkBackground : AppTheme.surfaceLight,
             leading: IconButton(
               icon: Container(
-                width: 38,
-                height: 38,
+                width: 38, height: 38,
                 decoration: BoxDecoration(
-                  color: AppTheme.surface.withValues(alpha: 0.85),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.divider),
+                  color: AppTheme.cardBgFor(isDark).withValues(alpha: 0.85),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(
+                    color: AppTheme.dividerFor(isDark),
+                    width: 1,
+                  ),
                 ),
                 child: const Icon(Icons.arrow_back_rounded, size: 20),
               ),
               onPressed: () => Navigator.pop(context),
             ),
             actions: [
-              // Share button
               Container(
-                width: 38,
-                height: 38,
+                width: 38, height: 38,
                 margin: const EdgeInsets.only(right: 4),
                 decoration: BoxDecoration(
-                  color: AppTheme.surface.withValues(alpha: 0.85),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.divider),
+                  color: AppTheme.cardBgFor(isDark).withValues(alpha: 0.85),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(
+                    color: AppTheme.dividerFor(isDark),
+                    width: 1,
+                  ),
                 ),
                 child: IconButton(
                   icon: const Icon(Icons.share_rounded, size: 18),
@@ -73,21 +77,19 @@ class ArticlePreviewScreen extends StatelessWidget {
                   padding: EdgeInsets.zero,
                 ),
               ),
-              // Bookmark button
               Container(
-                width: 38,
-                height: 38,
+                width: 38, height: 38,
                 margin: const EdgeInsets.only(right: 12),
                 decoration: BoxDecoration(
-                  color: AppTheme.surface.withValues(alpha: 0.85),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.divider),
+                  color: AppTheme.cardBgFor(isDark).withValues(alpha: 0.85),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(
+                    color: AppTheme.dividerFor(isDark),
+                    width: 1,
+                  ),
                 ),
                 child: Center(
-                  child: BookmarkButton(
-                    article: article,
-                    iconSize: 18,
-                  ),
+                  child: BookmarkButton(article: article, iconSize: 18),
                 ),
               ),
             ],
@@ -96,26 +98,38 @@ class ArticlePreviewScreen extends StatelessWidget {
                   ? Stack(
                       fit: StackFit.expand,
                       children: [
-                        CachedNetworkImage(
-                          imageUrl: article.urlToImage!,
-                          fit: BoxFit.cover,
-                          placeholder: (_, __) => Container(color: AppTheme.surface),
-                          errorWidget: (_, __, ___) => Container(
-                            color: AppTheme.surface,
-                            child: const Icon(Icons.image_not_supported_rounded, size: 48, color: AppTheme.textSecondary),
+                        ColorFiltered(
+                          colorFilter: const ColorFilter.matrix(<double>[
+                            0.33, 0.33, 0.33, 0, 0,
+                            0.33, 0.33, 0.33, 0, 0,
+                            0.33, 0.33, 0.33, 0, 0,
+                            0, 0, 0, 1, 0,
+                          ]),
+                          child: CachedNetworkImage(
+                            imageUrl: article.urlToImage!,
+                            fit: BoxFit.cover,
+                            placeholder: (_, __) =>
+                                Container(color: AppTheme.cardBgFor(isDark)),
+                            errorWidget: (_, __, ___) => Container(
+                              color: AppTheme.cardBgFor(isDark),
+                              child: const Icon(Icons.image_not_supported_rounded,
+                                  size: 48, color: AppTheme.textSecondary),
+                            ),
                           ),
                         ),
-                        // Bottom gradient
                         Positioned(
                           left: 0, right: 0, bottom: 0, height: 200,
                           child: IgnorePointer(child: Container(
                             decoration: BoxDecoration(gradient: LinearGradient(
                               begin: Alignment.bottomCenter, end: Alignment.topCenter,
-                              colors: [AppTheme.background.withValues(alpha: 1.0), AppTheme.background.withValues(alpha: 0.7), Colors.transparent],
+                              colors: [
+                                (isDark ? AppTheme.darkBackground : AppTheme.surfaceLight).withValues(alpha: 1.0),
+                                (isDark ? AppTheme.darkBackground : AppTheme.surfaceLight).withValues(alpha: 0.7),
+                                Colors.transparent,
+                              ],
                             )),
                           )),
                         ),
-                        // Top gradient
                         Positioned(
                           left: 0, right: 0, top: 0, height: 80,
                           child: IgnorePointer(child: Container(
@@ -125,64 +139,59 @@ class ArticlePreviewScreen extends StatelessWidget {
                             )),
                           )),
                         ),
-                        // Source badge
                         Positioned(
                           left: 16, bottom: 24,
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                            decoration: BoxDecoration(
-                              color: AppTheme.primaryAccent,
-                              borderRadius: BorderRadius.circular(8),
-                              boxShadow: [BoxShadow(color: AppTheme.primaryAccent.withValues(alpha: 0.4), blurRadius: 8, offset: const Offset(0, 4))],
-                            ),
+                            color: AppTheme.primaryContainer,
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 const Icon(Icons.source_rounded, size: 12, color: Colors.white),
                                 const SizedBox(width: 6),
                                 Text(article.sourceName?.toUpperCase() ?? 'NEWS',
-                                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: 1.0)),
+                                    style: AppTheme.labelBold.copyWith(
+                                        fontSize: 10, color: Colors.white, letterSpacing: 1)),
                               ],
                             ),
                           ),
                         ),
                       ],
                     )
-                  : Container(color: AppTheme.surface),
+                  : Container(color: AppTheme.cardBgFor(isDark)),
             ),
           ),
 
-          // ── Article Content ──
+          // Content
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 24, 20, 100),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ═══ TITLE ═══
-                  Text(
-                    article.title,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w900,
-                      color: AppTheme.textPrimary,
-                      height: 1.35,
-                      letterSpacing: -0.3,
-                    ),
-                  ),
+                  // TITLE
+                  Text(article.title,
+                      style: AppTheme.headlineLgMobile.copyWith(
+                          color: AppTheme.textPrimaryFor(isDark), fontSize: 26)),
                   const SizedBox(height: 16),
 
-                  // ═══ META: Author + Time + Source ═══
+                  // Meta
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CircleAvatar(
-                        radius: 16,
-                        backgroundColor: AppTheme.primaryAccent.withValues(alpha: 0.15),
-                        child: Text(
-                          (article.author != null && article.author!.isNotEmpty)
-                              ? article.author![0].toUpperCase() : 'N',
-                          style: const TextStyle(color: AppTheme.primaryAccent, fontWeight: FontWeight.w800, fontSize: 14),
+                      Container(
+                        width: 32, height: 32,
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryContainer.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Center(
+                          child: Text(
+                            (article.author != null && article.author!.isNotEmpty)
+                                ? article.author![0].toUpperCase() : 'N',
+                            style: AppTheme.labelBold.copyWith(
+                                color: AppTheme.primaryContainer, fontSize: 14),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -190,23 +199,29 @@ class ArticlePreviewScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              article.author ?? 'Redaksi',
-                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
-                              maxLines: 1, overflow: TextOverflow.ellipsis,
-                            ),
+                            Text(article.author ?? 'Redaksi',
+                                style: AppTheme.labelBold.copyWith(
+                                    fontSize: 13, color: AppTheme.textPrimaryFor(isDark)),
+                                maxLines: 1, overflow: TextOverflow.ellipsis),
                             const SizedBox(height: 2),
                             Row(
                               children: [
-                                Icon(Icons.schedule_rounded, size: 11, color: AppTheme.textSecondary.withValues(alpha: 0.7)),
+                                Icon(Icons.schedule_rounded, size: 11,
+                                    color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.7)),
                                 const SizedBox(width: 4),
-                                Text(DateFormatter.getRelativeTime(article.publishedAt),
-                                  style: TextStyle(fontSize: 11, color: AppTheme.textSecondary.withValues(alpha: 0.7))),
+                                Text(
+                                    DateFormatter.getRelativeTime(article.publishedAt).toUpperCase(),
+                                    style: AppTheme.labelSm.copyWith(
+                                        fontSize: 10,
+                                        color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.7))),
                                 const SizedBox(width: 12),
-                                Icon(Icons.timer_outlined, size: 11, color: AppTheme.textSecondary.withValues(alpha: 0.7)),
+                                Icon(Icons.timer_outlined, size: 11,
+                                    color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.7)),
                                 const SizedBox(width: 4),
-                                Text('3 menit baca',
-                                  style: TextStyle(fontSize: 11, color: AppTheme.textSecondary.withValues(alpha: 0.7))),
+                                Text('3 MENIT BACA',
+                                    style: AppTheme.labelSm.copyWith(
+                                        fontSize: 10,
+                                        color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.7))),
                               ],
                             ),
                           ],
@@ -216,47 +231,42 @@ class ArticlePreviewScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
 
-                  // ═══ SOURCE & CATEGORY CHIPS ═══
+                  // Source & Category chips
                   Row(
                     children: [
-                      // Source chip
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
-                          color: AppTheme.surface,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: AppTheme.divider),
+                          border: Border.all(
+                            color: AppTheme.dividerFor(isDark).withValues(alpha: 0.5), width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(4),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.business_rounded, size: 12, color: AppTheme.textSecondary.withValues(alpha: 0.7)),
+                            Icon(Icons.business_rounded, size: 12,
+                                color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.7)),
                             const SizedBox(width: 6),
-                            Text(
-                              article.sourceName ?? 'Sumber Tidak Diketahui',
-                              style: TextStyle(fontSize: 11, color: AppTheme.textSecondary.withValues(alpha: 0.8), fontWeight: FontWeight.w600),
-                            ),
+                            Text(article.sourceName ?? 'Sumber',
+                                style: AppTheme.labelBold.copyWith(
+                                    fontSize: 11, color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.8))),
                           ],
                         ),
                       ),
                       const SizedBox(width: 8),
-                      // Category chip
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryAccent.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: AppTheme.primaryAccent.withValues(alpha: 0.2)),
-                        ),
+                        color: AppTheme.primaryContainer.withValues(alpha: 0.1),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.category_rounded, size: 12, color: AppTheme.primaryAccent.withValues(alpha: 0.7)),
+                            Icon(Icons.category_rounded, size: 12,
+                                color: AppTheme.primaryContainer.withValues(alpha: 0.7)),
                             const SizedBox(width: 6),
-                            Text(
-                              'Headline',
-                              style: TextStyle(fontSize: 11, color: AppTheme.primaryAccent.withValues(alpha: 0.8), fontWeight: FontWeight.w600),
-                            ),
+                            Text('HEADLINE',
+                                style: AppTheme.labelBold.copyWith(
+                                    fontSize: 11, color: AppTheme.primaryContainer.withValues(alpha: 0.8))),
                           ],
                         ),
                       ),
@@ -264,109 +274,98 @@ class ArticlePreviewScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
 
-                  // ═══ ACCENT DIVIDER ═══
-                  Container(
-                    height: 3, width: 48,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(colors: [AppTheme.primaryAccent, AppTheme.secondaryAccent]),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
+                  // Accent divider
+                  Container(height: 3, width: 48, color: AppTheme.primaryContainer),
                   const SizedBox(height: 20),
 
-                  // ═══ DESKRIPSI LENGKAP ═══
+                  // Description
                   if (article.description != null && article.description!.isNotEmpty) ...[
-                    const Text(
-                      'RINGKASAN BERITA',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppTheme.primaryAccent, letterSpacing: 1.0),
-                    ),
+                    Text('RINGKASAN BERITA',
+                        style: AppTheme.labelBold.copyWith(
+                            fontSize: 11, color: AppTheme.primaryContainer, letterSpacing: 1)),
                     const SizedBox(height: 8),
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppTheme.surface.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppTheme.divider.withValues(alpha: 0.5)),
-                      ),
-                      child: Text(
-                        article.description!,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          color: AppTheme.textPrimary,
-                          height: 1.7,
-                          fontWeight: FontWeight.w400,
+                        border: Border.all(
+                          color: AppTheme.dividerFor(isDark).withValues(alpha: 0.5), width: 1,
                         ),
+                        borderRadius: BorderRadius.circular(4),
                       ),
+                      child: Text(article.description!,
+                          style: AppTheme.bodyMd.copyWith(
+                              fontSize: 14, color: AppTheme.textPrimaryFor(isDark))),
                     ),
                     const SizedBox(height: 20),
                   ],
 
-                  // ═══ KONTEN ARTIKEL ═══
+                  // Content
                   if (article.content != null && article.content!.isNotEmpty) ...[
-                    const Text(
-                      'ISI BERITA',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppTheme.textSecondary, letterSpacing: 1.0),
-                    ),
+                    Text('ISI BERITA',
+                        style: AppTheme.labelBold.copyWith(
+                            fontSize: 11, color: AppTheme.textSecondaryFor(isDark), letterSpacing: 1)),
                     const SizedBox(height: 8),
-                    Text(
-                      article.content!,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: AppTheme.textSecondary,
-                        height: 1.8,
-                      ),
-                    ),
+                    Text(article.content!,
+                        style: AppTheme.bodyMd.copyWith(
+                            fontSize: 13, color: AppTheme.textSecondaryFor(isDark))),
                     const SizedBox(height: 24),
                   ],
 
-                  // ═══ INFO PANEL: Detail Artikel ═══
+                  // Info panel
                   Container(
+                    width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppTheme.surface,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: AppTheme.divider),
+                      border: Border.all(
+                        color: AppTheme.dividerFor(isDark).withValues(alpha: 0.5), width: 1,
+                      ),
+                      borderRadius: BorderRadius.circular(4),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.info_outline_rounded, size: 18, color: AppTheme.primaryAccent.withValues(alpha: 0.7)),
+                            Icon(Icons.info_outline_rounded, size: 18,
+                                color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.5)),
                             const SizedBox(width: 8),
-                            const Text(
-                              'DETAIL ARTIKEL',
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppTheme.textSecondary, letterSpacing: 0.8),
-                            ),
+                            Text('DETAIL ARTIKEL',
+                                style: AppTheme.labelBold.copyWith(
+                                    fontSize: 11, color: AppTheme.textSecondaryFor(isDark), letterSpacing: 0.8)),
                           ],
                         ),
                         const SizedBox(height: 12),
-                        _infoRow(Icons.person_outline, 'Penulis', article.author ?? 'Tidak diketahui'),
-                        _infoRow(Icons.source_rounded, 'Sumber', article.sourceName ?? 'Tidak diketahui'),
-                        _infoRow(Icons.schedule_rounded, 'Dipublikasikan', _formatDate(article.publishedAt)),
-                        _infoRow(Icons.timer_outlined, 'Estimasi baca', '3 menit'),
+                        _infoRow(Icons.person_outline, 'Penulis', article.author ?? 'Tidak diketahui', isDark),
+                        _infoRow(Icons.source_rounded, 'Sumber', article.sourceName ?? 'Tidak diketahui', isDark),
+                        _infoRow(Icons.schedule_rounded, 'Publikasi', _formatDate(article.publishedAt), isDark),
+                        _infoRow(Icons.timer_outlined, 'Estimasi baca', '3 menit', isDark),
                       ],
                     ),
                   ),
                   const SizedBox(height: 16),
 
-                  // ═══ HINT: Baca Selengkapnya ═══
+                  // Hint
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryAccent.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppTheme.primaryAccent.withValues(alpha: 0.1)),
+                      border: Border.all(
+                        color: AppTheme.primaryContainer.withValues(alpha: 0.2), width: 1,
+                      ),
+                      borderRadius: BorderRadius.circular(4),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.touch_app_rounded, size: 18, color: AppTheme.primaryAccent),
+                        const Icon(Icons.touch_app_rounded, size: 18,
+                            color: AppTheme.primaryContainer),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            'Ketuk tombol "BACA LENGKAP" untuk melihat artikel ini di WebView, lalu buka di browser jika ingin lebih lengkap.',
-                            style: TextStyle(fontSize: 12, color: AppTheme.textSecondary.withValues(alpha: 0.8), height: 1.4),
+                            'Ketuk "BACA LENGKAP" untuk melihat artikel di WebView.',
+                            style: AppTheme.labelSm.copyWith(
+                              fontSize: 11,
+                              color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.8),
+                            ),
                           ),
                         ),
                       ],
@@ -379,29 +378,28 @@ class ArticlePreviewScreen extends StatelessWidget {
         ],
       ),
 
-      // ═══ BOTTOM BAR: BACA LENGKAP ═══
+      // Bottom bar
       bottomNavigationBar: Container(
         padding: EdgeInsets.only(
           left: 20, right: 20, top: 12,
           bottom: MediaQuery.of(context).padding.bottom + 12,
         ),
         decoration: BoxDecoration(
-          color: AppTheme.surface.withValues(alpha: 0.95),
-          border: Border(top: BorderSide(color: AppTheme.divider.withValues(alpha: 0.5))),
+          color: AppTheme.cardBgFor(isDark).withValues(alpha: 0.95),
+          border: Border(top: BorderSide(
+            color: AppTheme.dividerFor(isDark).withValues(alpha: 0.5))),
         ),
         child: SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
             onPressed: () => _openFullArticle(context),
             icon: const Icon(Icons.open_in_new_rounded, size: 20, color: Colors.white),
-            label: const Text(
-              'BACA LENGKAP',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, letterSpacing: 0.8, fontSize: 14),
-            ),
+            label: Text('BACA LENGKAP',
+                style: AppTheme.labelBold.copyWith(color: Colors.white, fontSize: 14, letterSpacing: 0.8)),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryAccent,
+              backgroundColor: AppTheme.primaryContainer,
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
               elevation: 0,
             ),
           ),
@@ -410,24 +408,25 @@ class ArticlePreviewScreen extends StatelessWidget {
     );
   }
 
-  Widget _infoRow(IconData icon, String label, String value) {
+  Widget _infoRow(IconData icon, String label, String value, bool isDark) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
-          Icon(icon, size: 14, color: AppTheme.textSecondary.withValues(alpha: 0.5)),
+          Icon(icon, size: 14,
+              color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.5)),
           const SizedBox(width: 8),
           SizedBox(
             width: 100,
             child: Text(label,
-              style: TextStyle(fontSize: 11, color: AppTheme.textSecondary.withValues(alpha: 0.6), fontWeight: FontWeight.w500),
-            ),
+                style: AppTheme.labelSm.copyWith(
+                    fontSize: 11, color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.6))),
           ),
           Expanded(
             child: Text(value,
-              style: const TextStyle(fontSize: 12, color: AppTheme.textPrimary, fontWeight: FontWeight.w500),
-              maxLines: 1, overflow: TextOverflow.ellipsis,
-            ),
+                style: AppTheme.labelBold.copyWith(
+                    fontSize: 12, color: AppTheme.textPrimaryFor(isDark)),
+                maxLines: 1, overflow: TextOverflow.ellipsis),
           ),
         ],
       ),
@@ -437,10 +436,8 @@ class ArticlePreviewScreen extends StatelessWidget {
   String _formatDate(String dateStr) {
     try {
       final dt = DateTime.parse(dateStr);
-      final months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+      final months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
       return '${dt.day} ${months[dt.month - 1]} ${dt.year}';
-    } catch (_) {
-      return dateStr;
-    }
+    } catch (_) { return dateStr; }
   }
 }

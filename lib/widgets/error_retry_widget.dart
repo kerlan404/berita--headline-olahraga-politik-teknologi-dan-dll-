@@ -13,6 +13,8 @@ class ErrorRetryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -20,43 +22,46 @@ class ErrorRetryWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error_outline_rounded,
-              size: 54,
-              color: AppTheme.primaryAccent,
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: AppTheme.primaryContainer.withValues(alpha: 0.3),
+                  width: 2,
+                ),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const Icon(
+                Icons.error_outline_rounded,
+                size: 40,
+                color: AppTheme.primaryContainer,
+              ),
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'Gagal Memuat Berita',
-              style: TextStyle(
+            const SizedBox(height: 20),
+            Text(
+              'GAGAL MEMUAT BERITA',
+              style: AppTheme.headlineMd.copyWith(
+                color: AppTheme.textPrimaryFor(isDark),
                 fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               errorMessage,
-              style: const TextStyle(
+              style: AppTheme.bodyMd.copyWith(
                 fontSize: 13,
-                color: AppTheme.textSecondary,
+                color: AppTheme.textSecondaryFor(isDark),
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: onRetry,
-              icon: const Icon(Icons.refresh, color: Colors.white),
-              label: const Text(
-                'Coba Lagi',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryAccent,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
+              icon: const Icon(Icons.refresh, color: Colors.white, size: 18),
+              label: Text(
+                'COBA LAGI',
+                style: AppTheme.labelBold.copyWith(color: Colors.white),
               ),
             ),
           ],

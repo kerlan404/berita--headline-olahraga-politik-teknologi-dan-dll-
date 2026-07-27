@@ -17,42 +17,56 @@ class CompactGridCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: AppTheme.surface,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: AppTheme.divider),
+          color: AppTheme.cardBgFor(isDark),
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(
+            color: AppTheme.dividerFor(isDark).withValues(alpha: 0.5),
+            width: 1,
+          ),
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Image
+            // Image with grayscale
             AspectRatio(
               aspectRatio: 16 / 10,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
                   if (article.urlToImage != null && article.urlToImage!.isNotEmpty)
-                    CachedNetworkImage(
-                      imageUrl: article.urlToImage!,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        color: AppTheme.surface,
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        color: AppTheme.surface,
-                        child: const Icon(Icons.broken_image, color: AppTheme.textSecondary, size: 28),
+                    ColorFiltered(
+                      colorFilter: const ColorFilter.matrix(<double>[
+                        0.33, 0.33, 0.33, 0, 0,
+                        0.33, 0.33, 0.33, 0, 0,
+                        0.33, 0.33, 0.33, 0, 0,
+                        0, 0, 0, 1, 0,
+                      ]),
+                      child: CachedNetworkImage(
+                        imageUrl: article.urlToImage!,
+                        fit: BoxFit.cover,
+                        placeholder: (_, __) => Container(color: AppTheme.cardBgFor(isDark)),
+                        errorWidget: (_, __, ___) => Container(
+                          color: AppTheme.cardBgFor(isDark),
+                          child: const Icon(Icons.broken_image,
+                              color: AppTheme.textSecondary, size: 28),
+                        ),
                       ),
                     )
                   else
                     Container(
-                      color: AppTheme.surface,
-                      child: const Icon(Icons.image_not_supported, color: AppTheme.textSecondary, size: 28),
+                      color: AppTheme.cardBgFor(isDark),
+                      child: const Icon(Icons.image_not_supported,
+                          color: AppTheme.textSecondary, size: 28),
                     ),
+
                   // Gradient overlay
                   Positioned(
                     left: 0, right: 0, bottom: 0,
@@ -72,6 +86,7 @@ class CompactGridCard extends StatelessWidget {
                       ),
                     ),
                   ),
+
                   // Bookmark overlay
                   Positioned(
                     top: 6,
@@ -85,6 +100,7 @@ class CompactGridCard extends StatelessWidget {
                 ],
               ),
             ),
+
             // Content
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
@@ -94,11 +110,9 @@ class CompactGridCard extends StatelessWidget {
                 children: [
                   Text(
                     article.sourceName?.toUpperCase() ?? 'NEWS',
-                    style: const TextStyle(
+                    style: AppTheme.labelBold.copyWith(
                       fontSize: 9,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.primaryAccent,
-                      letterSpacing: 0.5,
+                      color: AppTheme.primaryContainer,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -106,21 +120,19 @@ class CompactGridCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     article.title,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textPrimary,
-                      height: 1.3,
+                    style: AppTheme.headlineMd.copyWith(
+                      fontSize: 13,
+                      color: AppTheme.textPrimaryFor(isDark),
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    DateFormatter.getRelativeTime(article.publishedAt),
-                    style: const TextStyle(
-                      fontSize: 10,
-                      color: AppTheme.textSecondary,
+                    DateFormatter.getRelativeTime(article.publishedAt).toUpperCase(),
+                    style: AppTheme.labelSm.copyWith(
+                      fontSize: 9,
+                      color: AppTheme.textSecondaryFor(isDark),
                     ),
                   ),
                 ],

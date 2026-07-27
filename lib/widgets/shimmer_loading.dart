@@ -9,12 +9,14 @@ class ShimmerList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Shimmer(
       gradient: LinearGradient(
         colors: [
-          AppTheme.surface,
-          AppTheme.divider.withValues(alpha: 0.8),
-          AppTheme.surface,
+          AppTheme.cardBgFor(isDark),
+          AppTheme.dividerFor(isDark).withValues(alpha: 0.8),
+          AppTheme.cardBgFor(isDark),
         ],
         begin: Alignment(-1.0, -0.5),
         end: Alignment(1.0, 0.5),
@@ -27,34 +29,31 @@ class ShimmerList extends StatelessWidget {
         shrinkWrap: true,
         itemCount: itemCount,
         itemBuilder: (context, index) {
-          if (index == 0) {
-            return _buildHeroShimmer();
-          }
-          return _buildCardShimmer();
+          if (index == 0) return _buildHeroShimmer(isDark);
+          return _buildCardShimmer(isDark);
         },
       ),
     );
   }
 
-  Widget _buildHeroShimmer() {
+  Widget _buildHeroShimmer(bool isDark) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(8),
+        color: AppTheme.cardBgFor(isDark),
+        borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image placeholder
           Container(
             width: double.infinity,
             height: 200,
             decoration: BoxDecoration(
-              color: AppTheme.divider,
+              color: AppTheme.dividerFor(isDark),
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(8),
-                topRight: Radius.circular(8),
+                topLeft: Radius.circular(4),
+                topRight: Radius.circular(4),
               ),
             ),
           ),
@@ -64,38 +63,26 @@ class ShimmerList extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 120,
-                  height: 12,
+                  width: 120, height: 12,
                   decoration: BoxDecoration(
-                    color: AppTheme.divider,
-                    borderRadius: BorderRadius.circular(6),
+                    color: AppTheme.dividerFor(isDark),
+                    borderRadius: BorderRadius.circular(4),
                   ),
                 ),
                 const SizedBox(height: 12),
                 Container(
-                  width: double.infinity,
-                  height: 16,
+                  width: double.infinity, height: 16,
                   decoration: BoxDecoration(
-                    color: AppTheme.divider,
-                    borderRadius: BorderRadius.circular(6),
+                    color: AppTheme.dividerFor(isDark),
+                    borderRadius: BorderRadius.circular(4),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Container(
-                  width: 200,
-                  height: 16,
+                  width: 200, height: 16,
                   decoration: BoxDecoration(
-                    color: AppTheme.divider,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  width: 280,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: AppTheme.divider,
-                    borderRadius: BorderRadius.circular(6),
+                    color: AppTheme.dividerFor(isDark),
+                    borderRadius: BorderRadius.circular(4),
                   ),
                 ),
               ],
@@ -106,76 +93,66 @@ class ShimmerList extends StatelessWidget {
     );
   }
 
-  Widget _buildCardShimmer() {
+  Widget _buildCardShimmer(bool isDark) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(8),
+        color: AppTheme.cardBgFor(isDark),
+        borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Thumbnail placeholder
           Container(
-            width: 90,
-            height: 90,
+            width: 90, height: 90,
             decoration: BoxDecoration(
-              color: AppTheme.divider,
+              color: AppTheme.dividerFor(isDark),
               borderRadius: BorderRadius.circular(4),
             ),
           ),
           const SizedBox(width: 12),
-          // Text placeholders
           Expanded(
-            child: SizedBox(
-              height: 90,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 80,
-                        height: 10,
-                        decoration: BoxDecoration(
-                          color: AppTheme.divider,
-                          borderRadius: BorderRadius.circular(5),
-                        ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 80, height: 10,
+                      decoration: BoxDecoration(
+                        color: AppTheme.dividerFor(isDark),
+                        borderRadius: BorderRadius.circular(4),
                       ),
-                      const SizedBox(height: 8),
-                      Container(
-                        width: double.infinity,
-                        height: 14,
-                        decoration: BoxDecoration(
-                          color: AppTheme.divider,
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Container(
-                        width: 160,
-                        height: 14,
-                        decoration: BoxDecoration(
-                          color: AppTheme.divider,
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    width: 60,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: AppTheme.divider,
-                      borderRadius: BorderRadius.circular(5),
                     ),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: double.infinity, height: 14,
+                      decoration: BoxDecoration(
+                        color: AppTheme.dividerFor(isDark),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      width: 160, height: 14,
+                      decoration: BoxDecoration(
+                        color: AppTheme.dividerFor(isDark),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ],
+                ),
+                Container(
+                  width: 60, height: 10,
+                  decoration: BoxDecoration(
+                    color: AppTheme.dividerFor(isDark),
+                    borderRadius: BorderRadius.circular(4),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
@@ -191,12 +168,14 @@ class ShimmerGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Shimmer(
       gradient: LinearGradient(
         colors: [
-          AppTheme.surface,
-          AppTheme.divider.withValues(alpha: 0.8),
-          AppTheme.surface,
+          AppTheme.cardBgFor(isDark),
+          AppTheme.dividerFor(isDark).withValues(alpha: 0.8),
+          AppTheme.cardBgFor(isDark),
         ],
         begin: Alignment(-1.0, -0.5),
         end: Alignment(1.0, 0.5),
@@ -217,8 +196,8 @@ class ShimmerGrid extends StatelessWidget {
           itemBuilder: (context, index) {
             return Container(
               decoration: BoxDecoration(
-                color: AppTheme.divider,
-                borderRadius: BorderRadius.circular(8),
+                color: AppTheme.dividerFor(isDark),
+                borderRadius: BorderRadius.circular(4),
               ),
             );
           },

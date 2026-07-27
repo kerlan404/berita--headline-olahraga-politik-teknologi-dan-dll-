@@ -5,8 +5,6 @@ import '../core/theme/app_theme.dart';
 import '../data/models/news_article.dart';
 import '../providers/bookmark_provider.dart';
 
-/// An animated heart button for bookmarking articles.
-/// Handles its own scale animation when tapped.
 class BookmarkButton extends StatefulWidget {
   final NewsArticle article;
   final double iconSize;
@@ -54,15 +52,9 @@ class _BookmarkButtonState extends State<BookmarkButton>
   void _onTap() {
     final provider = context.read<BookmarkProvider>();
     final wasBookmarked = provider.isBookmarked(widget.article.url);
-
-    // Fire-and-forget: UI updates immediately via notifyListeners(),
-    // database write happens in background
     provider.toggleBookmark(widget.article);
-
-    // Haptic feedback for mobile
     HapticFeedback.mediumImpact();
 
-    // Play bounce animation only when adding bookmark (not removing)
     if (!wasBookmarked) {
       _animController.forward(from: 0.0);
     }
@@ -88,12 +80,12 @@ class _BookmarkButtonState extends State<BookmarkButton>
               isBookmarked ? Icons.favorite : Icons.favorite_border,
               size: widget.iconSize,
               color: isBookmarked
-                  ? (widget.activeColor ?? AppTheme.primaryAccent)
+                  ? (widget.activeColor ?? AppTheme.primaryContainer)
                   : (widget.inactiveColor ?? AppTheme.textSecondary),
               shadows: isBookmarked
                   ? [
                       Shadow(
-                        color: AppTheme.primaryAccent.withValues(alpha: 0.5),
+                        color: AppTheme.primaryContainer.withValues(alpha: 0.5),
                         blurRadius: 8,
                       ),
                     ]

@@ -9,115 +9,88 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
           children: [
             Container(
-              width: 32,
-              height: 32,
+              width: 32, height: 32,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [AppTheme.primaryAccent, AppTheme.secondaryAccent],
-                ),
-                borderRadius: BorderRadius.circular(8),
+                color: AppTheme.primaryContainer,
+                borderRadius: BorderRadius.circular(4),
               ),
               child: const Icon(Icons.person_rounded, color: Colors.white, size: 18),
             ),
             const SizedBox(width: 10),
-            const Text(
-              'PROFIL',
-              style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.5),
-            ),
+            Text('PROFILE',
+                style: AppTheme.headlineMd.copyWith(
+                    fontSize: 20, color: AppTheme.textPrimaryFor(isDark))),
           ],
         ),
       ),
       body: ListView(
         children: [
-          // ── Premium Hero Section ──
-          _buildPremiumHero(context),
+          // Hero section
+          _buildHeroSection(context, isDark),
           const SizedBox(height: 20),
 
-          // ── Content ──
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               children: [
-                // Stats Row
+                // Stats
                 Consumer<BookmarkProvider>(
                   builder: (context, bookmark, child) {
-                    return _buildPremiumStats(
-                      bookmarkCount: bookmark.count,
-                      categories: 7,
-                    );
+                    return _buildStats(bookmarkCount: bookmark.count, isDark: isDark);
                   },
                 ),
                 const SizedBox(height: 20),
 
-                // ── Info Cards ──
-                _buildPremiumInfoCard(
+                // Info cards
+                _buildInfoCard(
+                  isDark: isDark,
                   icon: Icons.bolt_rounded,
-                  gradientColors: const [Color(0xFFD50000), Color(0xFFFF6D00)],
-                  title: 'Berita Cepat & Terpercaya',
-                  subtitle: 'Headline terkini dari 7 kategori berbeda yang diperbarui secara real-time langsung dari NewsAPI.',
+                  title: 'BERITA CEPAT & TERPERCAYA',
+                  subtitle: 'Headline terkini dari 7 kategori berbeda yang diperbarui secara real-time.',
                 ),
                 const SizedBox(height: 10),
-                _buildPremiumInfoCard(
-                  icon: Icons.dark_mode_rounded,
-                  gradientColors: const [Color(0xFF4FC3F7), Color(0xFF0288D1)],
-                  title: 'Tema Gelap Premium',
-                  subtitle: 'Desain dark theme khas ESPN dengan aksen merah yang elegan, nyaman dibaca kapan saja.',
-                ),
-                const SizedBox(height: 10),
-                _buildPremiumInfoCard(
+                _buildInfoCard(
+                  isDark: isDark,
                   icon: Icons.bookmark_rounded,
-                  gradientColors: const [Color(0xFFFFB74D), Color(0xFFF57C00)],
-                  title: 'Bookmark Offline',
-                  subtitle: 'Simpan artikel favorit dan baca nanti — data tersimpan aman di perangkat Anda.',
+                  title: 'BOOKMARK OFFLINE',
+                  subtitle: 'Simpan artikel favorit dan baca nanti — data tersimpan di perangkat Anda.',
                 ),
                 const SizedBox(height: 10),
-                _buildPremiumInfoCard(
+                _buildInfoCard(
+                  isDark: isDark,
                   icon: Icons.offline_bolt_rounded,
-                  gradientColors: const [Color(0xFF81C784), Color(0xFF388E3C)],
-                  title: 'Cache Offline',
-                  subtitle: 'Berita yang sudah dimuat akan di-cache selama 30 menit, bisa dibaca tanpa internet.',
+                  title: 'CACHE OFFLINE',
+                  subtitle: 'Berita yang sudah dimuat akan di-cache, bisa dibaca tanpa internet.',
                 ),
 
                 const SizedBox(height: 24),
 
-                // ── Theme Toggle ──
-                _buildThemeToggle(context),
+                // Theme toggle
+                _buildThemeToggle(context, isDark),
                 const SizedBox(height: 32),
 
-                // ── Credits ──
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.favorite_rounded,
-                        size: 16,
-                        color: AppTheme.primaryAccent.withValues(alpha: 0.5),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Data berita disediakan oleh NewsAPI.org',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: AppTheme.textSecondary.withValues(alpha: 0.6),
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'ReedsFeed v1.0.0',
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: AppTheme.textSecondary.withValues(alpha: 0.4),
-                        ),
-                      ),
-                    ],
-                  ),
+                // Credits
+                Column(
+                  children: [
+                    Icon(Icons.favorite_rounded, size: 16,
+                        color: AppTheme.primaryContainer.withValues(alpha: 0.5)),
+                    const SizedBox(height: 8),
+                    Text('Data berita disediakan oleh NewsAPI.org',
+                        style: AppTheme.labelSm.copyWith(
+                            fontSize: 11, color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.6)),
+                        textAlign: TextAlign.center),
+                    const SizedBox(height: 4),
+                    Text('REEDFEEDS v1.0.0',
+                        style: AppTheme.labelSm.copyWith(
+                            fontSize: 10, color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.4))),
+                  ],
                 ),
                 const SizedBox(height: 24),
               ],
@@ -128,49 +101,29 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPremiumHero(BuildContext context) {
+  Widget _buildHeroSection(BuildContext context, bool isDark) {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppTheme.primaryAccent.withValues(alpha: 0.12),
-            AppTheme.primaryAccent.withValues(alpha: 0.03),
-            AppTheme.background,
-          ],
-        ),
         border: Border(
-          bottom: BorderSide(color: AppTheme.divider.withValues(alpha: 0.5)),
+          bottom: BorderSide(
+            color: AppTheme.dividerFor(isDark).withValues(alpha: 0.5),
+          ),
         ),
       ),
       child: Column(
         children: [
-          // ── App Icon with glow ──
+          // App icon
           Container(
-            width: 88,
-            height: 88,
+            width: 88, height: 88,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppTheme.primaryAccent,
-                  AppTheme.secondaryAccent,
-                ],
-              ),
-              borderRadius: BorderRadius.circular(22),
+              color: AppTheme.primaryContainer,
+              borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryAccent.withValues(alpha: 0.35),
+                  color: AppTheme.primaryContainer.withValues(alpha: 0.35),
                   blurRadius: 24,
                   offset: const Offset(0, 8),
-                ),
-                BoxShadow(
-                  color: AppTheme.secondaryAccent.withValues(alpha: 0.15),
-                  blurRadius: 40,
-                  offset: const Offset(0, 16),
                 ),
               ],
             ),
@@ -179,203 +132,145 @@ class ProfileScreen extends StatelessWidget {
               children: [
                 Icon(Icons.explore_rounded, color: Colors.white, size: 36),
                 SizedBox(height: 2),
-                Text(
-                  'RF',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                    letterSpacing: 1.5,
-                  ),
-                ),
+                Text('RF', style: TextStyle(
+                    fontSize: 10, fontWeight: FontWeight.w900,
+                    color: Colors.white, letterSpacing: 1.5)),
               ],
             ),
           ),
           const SizedBox(height: 16),
 
-          // ── App Name ──
+          // App name
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                'REEDS',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.2,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-              const Text(
-                'FEED',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.2,
-                  color: AppTheme.primaryAccent,
-                ),
-              ),
+              Text('REED',
+                  style: AppTheme.headlineMd.copyWith(
+                      fontSize: 28, color: AppTheme.textPrimaryFor(isDark), letterSpacing: 1.2)),
+              Text('FEEDS',
+                  style: AppTheme.headlineMd.copyWith(
+                      fontSize: 28, color: AppTheme.primaryContainer, letterSpacing: 1.2)),
             ],
           ),
           const SizedBox(height: 6),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppTheme.primaryAccent.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Text(
-              'BERITA & HEADLINE TERKINI',
-              style: TextStyle(
-                fontSize: 10,
-                letterSpacing: 2.0,
-                color: AppTheme.primaryAccent,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            color: AppTheme.primaryContainer.withValues(alpha: 0.08),
+            child: Text('BERITA & HEADLINE TERKINI',
+                style: AppTheme.labelBold.copyWith(
+                    fontSize: 10, color: AppTheme.primaryContainer, letterSpacing: 2)),
           ),
           const SizedBox(height: 14),
-
-          // Version pill
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
             decoration: BoxDecoration(
-              border: Border.all(color: AppTheme.primaryAccent.withValues(alpha: 0.3)),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Text(
-              'v1.0.0',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.primaryAccent,
-                letterSpacing: 0.5,
+              border: Border.all(
+                color: AppTheme.primaryContainer.withValues(alpha: 0.3), width: 1,
               ),
+              borderRadius: BorderRadius.circular(4),
             ),
+            child: Text('v1.0.0',
+                style: AppTheme.labelBold.copyWith(
+                    fontSize: 11, color: AppTheme.primaryContainer, letterSpacing: 0.5)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildPremiumStats({
-    required int bookmarkCount,
-    required int categories,
-  }) {
+  Widget _buildStats({required int bookmarkCount, required bool isDark}) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.divider),
+        border: Border.all(
+          color: AppTheme.dividerFor(isDark).withValues(alpha: 0.5), width: 1,
+        ),
+        borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
         children: [
-          _buildPremiumStatItem(
+          _buildStatItem(
             icon: Icons.bookmark_rounded,
             value: '$bookmarkCount',
-            label: 'Tersimpan',
-            color: AppTheme.primaryAccent,
+            label: 'SAVED',
+            isDark: isDark,
           ),
-          _buildStatDivider(),
-          _buildPremiumStatItem(
+          Container(width: 1, height: 48,
+              color: AppTheme.dividerFor(isDark).withValues(alpha: 0.5)),
+          _buildStatItem(
             icon: Icons.category_rounded,
-            value: '$categories',
-            label: 'Kategori',
-            color: const Color(0xFF81C784),
+            value: '7',
+            label: 'CATEGORIES',
+            isDark: isDark,
           ),
-          _buildStatDivider(),
-          _buildPremiumStatItem(
+          Container(width: 1, height: 48,
+              color: AppTheme.dividerFor(isDark).withValues(alpha: 0.5)),
+          _buildStatItem(
             icon: Icons.language_rounded,
             value: 'ID',
-            label: 'Bahasa',
-            color: const Color(0xFF4FC3F7),
+            label: 'LANGUAGE',
+            isDark: isDark,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildPremiumStatItem({
+  Widget _buildStatItem({
     required IconData icon,
     required String value,
     required String label,
-    required Color color,
+    required bool isDark,
   }) {
     return Expanded(
       child: Column(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 40, height: 40,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppTheme.dividerFor(isDark).withValues(alpha: 0.3), width: 1,
+              ),
+              borderRadius: BorderRadius.circular(4),
             ),
-            child: Icon(icon, size: 20, color: color),
+            child: Icon(icon, size: 20,
+                color: AppTheme.primaryContainer),
           ),
           const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: AppTheme.textPrimary,
-            ),
-          ),
+          Text(value,
+              style: AppTheme.headlineMd.copyWith(
+                  fontSize: 20, color: AppTheme.textPrimaryFor(isDark))),
           const SizedBox(height: 2),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 10,
-              color: AppTheme.textSecondary.withValues(alpha: 0.7),
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          Text(label,
+              style: AppTheme.labelSm.copyWith(
+                  fontSize: 10, color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.7))),
         ],
       ),
     );
   }
 
-  Widget _buildStatDivider() {
-    return Container(
-      width: 1,
-      height: 48,
-      color: AppTheme.divider,
-    );
-  }
-
-  Widget _buildPremiumInfoCard({
+  Widget _buildInfoCard({
+    required bool isDark,
     required IconData icon,
-    required List<Color> gradientColors,
     required String title,
     required String subtitle,
   }) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.divider),
+        border: Border.all(
+          color: AppTheme.dividerFor(isDark).withValues(alpha: 0.5), width: 1,
+        ),
+        borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 48,
-            height: 48,
+            width: 48, height: 48,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: gradientColors,
-              ),
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: [
-                BoxShadow(
-                  color: gradientColors.first.withValues(alpha: 0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+              color: AppTheme.primaryContainer,
+              borderRadius: BorderRadius.circular(4),
             ),
             child: Icon(icon, color: Colors.white, size: 22),
           ),
@@ -384,23 +279,16 @@ class ProfileScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.textPrimary,
-                  ),
-                ),
+                Text(title,
+                    style: AppTheme.labelBold.copyWith(
+                        fontSize: 13, color: AppTheme.textPrimaryFor(isDark))),
                 const SizedBox(height: 6),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.textSecondary.withValues(alpha: 0.8),
-                    height: 1.5,
-                  ),
-                ),
+                Text(subtitle,
+                    style: AppTheme.labelSm.copyWith(
+                      fontSize: 11,
+                      color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.8),
+                      height: 1.5,
+                    )),
               ],
             ),
           ),
@@ -409,40 +297,30 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildThemeToggle(BuildContext context) {
+  Widget _buildThemeToggle(BuildContext context, bool isDark) {
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
         return Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppTheme.surface,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppTheme.divider),
+            border: Border.all(
+              color: AppTheme.dividerFor(isDark).withValues(alpha: 0.5), width: 1,
+            ),
+            borderRadius: BorderRadius.circular(4),
           ),
           child: Row(
             children: [
               Container(
-                width: 48,
-                height: 48,
+                width: 48, height: 48,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: themeProvider.isDarkMode
-                        ? [const Color(0xFF4FC3F7), const Color(0xFF0288D1)]
-                        : [const Color(0xFFFFB74D), const Color(0xFFF57C00)],
-                  ),
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF4FC3F7).withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+                  color: AppTheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(4),
                 ),
                 child: Icon(
-                  themeProvider.isDarkMode ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
-                  color: Colors.white,
-                  size: 22,
+                  themeProvider.isDarkMode
+                      ? Icons.dark_mode_rounded
+                      : Icons.light_mode_rounded,
+                  color: Colors.white, size: 22,
                 ),
               ),
               const SizedBox(width: 14),
@@ -451,77 +329,54 @@ class ProfileScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      themeProvider.isDarkMode ? 'Tema Gelap' : 'Tema Terang',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.textPrimary,
-                      ),
+                      themeProvider.isDarkMode ? 'DARK MODE' : 'LIGHT MODE',
+                      style: AppTheme.labelBold.copyWith(
+                          fontSize: 13, color: AppTheme.textPrimaryFor(isDark)),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       themeProvider.isDarkMode
-                          ? 'Beralih ke tema terang untuk tampilan yang lebih cerah'
-                          : 'Beralih ke tema gelap khas ESPN untuk kenyamanan membaca',
-                      style: TextStyle(
+                          ? 'Beralih ke tema terang'
+                          : 'Beralih ke tema gelap',
+                      style: AppTheme.labelSm.copyWith(
                         fontSize: 11,
-                        color: AppTheme.textSecondary.withValues(alpha: 0.8),
+                        color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.8),
                       ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: 8),
-              // Animated toggle switch
               GestureDetector(
                 onTap: () => themeProvider.toggleTheme(),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 250),
                   curve: Curves.easeOutCubic,
-                  width: 52,
-                  height: 28,
+                  width: 52, height: 28,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(14),
-                    gradient: LinearGradient(
-                      colors: themeProvider.isDarkMode
-                          ? [const Color(0xFF4FC3F7), const Color(0xFF0288D1)]
-                          : [const Color(0xFFFFB74D), const Color(0xFFF57C00)],
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: (themeProvider.isDarkMode
-                                ? const Color(0xFF4FC3F7)
-                                : const Color(0xFFFFB74D))
-                            .withValues(alpha: 0.4),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                    borderRadius: BorderRadius.circular(4),
+                    color: themeProvider.isDarkMode
+                        ? AppTheme.primaryContainer
+                        : AppTheme.darkBackground,
                   ),
                   padding: const EdgeInsets.all(3),
                   alignment: themeProvider.isDarkMode
                       ? Alignment.centerLeft
                       : Alignment.centerRight,
                   child: Container(
-                    width: 22,
-                    height: 22,
+                    width: 22, height: 22,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.15),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
                     ),
                     child: Icon(
-                      themeProvider.isDarkMode ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                      themeProvider.isDarkMode
+                          ? Icons.dark_mode_rounded
+                          : Icons.light_mode_rounded,
                       size: 12,
                       color: themeProvider.isDarkMode
-                          ? const Color(0xFF0288D1)
-                          : const Color(0xFFF57C00),
+                          ? AppTheme.primaryContainer
+                          : AppTheme.darkBackground,
                     ),
                   ),
                 ),
@@ -532,6 +387,4 @@ class ProfileScreen extends StatelessWidget {
       },
     );
   }
-
 }
-

@@ -17,7 +17,6 @@ class _MainShellState extends State<MainShell>
     with TickerProviderStateMixin {
   int _currentIndex = 0;
   late AnimationController _animController;
-  late Animation<double> _scaleAnim;
   late Animation<double> _fadeAnim;
 
   final List<Widget> _screens = const [
@@ -31,19 +30,13 @@ class _MainShellState extends State<MainShell>
     super.initState();
     _animController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 350),
-    );
-    _scaleAnim = Tween<double>(begin: 0.96, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animController,
-        curve: Curves.easeOutCubic,
-      ),
+      duration: const Duration(milliseconds: 300),
     );
     _fadeAnim = CurvedAnimation(
       parent: _animController,
       curve: Curves.easeOutCubic,
     );
-    _animController.forward(); // Initial reveal
+    _animController.forward();
   }
 
   @override
@@ -53,9 +46,8 @@ class _MainShellState extends State<MainShell>
   }
 
   void _onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
+    if (index == _currentIndex) return;
+    setState(() => _currentIndex = index);
     _animController.forward(from: 0.0);
   }
 
@@ -64,12 +56,9 @@ class _MainShellState extends State<MainShell>
     return Scaffold(
       body: FadeTransition(
         opacity: _fadeAnim,
-        child: ScaleTransition(
-          scale: _scaleAnim,
-          child: IndexedStack(
-            index: _currentIndex,
-            children: _screens,
-          ),
+        child: IndexedStack(
+          index: _currentIndex,
+          children: _screens,
         ),
       ),
       bottomNavigationBar: _buildBottomNav(),
@@ -78,74 +67,104 @@ class _MainShellState extends State<MainShell>
 
   Widget _buildBottomNav() {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(
-          top: BorderSide(color: AppTheme.divider, width: 1),
+          top: BorderSide(color: AppTheme.dividerFor(Theme.of(context).brightness == Brightness.dark), width: 2),
         ),
       ),
       child: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: _onTabTapped,
         type: BottomNavigationBarType.fixed,
-        backgroundColor: AppTheme.surface,
-        selectedItemColor: AppTheme.primaryAccent,
-        unselectedItemColor: AppTheme.textSecondary,
-        selectedFontSize: 11,
-        unselectedFontSize: 11,
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700),
-        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
+        backgroundColor: AppTheme.cardBgFor(Theme.of(context).brightness == Brightness.dark),
+        selectedItemColor: AppTheme.primaryContainer,
+        unselectedItemColor: AppTheme.textSecondaryFor(Theme.of(context).brightness == Brightness.dark),
+        selectedLabelStyle: AppTheme.labelBold.copyWith(fontSize: 11),
+        unselectedLabelStyle: AppTheme.labelSm.copyWith(fontSize: 11),
         elevation: 0,
         items: [
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home_rounded),
-            label: 'Home',
+          BottomNavigationBarItem(
+            icon: _buildNavItem(Icons.home_outlined, Icons.home_rounded, 0),
+            activeIcon: _buildNavItem(Icons.home_rounded, Icons.home_rounded, 0),
+            label: 'HOME',
           ),
           BottomNavigationBarItem(
-            icon: _buildBookmarkIcon(isActive: false),
-            activeIcon: _buildBookmarkIcon(isActive: true),
-            label: 'Tersimpan',
+            icon: _buildBookmarkNav(false),
+            activeIcon: _buildBookmarkNav(true),
+            label: 'SAVED',
           ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person_rounded),
-            label: 'Profil',
+          BottomNavigationBarItem(
+            icon: _buildNavItem(Icons.person_outline, Icons.person_rounded, 2),
+            activeIcon: _buildNavItem(Icons.person_rounded, Icons.person_rounded, 2),
+            label: 'PROFILE',
           ),
         ],
       ),
     );
   }
 
-  Widget _buildBookmarkIcon({required bool isActive}) {
+  Widget _buildNavItem(IconData outline, IconData filled, int index) {
+    final isActive = _currentIndex == index;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (isActive)
+          Container(
+            height: 3,
+            width: 24,
+            color: AppTheme.primaryContainer,
+          ),
+        const SizedBox(height: 6),
+        Icon(isActive ? filled : outline),
+      ],
+    );
+  }
+
+  Widget _buildBookmarkNav(bool isActive) {
     return Consumer<BookmarkProvider>(
       builder: (context, provider, child) {
-        return Stack(
-          clipBehavior: Clip.none,
+        return Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(isActive ? Icons.bookmark_rounded : Icons.bookmark_border),
-            if (provider.count > 0)
-              Positioned(
-                right: -8,
-                top: -4,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryAccent,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppTheme.surface, width: 1.5),
-                  ),
-                  constraints: const BoxConstraints(minWidth: 16, minHeight: 12),
-                  child: Text(
-                    provider.count > 99 ? '99+' : provider.count.toString(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+            if (isActive)
+              Container(
+                height: 3,
+                width: 24,
+                color: AppTheme.primaryContainer,
               ),
+            const SizedBox(height: 6),
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Icon(isActive ? Icons.bookmark_rounded : Icons.bookmark_border),
+                if (provider.count > 0)
+                  Positioned(
+                    right: -8,
+                    top: -4,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: AppTheme.cardBgFor(Theme.of(context).brightness == Brightness.dark),
+                          width: 1.5,
+                        ),
+                      ),
+                      constraints: const BoxConstraints(minWidth: 16, minHeight: 12),
+                      child: Text(
+                        provider.count > 99 ? '99+' : provider.count.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ],
         );
       },

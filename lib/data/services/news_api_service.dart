@@ -172,11 +172,10 @@ class NewsApiService {
       final combined = <NewsArticle>[];
       final categories = ['sports', 'technology', 'business', 'entertainment', 'health', 'politics'];
       for (final cat in categories) {
-        combined.addAll(_getMockHeadlines(cat, 1, 6));
+        combined.addAll(_getMockHeadlines(cat, 1, 50));
       }
-      // Shuffle interleave-like: sort by publishedAt descending
       combined.sort((a, b) => b.publishedAt.compareTo(a.publishedAt));
-      
+
       final startIndex = (page - 1) * pageSize;
       if (startIndex >= combined.length) return [];
       final endIndex = startIndex + pageSize;
@@ -244,7 +243,57 @@ class NewsApiService {
           urlToImage: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800',
           publishedAt: now.subtract(const Duration(days: 1, hours: 4)).toIso8601String(),
           content: 'Here we go! Negosiasi akhirnya selesai malam ini...',
-        )
+        ),
+        NewsArticle(
+          title: 'Timnas Indonesia U-23 Lolos ke Semifinal Piala Asia dengan Kemenangan Telak 4-0',
+          description: 'Empat gol tanpa balas di babak perempat final memastikan langkah Garuda Muda ke empat besar.',
+          sourceName: 'Bola.com',
+          author: 'Rizal Permadi',
+          url: 'https://www.bola.com',
+          urlToImage: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800',
+          publishedAt: now.subtract(const Duration(hours: 6)).toIso8601String(),
+          content: 'Timnas Indonesia U-23 bermain gemilang di babak perempat final...',
+        ),
+        NewsArticle(
+          title: 'Persija Jakarta Resmi Gaet Striker Bintang Brasil untuk Musim Kompetisi 2026',
+          description: 'Pemain berusia 27 tahun ini didatangkan dari klub Serie A Italia dengan kontrak 3 musim penuh.',
+          sourceName: 'Transfermarkt Indo',
+          author: 'Bursa Transfer',
+          url: 'https://www.transfermarkt.com',
+          urlToImage: 'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=800',
+          publishedAt: now.subtract(const Duration(hours: 10)).toIso8601String(),
+          content: 'Macan Kemayoran kembali mempersenjatai skuad...',
+        ),
+        NewsArticle(
+          title: 'Marathon Tokyo 2026: Pelari Kenya Pecahkan Rekor Dunia Baru dengan Waktu 1:59:40',
+          description: 'Untuk pertama kalinya dalam sejarah, pelari marathon berhasil menembus batas waktu 2 jam di kondisi balapan resmi.',
+          sourceName: 'World Athletics',
+          author: 'Run Planet',
+          url: 'https://worldathletics.org',
+          urlToImage: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=800',
+          publishedAt: now.subtract(const Duration(hours: 14)).toIso8601String(),
+          content: 'Sejarah tercipta di jalanan Tokyo pagi ini...',
+        ),
+        NewsArticle(
+          title: 'Asian Games 2026: Indonesia Raih 15 Emas dan Pecahkan Target Awal',
+          description: 'Kontingen Merah Putih sukses melampaui target 12 emas yang ditetapkan KONI Pusat.',
+          sourceName: 'Olympic Channel',
+          author: 'Giri Satria',
+          url: 'https://olympics.com',
+          urlToImage: 'https://images.unsplash.com/photo-1569517282132-25d22f4573e6?w=800',
+          publishedAt: now.subtract(const Duration(days: 1, hours: 2)).toIso8601String(),
+          content: 'Indonesia menunjukkan dominasi di beberapa cabang olahraga...',
+        ),
+        NewsArticle(
+          title: 'Liga Champions: Real Madrid Comeback Epik dari Ketinggalan 0-3 untuk Lolos ke Final',
+          description: 'Tiga gol di babak kedua termasuk gol penyeimbang di injury time menghidupkan mimpi Los Blancos.',
+          sourceName: 'UEFA.com',
+          author: 'Champions League Reporter',
+          url: 'https://www.uefa.com',
+          urlToImage: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=800',
+          publishedAt: now.subtract(const Duration(days: 2)).toIso8601String(),
+          content: 'Santiago Bernabeu menyaksikan malam ajaib...',
+        ),
       ]);
     } else if (category == 'technology') {
       allArticles.addAll([
@@ -297,9 +346,69 @@ class NewsApiService {
           urlToImage: 'https://images.unsplash.com/photo-1605901309584-818e25960a8f?w=800',
           publishedAt: now.subtract(const Duration(days: 1)).toIso8601String(),
           content: 'Pasar konsol genggam semakin memanas dengan kedatangan...',
-        )
+        ),
+        NewsArticle(
+          title: 'Samsung Galaxy S26 Ultra Resmi Diluncurkan dengan Kamera 200MP dan AI Fotografi Generatif',
+          description: 'Ponsel flagship terbaru Samsung menghadirkan kemampuan editing foto berbasis AI yang bisa mengubah komposisi gambar secara instan.',
+          sourceName: 'GSMArena',
+          author: 'Gadget Insider',
+          url: 'https://www.gsmarena.com',
+          urlToImage: 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800',
+          publishedAt: now.subtract(const Duration(hours: 3)).toIso8601String(),
+          content: 'Samsung kembali mendefinisikan ulang fotografi mobile...',
+        ),
+        NewsArticle(
+          title: 'Startup Unicorn Indonesia Luncurkan Platform Cloud Computing Berbasis AI untuk UMKM',
+          description: 'Platform lokal ini menawarkan solusi otomatisasi bisnis dengan harga terjangkau untuk pelaku UMKM di seluruh Indonesia.',
+          sourceName: 'TechInAsia',
+          author: 'Startup Watch',
+          url: 'https://www.techinasia.com',
+          urlToImage: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800',
+          publishedAt: now.subtract(const Duration(hours: 8)).toIso8601String(),
+          content: 'Digitalisasi UMKM Indonesia mendapat dorongan besar...',
+        ),
+        NewsArticle(
+          title: 'Blockchain dan Web3: Indonesia Jadi Negara dengan Pertumbuhan Adopsi Crypto Tercepat di Asia',
+          description: 'Jumlah pengguna cryptocurrency di Indonesia melonjak 45% dalam setahun terakhir berkat edukasi regulasi yang baik.',
+          sourceName: 'CoinDesk',
+          author: 'Crypto Reporter',
+          url: 'https://www.coindesk.com',
+          urlToImage: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800',
+          publishedAt: now.subtract(const Duration(hours: 15)).toIso8601String(),
+          content: 'Adopsi aset digital di Indonesia terus menunjukkan tren positif...',
+        ),
+        NewsArticle(
+          title: 'Elon Musk Umumkan Starlink Gen-3: Kecepatan Internet Satelit Capai 1 Gbps di Mana Saja',
+          description: 'Generasi ketiga Starlink menjanjikan покрытие 99% permukaan bumi dengan latensi super rendah.',
+          sourceName: 'Space.com',
+          author: 'Tech Frontier',
+          url: 'https://www.space.com',
+          urlToImage: 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800',
+          publishedAt: now.subtract(const Duration(days: 1)).toIso8601String(),
+          content: 'Internet satelit memasuki era baru dengan Starlink Gen-3...',
+        ),
+        NewsArticle(
+          title: 'Google DeepMind Temukan Algoritma Baru yang Bisa Prediksi Gempa Bumi 72 Jam Sebelum Terjadi',
+          description: 'Model machine learning ini menunjukkan akurasi 87% dalam uji coba di zona subduksi Cincin Api Pasifik.',
+          sourceName: 'Nature Journal',
+          author: 'AI Researcher',
+          url: 'https://www.nature.com',
+          urlToImage: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800',
+          publishedAt: now.subtract(const Duration(days: 1, hours: 6)).toIso8601String(),
+          content: 'Terobosan besar dalam prediksi bencana alam...',
+        ),
+        NewsArticle(
+          title: 'Meta Quest 4 Resmi Rilis: Realitas Virtual dengan Resolusi 8K per Mata dan Haptic Suit',
+          description: 'Headset VR terbaru Meta menawarkan pengalaman immersion yang belum pernah ada sebelumnya.',
+          sourceName: 'The Verge',
+          author: 'VR Enthusiast',
+          url: 'https://www.theverge.com',
+          urlToImage: 'https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?w=800',
+          publishedAt: now.subtract(const Duration(days: 2)).toIso8601String(),
+          content: 'Realitas virtual semakin mendekati fiksi ilmiah...',
+        ),
       ]);
-    } else    if (category == 'business') {
+    } else if (category == 'business') {
       allArticles.addAll([
         NewsArticle(
           title: 'Pasar Saham Global Melonjak Setelah Pengumuman Penurunan Suku Bunga Federal Reserve',
@@ -350,7 +459,57 @@ class NewsApiService {
           urlToImage: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=800',
           publishedAt: now.subtract(const Duration(days: 1, hours: 2)).toIso8601String(),
           content: 'Ekspor kopi arabika Indonesia mengalami kenaikan tajam...',
-        )
+        ),
+        NewsArticle(
+          title: 'GoTo dan Bukalapak Umumkan Merger Bersejarah, Menciptakan Raksasa E-Commerce Terbesar di Asia Tenggara',
+          description: 'Dua platform e-commerce terbesar Indonesia bergabung untuk bersaing dengan Shark dan TikTok Shop di pasar regional.',
+          sourceName: 'KrASIA',
+          author: 'Deal Reporter',
+          url: 'https://www.krasia.com',
+          urlToImage: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800',
+          publishedAt: now.subtract(const Duration(hours: 5)).toIso8601String(),
+          content: 'Merger ini mengubah lanskap e-commerce Asia Tenggara...',
+        ),
+        NewsArticle(
+          title: 'Harga Emas Antam Tembus Rp 1,2 Juta per Gram, Analis: Masih Ada Potensi Naik',
+          description: 'Ketidakpastian geopolitik global dan pelemahan dolar mendorong permintaan terhadap aset safe haven.',
+          sourceName: 'CNBC Indonesia',
+          author: 'Market Analyst',
+          url: 'https://www.cnbcindonesia.com',
+          urlToImage: 'https://images.unsplash.com/photo-1610375461246-83df859d849d?w=800',
+          publishedAt: now.subtract(const Duration(hours: 9)).toIso8601String(),
+          content: 'Pasar komoditas emas terus menunjukkan tren naik...',
+        ),
+        NewsArticle(
+          title: 'Bank Indonesia Uji Coba CBDC Digital Rupiah pada 10 Bank Konvensional',
+          description: 'Pilot project mata uang digital bank sentral ini diharapkan selesai pada akhir tahun 2026.',
+          sourceName: 'Reuters Business',
+          author: 'Fintech Correspondent',
+          url: 'https://www.reuters.com/business',
+          urlToImage: 'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=800',
+          publishedAt: now.subtract(const Duration(hours: 16)).toIso8601String(),
+          content: 'Indonesia memasuki era baru sistem pembayaran digital...',
+        ),
+        NewsArticle(
+          title: 'Startup AgriTech Indonesia Raih Pendanaan Seri C 120 Juta Dollar dari SoftBank Vision Fund',
+          description: 'Platform berbasis AI ini menghubungkan 2 juta petani langsung dengan pembeli korporasi, memotong perantara.',
+          sourceName: 'TechCrunch',
+          author: 'AgriTech Insider',
+          url: 'https://techcrunch.com',
+          urlToImage: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=800',
+          publishedAt: now.subtract(const Duration(days: 1, hours: 3)).toIso8601String(),
+          content: 'Transformasi digital sektor pertanian Indonesia semakin meluas...',
+        ),
+        NewsArticle(
+          title: 'OJK Resmi Larang Pinjaman Online Ilegal, 200+ Fintech Bodong Ditutup Dalam Sepekan',
+          description: 'Regulasi baru ini menjadi langkah tegas pemerintah dalam melindungi konsumen dari praktik pinjaman tidak berizin.',
+          sourceName: 'Kontan',
+          author: 'Regulation Watch',
+          url: 'https://www.kontan.co.id',
+          urlToImage: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800',
+          publishedAt: now.subtract(const Duration(days: 2)).toIso8601String(),
+          content: 'Pembersihan industri fintech berizin terus berlanjut...',
+        ),
       ]);
     } else if (category == 'entertainment') {
       allArticles.addAll([
@@ -393,6 +552,66 @@ class NewsApiService {
           urlToImage: 'https://images.unsplash.com/photo-1552820728-8b83bb6b10f7?w=800',
           publishedAt: now.subtract(const Duration(hours: 14)).toIso8601String(),
           content: 'Industri game Indonesia semakin diperhitungkan...',
+        ),
+        NewsArticle(
+          title: 'Prabowo Subianto Produksi Film Sejarah Kerajaan Majapahit dengan Budget Rp 500 Miliar',
+          description: 'Film epik yang disutradarai oleh sineas berkelas internasional ini dijadwalkan tayang Desember 2026.',
+          sourceName: 'Liputan6 Hiburan',
+          author: 'Entertainment Insider',
+          url: 'https://www.liputan6.com',
+          urlToImage: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=800',
+          publishedAt: now.subtract(const Duration(hours: 4)).toIso8601String(),
+          content: 'Dunia perfilman Indonesia kedatangan mega proyek baru...',
+        ),
+        NewsArticle(
+          title: 'TikTok Resmi Luncurkan Fitur Streaming Film Panjang, Netflix dan Disney+ Kehilangan Pelanggan',
+          description: 'Platform short-video ini menambahkan katalog film panjang berkualitas bioskop dengan model langganan Rp 30.000/bulan.',
+          sourceName: 'Variety',
+          author: 'Streaming Insider',
+          url: 'https://variety.com',
+          urlToImage: 'https://images.unsplash.com/photo-1535016120720-40c646be5580?w=800',
+          publishedAt: now.subtract(const Duration(hours: 7)).toIso8601String(),
+          content: 'Persaingan industri streaming memasuki babak baru...',
+        ),
+        NewsArticle(
+          title: 'AFF Cup 2026: Timnas Futsal Indonesia Cetak Sejarah ke Final Piala Dunia Futsal',
+          description: 'Kemenangan dramatis adu penalti atas Thailand membawa Garuda ke turnamen futsal terbesar dunia untuk pertama kalinya.',
+          sourceName: 'Goal.com',
+          author: 'Futsal Reporter',
+          url: 'https://www.goal.com',
+          urlToImage: 'https://images.unsplash.com/photo-1551958219-acbc608c6377?w=800',
+          publishedAt: now.subtract(const Duration(hours: 11)).toIso8601String(),
+          content: 'Sejarah tercipta bagi futsal Indonesia...',
+        ),
+        NewsArticle(
+          title: 'Aespa dan Blackpink Kolaborasi Spesial di Coachella 2026, Catat Rekor Penonton Tayangan Langsung',
+          description: 'Kolaborasi sensasional ini menarik 80 juta penonton streaming secara serentak dari seluruh penjuru dunia.',
+          sourceName: 'Billboard',
+          author: 'K-Pop Correspondent',
+          url: 'https://www.billboard.com',
+          urlToImage: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=800',
+          publishedAt: now.subtract(const Duration(hours: 18)).toIso8601String(),
+          content: 'Momen bersejarah dunia K-pop tercipta di padang pasir California...',
+        ),
+        NewsArticle(
+          title: 'Raisa dan Isyana Sarasvati Kolaborasi Album Duet, Laris Manis 1 Juta Kopi dalam 24 Jam',
+          description: 'Album bertajuk "Dua Sisi" ini memecahkan rekor penjualan album fisik tercepat di industri musik Indonesia.',
+          sourceName: 'Rolling Stone Indonesia',
+          author: 'Music Journalist',
+          url: 'https://www.rollingstone.co.id',
+          urlToImage: 'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=800',
+          publishedAt: now.subtract(const Duration(days: 1)).toIso8601String(),
+          content: 'Dua diva Indonesia akhirnya bersatu dalam projek musikal...',
+        ),
+        NewsArticle(
+          title: 'Serial Anime Adaptasi Novel Web Indonesia "Nusantara Online" Tayang Perdana di Crunchyroll',
+          description: 'Novel populer karya penulis lokal ini diadaptasi menjadi anime 24 episode oleh studio Jepang MAPPA.',
+          sourceName: 'Anime News Network',
+          author: 'Anime Insider',
+          url: 'https://www.animenewsnetwork.com',
+          urlToImage: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800',
+          publishedAt: now.subtract(const Duration(days: 2)).toIso8601String(),
+          content: 'Industri kreatif Indonesia semakin Goes Global...',
         ),
       ]);
     } else if (category == 'health') {
@@ -437,6 +656,66 @@ class NewsApiService {
           publishedAt: now.subtract(const Duration(hours: 18)).toIso8601String(),
           content: 'Tempe kembali mencuri perhatian dunia...',
         ),
+        NewsArticle(
+          title: 'BPOM Resmi Setujui Obat Herbal Tradisional Indonesia untuk Pasar Farmasi Internasional',
+          description: 'Ekstrak Jamu kunyit asam ini lolos uji klinis fase 2 dan akan dipasarkan di 30 negara melalui kerja sama dengan farmasi Eropa.',
+          sourceName: 'Jurnal Kedokteran UI',
+          author: 'Herbal Researcher',
+          url: 'https://www.ui.ac.id',
+          urlToImage: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=800',
+          publishedAt: now.subtract(const Duration(hours: 5)).toIso8601String(),
+          content: 'Warisan obat tradisional Indonesia mendapat pengakuan dunia...',
+        ),
+        NewsArticle(
+          title: 'Peneliti ITS Ciptakan Alat Deteksi Dini Kanker Serviks Berbasis Smartphone dengan Akurasi 95%',
+          description: 'Alat seharga Rp 500 ribu ini bisa digunakan oleh bidan di daerah terpencil tanpa perlu laboratorium canggih.',
+          sourceName: 'Detik Health',
+          author: 'Health Tech Reporter',
+          url: 'https://health.detik.com',
+          urlToImage: 'https://images.unsplash.com/photo-1559757175-5700dde675bc?w=800',
+          publishedAt: now.subtract(const Duration(hours: 9)).toIso8601String(),
+          content: 'Inovasi teknologi kesehatan dari kampus Indonesia...',
+        ),
+        NewsArticle(
+          title: 'WHO Nyatakan Indonesia Bebas dari Wabah Demam Berdarah Stadium Tinggi untuk Pertama Kalinya',
+          description: 'Program pemberantasan sarang nyamuk dan penggunaan Wolbachia terbukti efektif menekan kasus DBD hingga 90%.',
+          sourceName: 'WHO SEARO',
+          author: 'Public Health Expert',
+          url: 'https://www.who.int/southeastasia',
+          urlToImage: 'https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=800',
+          publishedAt: now.subtract(const Duration(hours: 14)).toIso8601String(),
+          content: 'Prestasi luar biasa dalam bidang kesehatan masyarakat...',
+        ),
+        NewsArticle(
+          title: 'Diet Mediterania Versi Indonesia: Ahli Gizi Unair Rancang Pola Makan Lokal yang Lebih Sehat',
+          description: 'Modifikasi pola makan dengan bahan lokal seperti ikan, sayuran hijau, dan rempah menurunkan risiko penyakit jantung hingga 40%.',
+          sourceName: 'Kompas Health',
+          author: 'Nutrition Expert',
+          url: 'https://health.kompas.com',
+          urlToImage: 'https://images.unsplash.com/photo-1543362906-acfc16c67564?w=800',
+          publishedAt: now.subtract(const Duration(hours: 20)).toIso8601String(),
+          content: 'Pola makan sehat tidak harus mengikuti standar barat...',
+        ),
+        NewsArticle(
+          title: 'RS Cipto Mangunkusumo Luncurkan Program Telemedicine Gratis untuk Masyarakat Pedesaan',
+          description: 'Platform konsultasi dokter jarak jauh ini menjangkau 5.000 desa di 10 provinsi prioritas.',
+          sourceName: 'Tribun Health',
+          author: 'Digital Health Reporter',
+          url: 'https://www.tribunnews.com',
+          urlToImage: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800',
+          publishedAt: now.subtract(const Duration(days: 1, hours: 5)).toIso8601String(),
+          content: 'Akses kesehatan semakin merata dengan teknologi...',
+        ),
+        NewsArticle(
+          title: 'Ahli Gizi RS Pondok Indah Paparkan Bahaya Konsumsi Gula Berlebihan bagi Anak Usia Dini',
+          description: 'Studi menunjukkan 70% anak Indonesia mengonsumsi gula tambahan melebihi batas aman WHO.',
+          sourceName: 'Health.detik',
+          author: 'Pediatric Nutritionist',
+          url: 'https://health.detik.com',
+          urlToImage: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=800',
+          publishedAt: now.subtract(const Duration(days: 2)).toIso8601String(),
+          content: 'Edukasi pola makan sehat untuk anak perlu dimulai sejak dini...',
+        ),
       ]);
     } else if (category == 'politics') {
       allArticles.addAll([
@@ -471,7 +750,7 @@ class NewsApiService {
           content: 'Isu pemberantasan korupsi kembali menghangat di panggung politik...',
         ),
         NewsArticle(
-          title: 'Menteri Luar Negeri Dorong Kerja Sama ASEAN Hadapi Krisis Regional Myamar',
+          title: 'Menteri Luar Negeri Dorong Kerja Sama ASEAN Hadapi Krisis Regional Myanmar',
           description: 'Indonesia kembali mengambil peran sebagai mediator dalam konflik yang telah berlangsung lebih dari 5 tahun di kawasan.',
           sourceName: 'Antara News',
           author: 'Diplomat Watch',
@@ -500,6 +779,56 @@ class NewsApiService {
           publishedAt: now.subtract(const Duration(days: 1)).toIso8601String(),
           content: 'Kancah politik Indonesia kedatangan pemain baru...',
         ),
+        NewsArticle(
+          title: 'Mahkamah Konstitusi Cabut UU Cipta Kerja Sebagian: Pekerja Minta Kenaikan Upah Minimum',
+          description: 'Putusan MK menjadi pukulan bagi dunia usaha yang sudah menyiapkan rencana ekspansi besar-besaran di semester kedua.',
+          sourceName: 'Reuters Indonesia',
+          author: 'Legal Analyst',
+          url: 'https://www.reuters.com',
+          urlToImage: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800',
+          publishedAt: now.subtract(const Duration(hours: 4)).toIso8601String(),
+          content: 'Putusan MK mengguncang dunia usaha dan politik nasional...',
+        ),
+        NewsArticle(
+          title: 'Indonesia Tandatangani Perjanjian Bebas Visa dengan 10 Negara Baru untuk Tingkatkan Diplomasi',
+          description: 'Perjanjian ini mencakup negara-negara di Afrika dan Timur Tengah sebagai bagian dari diplomasi ekonomi.',
+          sourceName: 'Jakarta Post',
+          author: 'Foreign Affairs Reporter',
+          url: 'https://www.thejakartapost.com',
+          urlToImage: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=800',
+          publishedAt: now.subtract(const Duration(hours: 10)).toIso8601String(),
+          content: 'Ekspansi diplomatik Indonesia terus berlanjut...',
+        ),
+        NewsArticle(
+          title: 'Gubernur DKI Jakarta Resmi Luncurkan Program Transaksi Nirkota Gratis untuk Warga Ibu Kota',
+          description: 'Program subsidi transportasi publik ini menargetkan pengurangan kemacetan hingga 30% di area CBD Jakarta.',
+          sourceName: 'Tribun News',
+          author: 'Urban Policy Reporter',
+          url: 'https://www.tribunnews.com',
+          urlToImage: 'https://images.unsplash.com/photo-1555899434-94d1368aa7af?w=800',
+          publishedAt: now.subtract(const Duration(hours: 15)).toIso8601String(),
+          content: 'Kebijakan transportasi baru DKI Jakarta mulai berlaku minggu depan...',
+        ),
+        NewsArticle(
+          title: 'DPR RI Setujui Anggaran Pemilu 2029 Sebesar Rp 50 Triliun untuk Modernisasi TPS Digital',
+          description: 'Pemilu pertama di Indonesia yang menggunakan sistem e-voting di 50% TPS di seluruh wilayah.',
+          sourceName: 'CNN Indonesia',
+          author: 'Parliament Reporter',
+          url: 'https://www.cnnindonesia.com',
+          urlToImage: 'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?w=800',
+          publishedAt: now.subtract(const Duration(days: 1, hours: 8)).toIso8601String(),
+          content: 'Modernisasi sistem pemilihan umum memasuki fase baru...',
+        ),
+        NewsArticle(
+          title: 'Presiden Resmikan IKN Nusantara sebagai Ibu Kota Baru, Operasi Pemerintahan Dimulai Agustus',
+          description: 'Seluruh kementerian dan lembaga negara dijadwalkan berpindah operasi ke IKN pada awal Agustus mendatang.',
+          sourceName: 'Antara News',
+          author: 'Capital City Reporter',
+          url: 'https://www.antaranews.com',
+          urlToImage: 'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=800',
+          publishedAt: now.subtract(const Duration(days: 2)).toIso8601String(),
+          content: 'Sejarah baru ibu kota Indonesia resmi dimulai...',
+        ),
       ]);
     }
 
@@ -508,7 +837,7 @@ class NewsApiService {
     if (startIndex >= allArticles.length) {
       return [];
     }
-    
+
     final endIndex = startIndex + pageSize;
     final limitedArticles = allArticles.sublist(
       startIndex,
@@ -519,22 +848,22 @@ class NewsApiService {
   }
 
   List<NewsArticle> _getMockSearch(String query, int page, int pageSize) {
-    // Generate all headlines to search from
     final List<NewsArticle> allArticles = [];
     allArticles.addAll(_getMockHeadlines('sports', 1, 50));
     allArticles.addAll(_getMockHeadlines('technology', 1, 50));
     allArticles.addAll(_getMockHeadlines('business', 1, 50));
     allArticles.addAll(_getMockHeadlines('entertainment', 1, 50));
     allArticles.addAll(_getMockHeadlines('health', 1, 50));
+    allArticles.addAll(_getMockHeadlines('politics', 1, 50));
 
-    // Filter by query
     final lowerQuery = query.toLowerCase();
     final filteredArticles = allArticles.where((article) {
       return article.title.toLowerCase().contains(lowerQuery) ||
-             (article.description?.toLowerCase().contains(lowerQuery) ?? false);
+             (article.description?.toLowerCase().contains(lowerQuery) ?? false) ||
+             (article.sourceName?.toLowerCase().contains(lowerQuery) ?? false) ||
+             (article.author?.toLowerCase().contains(lowerQuery) ?? false);
     }).toList();
 
-    // Paginate
     final startIndex = (page - 1) * pageSize;
     if (startIndex >= filteredArticles.length) {
       return [];

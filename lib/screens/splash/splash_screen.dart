@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/route_transitions.dart';
@@ -13,24 +14,10 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-
-  // Logo
+  late Animation<double> _progressAnim;
   late Animation<double> _logoScale;
-  late Animation<double> _logoRotation;
-  late Animation<double> _logoOpacity;
-
-  // REEDSFEED text
-  late Animation<Offset> _textSlide;
-  late Animation<double> _textOpacity;
-
-  // Subtitle
-  late Animation<double> _subtitleOpacity;
-
-  // Loading bar
-  late Animation<double> _loadingProgress;
-
-  // Glow pulse
-  late Animation<double> _glowOpacity;
+  late Animation<double> _brandFade;
+  late Animation<Offset> _brandSlide;
 
   @override
   void initState() {
@@ -41,73 +28,39 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(milliseconds: 2800),
     );
 
-    // ── Logo: scale bounce + rotation ──
     _logoScale = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.0, 0.30, curve: Curves.easeOutBack),
+        curve: const Interval(0.0, 0.35, curve: Curves.easeOutBack),
       ),
     );
 
-    _logoRotation = Tween<double>(begin: -0.15, end: 0.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.0, 0.30, curve: Curves.easeOutCubic),
-      ),
-    );
-
-    _logoOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.0, 0.12, curve: Curves.easeOut),
-      ),
-    );
-
-    // ── Glow pulse ──
-    _glowOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.15, 0.50, curve: Curves.easeOut),
-      ),
-    );
-
-    // ── REEDSFEED text: slide up + fade ──
-    _textSlide = Tween<Offset>(
-      begin: const Offset(0, 0.35),
+    _brandSlide = Tween<Offset>(
+      begin: const Offset(0, 0.5),
       end: Offset.zero,
     ).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.25, 0.50, curve: Curves.easeOutCubic),
+        curve: const Interval(0.3, 0.55, curve: Curves.easeOutCubic),
       ),
     );
 
-    _textOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+    _brandFade = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.25, 0.40, curve: Curves.easeOut),
+        curve: const Interval(0.3, 0.45, curve: Curves.easeOut),
       ),
     );
 
-    // ── Subtitle ──
-    _subtitleOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+    _progressAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.42, 0.55, curve: Curves.easeOut),
-      ),
-    );
-
-    // ── Loading progress bar ──
-    _loadingProgress = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.45, 1.0, curve: Curves.easeInOut),
+        curve: const Interval(0.4, 1.0, curve: Curves.easeInOut),
       ),
     );
 
     _controller.forward();
 
-    // Navigate after animation completes
     Future.delayed(const Duration(milliseconds: 2800), () {
       if (mounted) {
         Navigator.of(context).pushReplacement(
@@ -126,180 +79,204 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
-      body: Center(
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, child) {
-            return Column(
+      backgroundColor: AppTheme.darkBackground,
+      body: Stack(
+        children: [
+          // Scanline overlay for broadcast aesthetic
+          Positioned.fill(
+            child: IgnorePointer(
+              child: CustomPaint(
+                painter: _ScanlinePainter(),
+              ),
+            ),
+          ),
+
+          // Subtle red glow top-right
+          Positioned(
+            top: -100,
+            right: -100,
+            width: 300,
+            height: 300,
+            child: IgnorePointer(
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppTheme.primaryContainer.withValues(alpha: 0.08),
+                ),
+              ),
+            ),
+          ),
+
+          // Main content
+          Center(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // ── Logo with glow, scale, rotation ──
-                Opacity(
-                  opacity: _logoOpacity.value,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      // Outer glow (simplified for perf — no boxShadow on web)
-                      if (_glowOpacity.value > 0.3)
-                        Container(
-                          width: 130,
-                          height: 130,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppTheme.primaryAccent
-                                .withValues(alpha: 0.08 * _glowOpacity.value),
-                          ),
+                // Logo
+                AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) {
+                    return Transform.scale(
+                      scale: _logoScale.value,
+                      child: Container(
+                        width: 96,
+                        height: 96,
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryContainer,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.primaryContainer.withValues(alpha: 0.4),
+                              blurRadius: 24,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
                         ),
-                      // Logo container
-                      Transform.rotate(
-                        angle: _logoRotation.value,
-                        child: Transform.scale(
-                          scale: _logoScale.value,
-                          child: Container(
-                            width: 96,
-                            height: 96,
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  AppTheme.primaryAccent,
-                                  Color(0xFFFF4444),
-                                ],
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.explore_rounded,
+                              color: Colors.white,
+                              size: 40,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'RF',
+                              style: AppTheme.labelBold.copyWith(
+                                color: Colors.white.withValues(alpha: 0.8),
+                                fontSize: 12,
+                                letterSpacing: 2,
                               ),
-                              borderRadius: BorderRadius.circular(24),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppTheme.primaryAccent
-                                      .withValues(alpha: 0.4),
-                                  blurRadius: 24,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
                             ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.explore_rounded,
-                                  color: Colors.white,
-                                  size: 42,
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  'RF',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w900,
-                                    color: Colors.white.withValues(alpha: 0.8),
-                                    letterSpacing: 2.0,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
+                const SizedBox(height: 36),
 
-                const SizedBox(height: 32),
-
-                // ── REEDSFEED text ──
+                // REEDFEEDS brand
                 SlideTransition(
-                  position: _textSlide,
+                  position: _brandSlide,
                   child: Opacity(
-                    opacity: _textOpacity.value,
+                    opacity: _brandFade.value,
                     child: Column(
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text(
-                              'REEDS',
-                              style: TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 1.5,
+                            Text(
+                              'REED',
+                              style: AppTheme.headlineMd.copyWith(
                                 color: Colors.white,
+                                fontSize: 34,
+                                letterSpacing: 1,
                               ),
                             ),
                             Text(
-                              'FEED',
-                              style: TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 1.5,
-                                color: AppTheme.primaryAccent,
+                              'FEEDS',
+                              style: AppTheme.headlineMd.copyWith(
+                                color: AppTheme.primaryContainer,
+                                fontSize: 34,
+                                letterSpacing: 1,
                               ),
                             ),
                           ],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'BERITA & HEADLINE TERKINI',
+                          style: AppTheme.labelBold.copyWith(
+                            color: AppTheme.primaryContainer,
+                            fontSize: 10,
+                            letterSpacing: 2.5,
+                          ),
                         ),
                       ],
                     ),
                   ),
                 ),
 
-                const SizedBox(height: 10),
+                const SizedBox(height: 60),
 
-                // ── Subtitle ──
-                Opacity(
-                  opacity: _subtitleOpacity.value,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryAccent.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Text(
-                      'BERITA & HEADLINE TERKINI',
-                      style: TextStyle(
-                        fontSize: 10,
-                        letterSpacing: 2.5,
-                        color: AppTheme.primaryAccent,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 56),
-
-                // ── Animated loading bar ──
-                SizedBox(
-                  width: 160,
-                  height: 3,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(2),
-                    child: Container(
-                      color: AppTheme.surface,
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Container(
-                          width: 160 * _loadingProgress.value,
-                          height: 3,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [
-                                AppTheme.primaryAccent,
-                                AppTheme.secondaryAccent,
-                                AppTheme.primaryAccent,
+                // Loading progress bar
+                AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) {
+                    return SizedBox(
+                      width: 200,
+                      height: 4,
+                      child: Container(
+                        color: AppTheme.darkSurfaceVariant,
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            width: 200 * _progressAnim.value,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryContainer,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppTheme.primaryContainer.withValues(alpha: 0.5),
+                                  blurRadius: 8,
+                                ),
                               ],
                             ),
-                            borderRadius: BorderRadius.circular(2),
                           ),
                         ),
                       ),
-                    ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'INITIALIZING STREAM...',
+                  style: AppTheme.labelSm.copyWith(
+                    color: AppTheme.secondaryFixedDim,
+                    fontSize: 10,
+                    letterSpacing: 2,
                   ),
                 ),
               ],
-            );
-          },
-        ),
+            ),
+          ),
+
+          // Bottom branding
+          Positioned(
+            bottom: 32,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Text(
+                '© 2026 REEDFEEDS | LIVE DATA FEED',
+                style: AppTheme.labelSm.copyWith(
+                  color: AppTheme.secondaryFixedDim.withValues(alpha: 0.5),
+                  fontSize: 9,
+                  letterSpacing: 1.5,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
+}
+
+/// Scanline painter for broadcast graphic aesthetic
+class _ScanlinePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = AppTheme.primaryContainer.withValues(alpha: 0.03)
+      ..strokeWidth = 1;
+    for (double y = 0; y < size.height; y += 4) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

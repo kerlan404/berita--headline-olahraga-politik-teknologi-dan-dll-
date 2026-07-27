@@ -18,8 +18,6 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    // Post-frame: providers are now ANCESTORS (wrapped in main.dart),
-    // so context.read<>() will find them correctly.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       context.read<ThemeProvider>().loadTheme();
@@ -35,7 +33,7 @@ class _MyAppState extends State<MyApp> {
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
         return MaterialApp(
-          title: 'ReedsFeed',
+          title: 'REEDFEEDS',
           debugShowCheckedModeBanner: false,
           theme: themeProvider.theme,
           home: const SplashScreen(),

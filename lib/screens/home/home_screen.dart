@@ -1,10 +1,7 @@
 import 'dart:async';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../core/constants/api_constants.dart';
 import '../../core/theme/app_theme.dart';
-import '../../core/utils/date_formatter.dart';
 import '../../core/utils/route_transitions.dart';
 import '../../data/models/news_article.dart';
 import '../../providers/news_list_provider.dart';
@@ -32,7 +29,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final ScrollController _searchScrollController = ScrollController();
   late AnimationController _staggeredController;
 
-  // Search state
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   Timer? _debounceTimer;
@@ -42,10 +38,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   bool _isGridView = false;
   DateTime _lastParallaxUpdate = DateTime.now();
 
-  // Scroll-to-top FAB
   bool _showFab = false;
-
-  // Breaking News banner
   bool _showBreakingNews = true;
 
   @override
@@ -80,20 +73,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _onScroll() {
-    // Throttle parallax updates to every 50ms to reduce GPU load
     final now = DateTime.now();
     if (now.difference(_lastParallaxUpdate).inMilliseconds > 50) {
       _scrollOffset = _scrollController.hasClients ? _scrollController.offset : 0.0;
       _lastParallaxUpdate = now;
     }
-
-    // Show/hide FAB
     final showFab = _scrollController.hasClients && _scrollController.offset > 400;
     if (showFab != _showFab && mounted) {
       setState(() => _showFab = showFab);
     }
-
-    // Infinite scroll trigger
     if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
       context.read<NewsListProvider>().loadMore();
     }
@@ -136,7 +124,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void _onSearchChanged() {
     if (_debounceTimer?.isActive ?? false) _debounceTimer?.cancel();
-
     final query = _searchController.text;
     _debounceTimer = Timer(const Duration(milliseconds: 500), () {
       if (mounted) {
@@ -152,29 +139,27 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       floatingActionButton: _showFab && !_isSearching
           ? FloatingActionButton.small(
               onPressed: _scrollToTop,
-              backgroundColor: AppTheme.surface,
+              backgroundColor: AppTheme.cardBgFor(Theme.of(context).brightness == Brightness.dark),
               elevation: 4,
               child: Container(
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: AppTheme.primaryAccent.withValues(alpha: 0.4),
+                    color: AppTheme.primaryContainer.withValues(alpha: 0.4),
                     width: 1.5,
                   ),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.keyboard_arrow_up_rounded,
-                  color: AppTheme.primaryAccent,
+                  color: AppTheme.primaryContainer,
                 ),
               ),
             )
           : null,
       body: Column(
         children: [
-          // Category bar (hidden during search)
           if (!_isSearching)
             CategoryBar(onCategoryChanged: _triggerStaggeredAnimation),
-          // Breaking News banner (hidden during search)
           if (!_isSearching && _showBreakingNews)
             Consumer<NewsListProvider>(
               builder: (context, provider, child) {
@@ -189,7 +174,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 );
               },
             ),
-          // Main Content
           Expanded(
             child: _isSearching ? _buildSearchBody() : _buildNewsBody(),
           ),
@@ -198,21 +182,23 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  // ─── App Bars ───────────────────────────────
-
   PreferredSizeWidget _buildNormalAppBar() {
     return AppBar(
-      title: const Row(
+      title: Row(
         children: [
           Text(
-            'REEDS',
-            style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.5),
+            'REED',
+            style: AppTheme.headlineMd.copyWith(
+              color: AppTheme.textPrimaryFor(Theme.of(context).brightness == Brightness.dark),
+              fontSize: 22,
+              letterSpacing: 0.5,
+            ),
           ),
           Text(
-            'FEED',
-            style: TextStyle(
-              fontWeight: FontWeight.w900,
-              color: AppTheme.primaryAccent,
+            'FEEDS',
+            style: AppTheme.headlineMd.copyWith(
+              color: AppTheme.primaryContainer,
+              fontSize: 22,
               letterSpacing: 0.5,
             ),
           ),
@@ -233,9 +219,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
           ),
           tooltip: _isGridView ? 'Tampilan List' : 'Tampilan Grid',
-          onPressed: () {
-            setState(() => _isGridView = !_isGridView);
-          },
+          onPressed: () => setState(() => _isGridView = !_isGridView),
         ),
       ],
     );
@@ -252,12 +236,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         controller: _searchController,
         focusNode: _searchFocusNode,
         autofocus: true,
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           hintText: 'Cari topik atau judul berita...',
-          hintStyle: TextStyle(color: AppTheme.textSecondary, fontSize: 16),
+          hintStyle: AppTheme.bodyMd.copyWith(
+            color: AppTheme.textSecondaryFor(Theme.of(context).brightness == Brightness.dark),
+          ),
           border: InputBorder.none,
+          filled: false,
         ),
-        style: const TextStyle(color: Colors.white, fontSize: 16),
+        style: AppTheme.bodyMd.copyWith(
+          color: AppTheme.textPrimaryFor(Theme.of(context).brightness == Brightness.dark),
+        ),
         textInputAction: TextInputAction.search,
       ),
       actions: [
@@ -280,8 +269,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ],
     );
   }
-
-  // ─── News Body ───────────────────────────────
 
   Widget _buildNewsBody() {
     return Consumer<NewsListProvider>(
@@ -308,7 +295,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     if (provider.articles.isEmpty) {
       return const EmptyState(
-        title: 'Tidak ada berita',
+        title: 'TIDAK ADA BERITA',
         description: 'Saat ini belum ada berita untuk kategori ini.',
       );
     }
@@ -323,12 +310,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return _buildListContent(provider);
   }
 
-  // ─── List View ──────────────────────────────
-
   Widget _buildListContent(NewsListProvider provider) {
     return RefreshIndicator(
-      color: AppTheme.primaryAccent,
-      backgroundColor: AppTheme.surface,
+      color: AppTheme.primaryContainer,
+      backgroundColor: AppTheme.cardBgFor(Theme.of(context).brightness == Brightness.dark),
       onRefresh: () async {
         await provider.fetchNews(isRefresh: true);
         _triggerStaggeredAnimation();
@@ -353,13 +338,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               padding: const EdgeInsets.only(bottom: 12.0),
               child: ListenableBuilder(
                 listenable: _scrollController,
-                builder: (context, _) {
-                  return NewsHeroCard(
-                    article: article,
-                    onTap: () => _openArticleDetail(context, article),
-                    scrollOffset: _scrollOffset,
-                  );
-                },
+                builder: (context, _) => NewsHeroCard(
+                  article: article,
+                  onTap: () => _openArticleDetail(context, article),
+                  scrollOffset: _scrollOffset,
+                ),
               ),
             );
           } else {
@@ -384,12 +367,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  // ─── Grid View ──────────────────────────────
-
   Widget _buildGridContent(NewsListProvider provider) {
     return RefreshIndicator(
-      color: AppTheme.primaryAccent,
-      backgroundColor: AppTheme.surface,
+      color: AppTheme.primaryContainer,
+      backgroundColor: AppTheme.cardBgFor(Theme.of(context).brightness == Brightness.dark),
       onRefresh: () async {
         await provider.fetchNews(isRefresh: true);
       },
@@ -423,8 +404,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  // ─── Search Body ────────────────────────────
-
   Widget _buildSearchBody() {
     return Consumer<SearchProvider>(
       builder: (context, provider, child) {
@@ -432,7 +411,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           return _buildSearchHistory(provider);
         }
 
-        // Show shimmer loading while searching
         if (provider.isLoading && provider.searchResults.isEmpty) {
           return const ShimmerList(itemCount: 4);
         }
@@ -446,7 +424,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
         if (provider.searchResults.isEmpty) {
           return EmptyState(
-            title: 'Tidak Ada Hasil',
+            title: 'TIDAK ADA HASIL',
             description: 'Tidak ada berita yang cocok untuk "${provider.query}".',
             icon: Icons.search_off,
           );
@@ -460,7 +438,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             if (index == provider.searchResults.length) {
               return const LoadingIndicator(isSmall: true);
             }
-
             final article = provider.searchResults[index];
             return Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
@@ -478,8 +455,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget _buildSearchHistory(SearchProvider provider) {
     final history = provider.searchHistory;
     if (history.isEmpty) {
-      return const EmptyState(
-        title: 'Cari Berita',
+      return EmptyState(
+        title: 'CARI BERITA',
         description: 'Ketik kata kunci judul atau deskripsi berita di atas.',
         icon: Icons.search,
       );
@@ -488,19 +465,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 4, bottom: 12),
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 12),
           child: Row(
             children: [
-              Icon(Icons.history_rounded, size: 16, color: AppTheme.textSecondary),
-              SizedBox(width: 6),
+              Icon(Icons.history_rounded, size: 16,
+                  color: AppTheme.textSecondaryFor(Theme.of(context).brightness == Brightness.dark)),
+              const SizedBox(width: 6),
               Text(
                 'RIWAYAT PENCARIAN',
-                style: TextStyle(
+                style: AppTheme.labelBold.copyWith(
                   fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.textSecondary,
-                  letterSpacing: 0.8,
+                  color: AppTheme.textSecondaryFor(Theme.of(context).brightness == Brightness.dark),
                 ),
               ),
             ],
@@ -508,10 +484,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ),
         ...history.reversed.map((q) => ListTile(
           dense: true,
-          leading: const Icon(Icons.history_rounded, size: 18, color: AppTheme.textSecondary),
-          title: Text(q, style: const TextStyle(fontSize: 14, color: AppTheme.textPrimary)),
+          leading: Icon(Icons.history_rounded, size: 18,
+              color: AppTheme.textSecondaryFor(Theme.of(context).brightness == Brightness.dark)),
+          title: Text(q,
+              style: AppTheme.bodyMd.copyWith(fontSize: 14,
+                  color: AppTheme.textPrimaryFor(Theme.of(context).brightness == Brightness.dark))),
           trailing: IconButton(
-            icon: const Icon(Icons.arrow_forward_rounded, size: 16, color: AppTheme.textSecondary),
+            icon: Icon(Icons.arrow_forward_rounded, size: 16,
+                color: AppTheme.textSecondaryFor(Theme.of(context).brightness == Brightness.dark)),
             onPressed: () {
               _searchController.text = q;
               _searchController.selection = TextSelection.fromPosition(
@@ -527,10 +507,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             padding: const EdgeInsets.only(top: 8),
             child: TextButton(
               onPressed: () => context.read<SearchProvider>().clearHistory(),
-              child: const Text(
-                'Hapus Riwayat',
-                style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
-              ),
+              child: Text('Hapus Riwayat',
+                  style: AppTheme.labelSm.copyWith(
+                      color: AppTheme.textSecondaryFor(Theme.of(context).brightness == Brightness.dark),
+                      fontSize: 12)),
             ),
           ),
       ],
@@ -538,10 +518,42 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _openArticleDetail(BuildContext context, NewsArticle article) {
-    // Record as recently read
     context.read<NewsListProvider>().recordRead(article);
     Navigator.of(context).push(
       SlideRightRoute(page: DetailScreen(article: article)),
+    );
+  }
+}
+
+/// Staggered animation helper for list items
+class StaggeredListAnimation extends StatelessWidget {
+  final int index;
+  final AnimationController controller;
+  final Widget child;
+
+  const StaggeredListAnimation({
+    super.key,
+    required this.index,
+    required this.controller,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, child) {
+        final delay = index * 0.05;
+        final value = (controller.value - delay).clamp(0.0, 1.0);
+        return Opacity(
+          opacity: value,
+          child: Transform.translate(
+            offset: Offset(0, 20 * (1 - value)),
+            child: child,
+          ),
+        );
+      },
+      child: child,
     );
   }
 }

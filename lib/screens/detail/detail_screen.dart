@@ -25,50 +25,30 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen> {
-  // Article Analysis
   final ArticleAnalysisService _analysisService = ArticleAnalysisService();
   ArticleAnalysis? _analysis;
   bool _isAnalyzing = false;
   bool _analysisError = false;
 
-  // WebView only on mobile (not web)
   WebViewController? _controller;
   int _progress = 0;
   bool _isError = false;
-  bool _showWebView = false; // Toggle between article content and WebView
-
-  // BACA LENGKAP sudah diklik — tombol akan hilang
+  bool _showWebView = false;
   bool _hasOpenedArticle = false;
 
-  // WebView is lazy-initialized — only loads when user taps the toggle button
   @override
   void initState() {
     super.initState();
     _startAnalysis();
   }
 
-  /// Jalankan analisis artikel oleh Editor Berita Senior REEDFEED
   Future<void> _startAnalysis() async {
-    setState(() {
-      _isAnalyzing = true;
-      _analysisError = false;
-    });
-
+    setState(() { _isAnalyzing = true; _analysisError = false; });
     try {
       final result = await _analysisService.analyze(widget.article);
-      if (mounted) {
-        setState(() {
-          _analysis = result;
-          _isAnalyzing = false;
-        });
-      }
+      if (mounted) setState(() { _analysis = result; _isAnalyzing = false; });
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _analysisError = true;
-          _isAnalyzing = false;
-        });
-      }
+      if (mounted) setState(() { _analysisError = true; _isAnalyzing = false; });
     }
   }
 
@@ -76,24 +56,12 @@ class _DetailScreenState extends State<DetailScreen> {
     try {
       _controller = WebViewController()
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
-        ..setNavigationDelegate(
-          NavigationDelegate(
-            onProgress: (int progress) {
-              if (mounted) setState(() => _progress = progress);
-            },
-            onPageStarted: (String url) {
-              if (mounted) setState(() { _progress = 0; _isError = false; });
-            },
-            onPageFinished: (String url) {
-              if (mounted) setState(() => _progress = 100);
-            },
-            onWebResourceError: (WebResourceError error) {
-              if (error.errorType != WebResourceErrorType.unknown) {
-                if (mounted) setState(() => _isError = true);
-              }
-            },
-          ),
-        )
+        ..setNavigationDelegate(NavigationDelegate(
+          onProgress: (p) { if (mounted) setState(() => _progress = p); },
+          onPageStarted: (_) { if (mounted) setState(() { _progress = 0; _isError = false; }); },
+          onPageFinished: (_) { if (mounted) setState(() => _progress = 100); },
+          onWebResourceError: (e) { if (mounted) setState(() => _isError = true); },
+        ))
         ..loadRequest(Uri.parse(widget.article.url));
     } catch (e) {
       if (mounted) setState(() => _isError = true);
@@ -101,35 +69,28 @@ class _DetailScreenState extends State<DetailScreen> {
   }
 
   Future<void> _shareArticle() async {
-    final text = '${widget.article.title}\n\n${widget.article.url}';
     await SharePlus.instance.share(
-      ShareParams(text: text, subject: widget.article.title),
+      ShareParams(text: '${widget.article.title}\n\n${widget.article.url}', subject: widget.article.title),
     );
   }
 
   Future<void> _openInBrowser() async {
-    final uri = Uri.parse(widget.article.url);
     try {
-      // Langsung launch — canLaunchUrl() unreliable di beberapa HP
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-      if (mounted) {
-        setState(() => _hasOpenedArticle = true);
-      }
+      await launchUrl(Uri.parse(widget.article.url), mode: LaunchMode.externalApplication);
+      if (mounted) setState(() => _hasOpenedArticle = true);
     } catch (e) {
-      debugPrint('_openInBrowser error: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Gagal membuka browser: $e'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Gagal membuka browser: $e'),
+          behavior: SnackBarBehavior.floating,
+        ));
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final hasImage = widget.article.urlToImage != null && widget.article.urlToImage!.isNotEmpty;
 
     return Scaffold(
@@ -138,10 +99,9 @@ class _DetailScreenState extends State<DetailScreen> {
           widget.article.title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 16),
+          style: AppTheme.bodyMd.copyWith(fontSize: 15, color: AppTheme.textPrimaryFor(isDark)),
         ),
         actions: [
-          // Toggle WebView button (mobile only) — lazy init on first tap
           if (!kIsWeb && !_isError)
             IconButton(
               icon: Icon(_showWebView ? Icons.article_rounded : Icons.web_rounded),
@@ -160,83 +120,89 @@ class _DetailScreenState extends State<DetailScreen> {
         ],
         bottom: !kIsWeb && _showWebView && _progress < 100 && !_isError
             ? PreferredSize(
-                preferredSize: const Size.fromHeight(2.0),
+                preferredSize: const Size.fromHeight(2),
                 child: LinearProgressIndicator(
                   value: _progress / 100.0,
-                  backgroundColor: AppTheme.background,
-                  valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryAccent),
-                  minHeight: 2.0,
+                  backgroundColor: AppTheme.darkBackground,
+                  valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryContainer),
+                  minHeight: 2,
                 ),
               )
             : null,
       ),
       body: _showWebView && !kIsWeb && !_isError
           ? _buildWebViewBody()
-          : _buildArticleContent(hasImage),
-      bottomNavigationBar: _buildBottomBar(),
+          : _buildArticleContent(hasImage, isDark),
+      bottomNavigationBar: _buildBottomBar(isDark),
     );
   }
 
-  /// WebView body (when user taps "Buka WebView")
   Widget _buildWebViewBody() {
     return Stack(
       children: [
         if (_controller != null) WebViewWidget(controller: _controller!),
-        if (_isError || _controller == null) _buildWebError(),
+        if (_isError || _controller == null) _buildWebError(isDark: true),
       ],
     );
   }
 
-  Widget _buildWebError() {
+  Widget _buildWebError({required bool isDark}) {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.signal_wifi_off_rounded, size: 64, color: AppTheme.primaryAccent),
-            const SizedBox(height: 16),
-            const Text('Halaman Gagal Dimuat',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
-            const SizedBox(height: 8),
-            const Text('Ada masalah saat memuat halaman web. Silakan coba lagi.',
-              style: TextStyle(fontSize: 14, color: AppTheme.textSecondary), textAlign: TextAlign.center),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: () { setState(() { _isError = false; }); _initWebView(); },
-              icon: const Icon(Icons.refresh, color: Colors.white),
-              label: const Text('Muat Ulang', style: TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(backgroundColor: AppTheme.surface, padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12)),
-            ),
-          ],
-        ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.signal_wifi_off_rounded, size: 64, color: AppTheme.primaryContainer),
+          const SizedBox(height: 16),
+          Text('HALAMAN GAGAL DIMUAT',
+              style: AppTheme.headlineMd.copyWith(color: AppTheme.textPrimaryFor(isDark), fontSize: 18)),
+          const SizedBox(height: 8),
+          Text('Ada masalah saat memuat halaman web. Silakan coba lagi.',
+              style: AppTheme.bodyMd.copyWith(fontSize: 14, color: AppTheme.textSecondaryFor(isDark)),
+              textAlign: TextAlign.center),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: () { setState(() { _isError = false; }); _initWebView(); },
+            icon: const Icon(Icons.refresh, color: Colors.white, size: 18),
+            label: Text('MUAT ULANG', style: AppTheme.labelBold.copyWith(color: Colors.white)),
+          ),
+        ],
       ),
     );
   }
 
-  /// Article content body (default view — beautiful article summary)
-  Widget _buildArticleContent(bool hasImage) {
+  Widget _buildArticleContent(bool hasImage, bool isDark) {
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
       slivers: [
-        // ── SliverAppBar with hero image ──
+        // Hero image with grayscale
         SliverAppBar(
           expandedHeight: hasImage ? 300 : 100,
           pinned: true,
-          backgroundColor: AppTheme.background,
-          leading: const SizedBox.shrink(), // no back button — AppBar handles it
+          backgroundColor: isDark ? AppTheme.darkBackground : AppTheme.surfaceLight,
+          leading: const SizedBox.shrink(),
           flexibleSpace: FlexibleSpaceBar(
             background: hasImage
                 ? Stack(
                     fit: StackFit.expand,
                     children: [
-                      CachedNetworkImage(
-                        imageUrl: widget.article.urlToImage!,
-                        fit: BoxFit.cover,
-                        placeholder: (_, __) => Container(color: AppTheme.surface),
-                        errorWidget: (_, __, ___) => Container(
-                          color: AppTheme.surface,
-                          child: const Icon(Icons.image_not_supported_rounded, size: 48, color: AppTheme.textSecondary),
+                      ColorFiltered(
+                        colorFilter: const ColorFilter.matrix(<double>[
+                          0.33, 0.33, 0.33, 0, 0,
+                          0.33, 0.33, 0.33, 0, 0,
+                          0.33, 0.33, 0.33, 0, 0,
+                          0, 0, 0, 1, 0,
+                        ]),
+                        child: CachedNetworkImage(
+                          imageUrl: widget.article.urlToImage!,
+                          fit: BoxFit.cover,
+                          placeholder: (_, __) => Container(
+                            color: AppTheme.cardBgFor(isDark),
+                          ),
+                          errorWidget: (_, __, ___) => Container(
+                            color: AppTheme.cardBgFor(isDark),
+                            child: const Icon(Icons.image_not_supported_rounded,
+                                size: 48, color: AppTheme.textSecondary),
+                          ),
                         ),
                       ),
                       // Bottom gradient
@@ -245,7 +211,11 @@ class _DetailScreenState extends State<DetailScreen> {
                         child: IgnorePointer(child: Container(
                           decoration: BoxDecoration(gradient: LinearGradient(
                             begin: Alignment.bottomCenter, end: Alignment.topCenter,
-                            colors: [AppTheme.background.withValues(alpha: 1.0), AppTheme.background.withValues(alpha: 0.6), Colors.transparent],
+                            colors: [
+                              (isDark ? AppTheme.darkBackground : AppTheme.surfaceLight).withValues(alpha: 1.0),
+                              (isDark ? AppTheme.darkBackground : AppTheme.surfaceLight).withValues(alpha: 0.6),
+                              Colors.transparent,
+                            ],
                           )),
                         )),
                       ),
@@ -254,56 +224,60 @@ class _DetailScreenState extends State<DetailScreen> {
                         left: 16, bottom: 20,
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryAccent,
-                            borderRadius: BorderRadius.circular(8),
-                            boxShadow: [BoxShadow(color: AppTheme.primaryAccent.withValues(alpha: 0.4), blurRadius: 8, offset: const Offset(0, 4))],
-                          ),
+                          color: AppTheme.primaryContainer,
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               const Icon(Icons.source_rounded, size: 12, color: Colors.white),
                               const SizedBox(width: 6),
                               Text(widget.article.sourceName?.toUpperCase() ?? 'NEWS',
-                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: 1.0)),
+                                style: AppTheme.labelBold.copyWith(fontSize: 10, color: Colors.white)),
                             ],
                           ),
                         ),
                       ),
                     ],
                   )
-                : Container(color: AppTheme.surface),
+                : Container(color: AppTheme.cardBgFor(isDark)),
           ),
         ),
 
-        // ── Article Content ──
+        // Article content
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ═══ TITLE ═══
+                // TITLE
                 Text(
                   widget.article.title,
-                  style: const TextStyle(
-                    fontSize: 24, fontWeight: FontWeight.w900, color: AppTheme.textPrimary,
-                    height: 1.35, letterSpacing: -0.3,
+                  style: AppTheme.headlineLgMobile.copyWith(
+                    color: AppTheme.textPrimaryFor(isDark),
+                    fontSize: 26,
                   ),
                 ),
                 const SizedBox(height: 16),
 
-                // ═══ META: Author + Time ═══
+                // Meta: Author + Time
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CircleAvatar(
-                      radius: 16,
-                      backgroundColor: AppTheme.primaryAccent.withValues(alpha: 0.15),
-                      child: Text(
-                        (widget.article.author != null && widget.article.author!.isNotEmpty)
-                            ? widget.article.author![0].toUpperCase() : 'N',
-                        style: const TextStyle(color: AppTheme.primaryAccent, fontWeight: FontWeight.w800, fontSize: 14),
+                    Container(
+                      width: 32, height: 32,
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryContainer.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Center(
+                        child: Text(
+                          (widget.article.author != null && widget.article.author!.isNotEmpty)
+                              ? widget.article.author![0].toUpperCase() : 'N',
+                          style: AppTheme.labelBold.copyWith(
+                            color: AppTheme.primaryContainer,
+                            fontSize: 14,
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -313,21 +287,34 @@ class _DetailScreenState extends State<DetailScreen> {
                         children: [
                           Text(
                             widget.article.author ?? 'Redaksi',
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
+                            style: AppTheme.labelBold.copyWith(
+                              fontSize: 13,
+                              color: AppTheme.textPrimaryFor(isDark),
+                            ),
                             maxLines: 1, overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 2),
                           Row(
                             children: [
-                              Icon(Icons.schedule_rounded, size: 11, color: AppTheme.textSecondary.withValues(alpha: 0.7)),
+                              Icon(Icons.schedule_rounded, size: 11,
+                                  color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.7)),
                               const SizedBox(width: 4),
-                              Text(DateFormatter.getRelativeTime(widget.article.publishedAt),
-                                style: TextStyle(fontSize: 11, color: AppTheme.textSecondary.withValues(alpha: 0.7))),
+                              Text(
+                                DateFormatter.getRelativeTime(widget.article.publishedAt).toUpperCase(),
+                                style: AppTheme.labelSm.copyWith(
+                                  fontSize: 10,
+                                  color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.7)),
+                              ),
                               const SizedBox(width: 12),
-                              Icon(Icons.source_rounded, size: 11, color: AppTheme.textSecondary.withValues(alpha: 0.7)),
+                              Icon(Icons.source_rounded, size: 11,
+                                  color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.7)),
                               const SizedBox(width: 4),
-                              Text(widget.article.sourceName ?? 'Sumber',
-                                style: TextStyle(fontSize: 11, color: AppTheme.textSecondary.withValues(alpha: 0.7))),
+                              Text(
+                                widget.article.sourceName ?? 'Sumber',
+                                style: AppTheme.labelSm.copyWith(
+                                  fontSize: 10,
+                                  color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.7)),
+                              ),
                             ],
                           ),
                         ],
@@ -337,40 +324,43 @@ class _DetailScreenState extends State<DetailScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // ═══ ACCENT DIVIDER ═══
+                // Accent divider
                 Container(
                   height: 3, width: 48,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(colors: [AppTheme.primaryAccent, AppTheme.secondaryAccent]),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+                  color: AppTheme.primaryContainer,
                 ),
                 const SizedBox(height: 20),
 
-                // ═══ ANALISIS EDITOR — REEDFEED ═══
-                _buildEditorAnalysis(),
+                // Editor analysis
+                _buildEditorAnalysis(isDark),
                 const SizedBox(height: 24),
 
-                // ═══ INFO LENGKAP ARTIKEL ═══
-                _buildInfoPanel(),
+                // Info panel
+                _buildInfoPanel(isDark),
                 const SizedBox(height: 20),
 
-                // ═══ HINT: Baca Selengkapnya ═══
+                // Hint
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryAccent.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppTheme.primaryAccent.withValues(alpha: 0.1)),
+                    border: Border.all(
+                      color: AppTheme.primaryContainer.withValues(alpha: 0.2),
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(4),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.open_in_new_rounded, size: 18, color: AppTheme.primaryAccent),
+                      const Icon(Icons.open_in_new_rounded, size: 18,
+                          color: AppTheme.primaryContainer),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           'Ketuk tombol "BACA LENGKAP" di bawah untuk membuka artikel asli di browser.',
-                          style: TextStyle(fontSize: 12, color: AppTheme.textSecondary.withValues(alpha: 0.8), height: 1.4),
+                          style: AppTheme.labelSm.copyWith(
+                            fontSize: 11,
+                            color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.8),
+                          ),
                         ),
                       ),
                     ],
@@ -384,25 +374,24 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
-  /// Widget analisis editor — menampilkan hasil ekstraksi inti berita
-  Widget _buildEditorAnalysis() {
+  Widget _buildEditorAnalysis(bool isDark) {
     // Loading state
     if (_isAnalyzing) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'ANALISIS EDITOR',
-            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppTheme.primaryAccent, letterSpacing: 1.0),
-          ),
+          Text('ANALISIS EDITOR',
+              style: AppTheme.labelBold.copyWith(fontSize: 11, color: AppTheme.primaryContainer, letterSpacing: 1)),
           const SizedBox(height: 12),
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppTheme.surface.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.divider.withValues(alpha: 0.5)),
+              border: Border.all(
+                color: AppTheme.dividerFor(isDark).withValues(alpha: 0.5),
+                width: 1,
+              ),
+              borderRadius: BorderRadius.circular(4),
             ),
             child: Column(
               children: [
@@ -410,14 +399,13 @@ class _DetailScreenState extends State<DetailScreen> {
                   width: 24, height: 24,
                   child: CircularProgressIndicator(
                     strokeWidth: 2.5,
-                    valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryAccent),
+                    valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryContainer),
                   ),
                 ),
                 const SizedBox(height: 12),
-                Text(
-                  'Editor REEDFEED sedang menganalisis artikel...',
-                  style: TextStyle(fontSize: 12, color: AppTheme.textSecondary.withValues(alpha: 0.7)),
-                ),
+                Text('Editor REEDFEEDS sedang menganalisis artikel...',
+                    style: AppTheme.labelSm.copyWith(
+                        fontSize: 11, color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.7))),
               ],
             ),
           ),
@@ -432,20 +420,20 @@ class _DetailScreenState extends State<DetailScreen> {
         children: [
           Row(
             children: [
-              const Text(
-                'ANALISIS EDITOR',
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppTheme.primaryAccent, letterSpacing: 1.0),
-              ),
+              Text('ANALISIS EDITOR',
+                  style: AppTheme.labelBold.copyWith(fontSize: 11, color: AppTheme.primaryContainer, letterSpacing: 1)),
               const Spacer(),
               GestureDetector(
                 onTap: _startAnalysis,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.refresh, size: 12, color: AppTheme.primaryAccent.withValues(alpha: 0.7)),
+                    Icon(Icons.refresh, size: 12,
+                        color: AppTheme.primaryContainer.withValues(alpha: 0.7)),
                     const SizedBox(width: 4),
                     Text('Coba lagi',
-                      style: TextStyle(fontSize: 10, color: AppTheme.primaryAccent.withValues(alpha: 0.7))),
+                        style: AppTheme.labelSm.copyWith(
+                            fontSize: 10, color: AppTheme.primaryContainer.withValues(alpha: 0.7))),
                   ],
                 ),
               ),
@@ -456,54 +444,47 @@ class _DetailScreenState extends State<DetailScreen> {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppTheme.surface.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.divider.withValues(alpha: 0.5)),
+              border: Border.all(
+                color: AppTheme.dividerFor(isDark).withValues(alpha: 0.5), width: 1,
+              ),
+              borderRadius: BorderRadius.circular(4),
             ),
             child: Row(
               children: [
-                Icon(Icons.info_outline_rounded, size: 16, color: AppTheme.textSecondary.withValues(alpha: 0.5)),
+                Icon(Icons.info_outline_rounded, size: 16,
+                    color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.5)),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
-                    'Gagal menganalisis artikel. Silakan baca ringkasan di bawah ini.',
-                    style: TextStyle(fontSize: 12, color: AppTheme.textSecondary.withValues(alpha: 0.7)),
-                  ),
+                  child: Text('Gagal menganalisis artikel. Silakan baca ringkasan di bawah ini.',
+                      style: AppTheme.labelSm.copyWith(
+                          fontSize: 11, color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.7))),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 20),
-          // Fallback — tampilkan description & content asli
           if (widget.article.description != null && widget.article.description!.isNotEmpty) ...[
-            const Text('RINGKASAN',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppTheme.primaryAccent, letterSpacing: 1.0)),
+            Text('RINGKASAN',
+                style: AppTheme.labelBold.copyWith(fontSize: 11, color: AppTheme.primaryContainer, letterSpacing: 1)),
             const SizedBox(height: 8),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppTheme.surface.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.divider.withValues(alpha: 0.5)),
+                border: Border.all(
+                  color: AppTheme.dividerFor(isDark).withValues(alpha: 0.5), width: 1,
+                ),
+                borderRadius: BorderRadius.circular(4),
               ),
               child: Text(widget.article.description!,
-                style: const TextStyle(fontSize: 15, color: AppTheme.textPrimary, height: 1.7)),
+                  style: AppTheme.bodyMd.copyWith(
+                      fontSize: 14, color: AppTheme.textPrimaryFor(isDark))),
             ),
-          ],
-          if (widget.article.content != null && widget.article.content!.isNotEmpty) ...[
-            const SizedBox(height: 20),
-            const Text('ISI BERITA',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppTheme.textSecondary, letterSpacing: 1.0)),
-            const SizedBox(height: 8),
-            Text(widget.article.content!,
-              style: const TextStyle(fontSize: 14, color: AppTheme.textSecondary, height: 1.8)),
           ],
         ],
       );
     }
 
-    // Analysis ready
     if (_analysis == null) return const SizedBox.shrink();
 
     final analysis = _analysis!;
@@ -511,154 +492,111 @@ class _DetailScreenState extends State<DetailScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ═══ HEADER: badge editor ═══
         Row(
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: AppTheme.primaryAccent.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: AppTheme.primaryAccent.withValues(alpha: 0.2)),
-              ),
-              child: const Row(
+              color: AppTheme.primaryContainer,
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.auto_awesome_rounded, size: 12, color: AppTheme.primaryAccent),
-                  SizedBox(width: 4),
-                  Text(
-                    'ANALISIS EDITOR REEDFEED',
-                    style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: AppTheme.primaryAccent, letterSpacing: 0.8),
-                  ),
+                  const Icon(Icons.auto_awesome_rounded, size: 12, color: Colors.white),
+                  const SizedBox(width: 4),
+                  Text('ANALISIS EDITOR REEDFEEDS',
+                      style: AppTheme.labelBold.copyWith(fontSize: 9, color: Colors.white, letterSpacing: 0.8)),
                 ],
               ),
             ),
             const Spacer(),
             GestureDetector(
               onTap: _startAnalysis,
-              child: Icon(Icons.refresh_rounded, size: 14, color: AppTheme.textSecondary.withValues(alpha: 0.5)),
+              child: Icon(Icons.refresh_rounded, size: 14,
+                  color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.5)),
             ),
           ],
         ),
         const SizedBox(height: 12),
-
-        // ═══ INTI BERITA ═══
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppTheme.surface.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppTheme.divider.withValues(alpha: 0.5)),
+            border: Border.all(
+              color: AppTheme.dividerFor(isDark).withValues(alpha: 0.5), width: 1,
+            ),
+            borderRadius: BorderRadius.circular(4),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Suggested title
-              Text(
-                analysis.judulSaran,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: AppTheme.textPrimary,
-                  height: 1.4,
-                ),
-              ),
+              Text(analysis.judulSaran,
+                  style: AppTheme.headlineMd.copyWith(
+                      fontSize: 18, color: AppTheme.textPrimaryFor(isDark))),
               const SizedBox(height: 12),
-
-              // Accent divider
-              Container(
-                height: 2, width: 32,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [AppTheme.primaryAccent, AppTheme.secondaryAccent]),
-                  borderRadius: BorderRadius.circular(1),
-                ),
-              ),
+              Container(height: 2, width: 32, color: AppTheme.primaryContainer),
               const SizedBox(height: 12),
-
-              // Core content
-              Text(
-                analysis.intiBerita,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppTheme.textPrimary,
-                  height: 1.7,
-                ),
-              ),
+              Text(analysis.intiBerita,
+                  style: AppTheme.bodyMd.copyWith(
+                      fontSize: 14, color: AppTheme.textPrimaryFor(isDark))),
             ],
           ),
         ),
         const SizedBox(height: 20),
-
-        // ═══ POIN KUNCI ═══
         if (analysis.poinKunci.isNotEmpty) ...[
-          const Text(
-            'POIN PENTING',
-            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppTheme.textSecondary, letterSpacing: 1.0),
-          ),
+          Text('POIN PENTING',
+              style: AppTheme.labelBold.copyWith(
+                  fontSize: 11, color: AppTheme.textSecondaryFor(isDark), letterSpacing: 1)),
           const SizedBox(height: 10),
           ...analysis.poinKunci.asMap().entries.map((entry) {
-            final index = entry.key + 1;
-            final poin = entry.value;
+            final i = entry.key + 1;
             return Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    width: 22,
-                    height: 22,
+                    width: 22, height: 22,
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryAccent.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(6),
+                      color: AppTheme.primaryContainer.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(4),
                     ),
-                    child: Center(
-                      child: Text(
-                        '$index',
-                        style: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w800,
-                          color: AppTheme.primaryAccent,
-                        ),
-                      ),
-                    ),
+                    child: Center(child: Text('$i',
+                        style: AppTheme.labelBold.copyWith(
+                            fontSize: 10, color: AppTheme.primaryContainer))),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Text(
-                      poin,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppTheme.textSecondary,
-                        height: 1.5,
-                      ),
-                    ),
+                    child: Text(entry.value,
+                        style: AppTheme.bodyMd.copyWith(
+                            fontSize: 13, color: AppTheme.textSecondaryFor(isDark))),
                   ),
                 ],
               ),
             );
           }),
         ],
-
         const SizedBox(height: 8),
-
-        // ═══ FOOTER: sumber analisis ═══
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppTheme.surface.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: AppTheme.dividerFor(isDark).withValues(alpha: 0.3), width: 1,
+            ),
+            borderRadius: BorderRadius.circular(4),
           ),
           child: Row(
             children: [
-              Icon(Icons.auto_awesome_rounded, size: 12, color: AppTheme.textSecondary.withValues(alpha: 0.4)),
+              Icon(Icons.auto_awesome_rounded, size: 12,
+                  color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.4)),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   _analysisService.isAiMode
-                      ? 'Analisis oleh AI Editor REEDFEED. Dapatkan konteks utama sebelum membaca artikel penuh.'
-                      : 'Analisis otomatis oleh Editor REEDFEED. Ketuk BACA LENGKAP untuk artikel asli.',
-                  style: TextStyle(fontSize: 10, color: AppTheme.textSecondary.withValues(alpha: 0.5), height: 1.4),
+                      ? 'Analisis oleh AI Editor REEDFEEDS.'
+                      : 'Analisis otomatis oleh Editor REEDFEEDS.',
+                  style: AppTheme.labelSm.copyWith(
+                    fontSize: 10,
+                    color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.5),
+                  ),
                 ),
               ),
             ],
@@ -668,109 +606,87 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
-  /// Panel info lengkap artikel — menampilkan semua metadata artikel
-  Widget _buildInfoPanel() {
+  Widget _buildInfoPanel(bool isDark) {
     final article = widget.article;
     final url = Uri.tryParse(article.url);
     final domain = url?.host.replaceFirst('www.', '') ?? 'Sumber tidak diketahui';
-    final readTime = _estimateReadTime(article.content, article.description);
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.divider),
+        border: Border.all(
+          color: AppTheme.dividerFor(isDark).withValues(alpha: 0.5), width: 1,
+        ),
+        borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Header ──
           Row(
             children: [
               Container(
                 width: 28, height: 28,
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryAccent.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: AppTheme.primaryContainer.withValues(alpha: 0.3), width: 1,
+                  ),
+                  borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Icon(Icons.info_outline_rounded, size: 14, color: AppTheme.primaryAccent),
+                child: const Icon(Icons.info_outline_rounded, size: 14,
+                    color: AppTheme.primaryContainer),
               ),
               const SizedBox(width: 8),
-              const Text(
-                'DETAIL ARTIKEL',
-                style: TextStyle(
-                  fontSize: 11, fontWeight: FontWeight.w800,
-                  color: AppTheme.textSecondary, letterSpacing: 0.8,
-                ),
-              ),
+              Text('DETAIL ARTIKEL',
+                  style: AppTheme.labelBold.copyWith(
+                      fontSize: 11, color: AppTheme.textSecondaryFor(isDark), letterSpacing: 0.8)),
             ],
           ),
           const SizedBox(height: 16),
-
-          // ── Penulis ──
           _infoRow(Icons.person_outline_rounded, 'Penulis',
-              article.author ?? 'Tidak tercantum'),
-
-          // ── Sumber ──
+              article.author ?? 'Tidak tercantum', isDark),
           _infoRow(Icons.source_rounded, 'Sumber',
-              article.sourceName ?? 'Tidak diketahui'),
-
-          // ── Domain / Website ──
-          _infoRow(Icons.language_rounded, 'Domain', domain),
-
-          // ── Dipublikasikan ──
+              article.sourceName ?? 'Tidak diketahui', isDark),
+          _infoRow(Icons.language_rounded, 'Domain', domain, isDark),
           _infoRow(Icons.schedule_rounded, 'Publikasi',
-              _formatFullDate(article.publishedAt)),
-
-          // ── Estimasi baca ──
-          _infoRow(Icons.timer_rounded, 'Estimasi baca', readTime),
-
-          // ── URL Lengkap ──
-          const Divider(height: 24, color: AppTheme.divider),
+              _formatFullDate(article.publishedAt), isDark),
+          Divider(height: 24,
+              color: AppTheme.dividerFor(isDark).withValues(alpha: 0.5)),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Icon(Icons.link_rounded, size: 14,
-                  color: AppTheme.textSecondary.withValues(alpha: 0.5)),
+                  color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.5)),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(
-                  article.url,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: AppTheme.textSecondary.withValues(alpha: 0.6),
-                    height: 1.4,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                child: Text(article.url,
+                    style: AppTheme.labelSm.copyWith(
+                      fontSize: 10,
+                      color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.6),
+                    ),
+                    maxLines: 2, overflow: TextOverflow.ellipsis),
               ),
               const SizedBox(width: 4),
-              // Copy button
               GestureDetector(
                 onTap: () {
                   Clipboard.setData(ClipboardData(text: article.url));
                   if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('URL disalin ke clipboard'),
-                        behavior: SnackBarBehavior.floating,
-                        backgroundColor: AppTheme.surface,
-                        duration: const Duration(seconds: 2),
-                      ),
-                    );
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: const Text('URL disalin ke clipboard'),
+                      behavior: SnackBarBehavior.floating,
+                      backgroundColor: AppTheme.cardBgFor(isDark),
+                      duration: const Duration(seconds: 2),
+                    ));
                   }
                 },
                 child: Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryAccent.withValues(alpha: 0.08),
+                    color: AppTheme.primaryContainer.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Icon(Icons.copy_rounded, size: 12,
-                      color: AppTheme.primaryAccent.withValues(alpha: 0.6)),
+                      color: AppTheme.primaryContainer.withValues(alpha: 0.6)),
                 ),
               ),
             ],
@@ -780,60 +696,46 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
-  Widget _infoRow(IconData icon, String label, String value) {
+  Widget _infoRow(IconData icon, String label, String value, bool isDark) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
         children: [
-          Icon(icon, size: 14, color: AppTheme.textSecondary.withValues(alpha: 0.5)),
+          Icon(icon, size: 14,
+              color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.5)),
           const SizedBox(width: 8),
           SizedBox(
             width: 80,
             child: Text(label,
-              style: TextStyle(fontSize: 10, color: AppTheme.textSecondary.withValues(alpha: 0.6),
-                  fontWeight: FontWeight.w500),
-            ),
+                style: AppTheme.labelSm.copyWith(
+                  fontSize: 10,
+                  color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.6),
+                )),
           ),
           Expanded(
             child: Text(value,
-              style: const TextStyle(fontSize: 12, color: AppTheme.textPrimary, fontWeight: FontWeight.w500),
-              maxLines: 1, overflow: TextOverflow.ellipsis,
-            ),
+                style: AppTheme.labelBold.copyWith(
+                  fontSize: 12,
+                  color: AppTheme.textPrimaryFor(isDark),
+                ),
+                maxLines: 1, overflow: TextOverflow.ellipsis),
           ),
         ],
       ),
     );
   }
 
-  /// Format tanggal lengkap (misal: 21 Juli 2026, 14:30)
   String _formatFullDate(String dateStr) {
     try {
       final dt = DateTime.parse(dateStr).toLocal();
-      final months = [
-        'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-        'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
-      ];
+      final months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
       final hour = dt.hour.toString().padLeft(2, '0');
       final minute = dt.minute.toString().padLeft(2, '0');
       return '${dt.day} ${months[dt.month - 1]} ${dt.year}, $hour:$minute';
-    } catch (_) {
-      return dateStr;
-    }
+    } catch (_) { return dateStr; }
   }
 
-  /// Estimasi waktu baca berdasarkan panjang konten
-  String _estimateReadTime(String? content, String? description) {
-    final textLen = (content?.length ?? 0) + (description?.length ?? 0);
-    if (textLen == 0) return '1 menit';
-    // Rata-rata kecepatan baca: 200 kata/menit, ~5 char/kata
-    final minutes = (textLen / (200 * 5)).ceil();
-    if (minutes < 1) return 'Kurang dari 1 menit';
-    return '$minutes menit';
-  }
-
-  /// Bottom bar with BACA LENGKAP button → opens URL in external browser
-  /// After opening once, the button disappears to indicate article was read.
-  Widget _buildBottomBar() {
+  Widget _buildBottomBar(bool isDark) {
     if (_hasOpenedArticle) {
       return Container(
         padding: EdgeInsets.only(
@@ -841,18 +743,19 @@ class _DetailScreenState extends State<DetailScreen> {
           bottom: MediaQuery.of(context).padding.bottom + 12,
         ),
         decoration: BoxDecoration(
-          color: AppTheme.surface.withValues(alpha: 0.95),
-          border: Border(top: BorderSide(color: AppTheme.divider.withValues(alpha: 0.5))),
+          color: AppTheme.cardBgFor(isDark).withValues(alpha: 0.95),
+          border: Border(top: BorderSide(
+            color: AppTheme.dividerFor(isDark).withValues(alpha: 0.5))),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.check_circle_rounded, size: 16, color: AppTheme.successColor.withValues(alpha: 0.7)),
+            Icon(Icons.check_circle_rounded, size: 16,
+                color: const Color(0xFF00C853).withValues(alpha: 0.7)),
             const SizedBox(width: 8),
-            Text(
-              'Artikel dibuka di browser',
-              style: TextStyle(fontSize: 12, color: AppTheme.textSecondary.withValues(alpha: 0.7)),
-            ),
+            Text('Artikel dibuka di browser',
+                style: AppTheme.labelSm.copyWith(
+                    fontSize: 12, color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.7))),
           ],
         ),
       );
@@ -864,8 +767,9 @@ class _DetailScreenState extends State<DetailScreen> {
         bottom: MediaQuery.of(context).padding.bottom + 12,
       ),
       decoration: BoxDecoration(
-        color: AppTheme.surface.withValues(alpha: 0.95),
-        border: Border(top: BorderSide(color: AppTheme.divider.withValues(alpha: 0.5))),
+        color: AppTheme.cardBgFor(isDark).withValues(alpha: 0.95),
+        border: Border(top: BorderSide(
+          color: AppTheme.dividerFor(isDark).withValues(alpha: 0.5))),
       ),
       child: SizedBox(
         width: double.infinity,
@@ -873,13 +777,11 @@ class _DetailScreenState extends State<DetailScreen> {
         child: ElevatedButton.icon(
           onPressed: _openInBrowser,
           icon: const Icon(Icons.open_in_new_rounded, size: 20, color: Colors.white),
-          label: const Text(
-            'BACA LENGKAP',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, letterSpacing: 0.8, fontSize: 14),
-          ),
+          label: Text('BACA LENGKAP',
+              style: AppTheme.labelBold.copyWith(color: Colors.white, fontSize: 14, letterSpacing: 0.8)),
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppTheme.primaryAccent,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            backgroundColor: AppTheme.primaryContainer,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             elevation: 0,
           ),
         ),

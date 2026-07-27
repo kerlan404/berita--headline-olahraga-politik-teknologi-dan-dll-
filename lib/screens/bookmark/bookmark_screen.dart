@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/route_transitions.dart';
 import '../../providers/bookmark_provider.dart';
-import '../../widgets/news_card.dart';
+import '../../data/models/news_article.dart';
+import '../../core/utils/date_formatter.dart';
+import '../../widgets/bookmark_button.dart';
 import '../detail/detail_screen.dart';
 
 class BookmarkScreen extends StatelessWidget {
@@ -12,6 +15,8 @@ class BookmarkScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -20,17 +25,18 @@ class BookmarkScreen extends StatelessWidget {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [AppTheme.primaryAccent, AppTheme.secondaryAccent],
-                ),
-                borderRadius: BorderRadius.circular(8),
+                color: AppTheme.primaryContainer,
+                borderRadius: BorderRadius.circular(4),
               ),
               child: const Icon(Icons.bookmark_rounded, color: Colors.white, size: 18),
             ),
             const SizedBox(width: 10),
-            const Text(
-              'TERSIMPAN',
-              style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.5),
+            Text(
+              'SAVED',
+              style: AppTheme.headlineMd.copyWith(
+                fontSize: 20,
+                color: AppTheme.textPrimaryFor(isDark),
+              ),
             ),
           ],
         ),
@@ -41,19 +47,17 @@ class BookmarkScreen extends StatelessWidget {
               return Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Count badge
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryAccent.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(10),
+                      color: AppTheme.primaryContainer.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
                       '${provider.count}',
-                      style: const TextStyle(
+                      style: AppTheme.labelBold.copyWith(
                         fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.primaryAccent,
+                        color: AppTheme.primaryContainer,
                       ),
                     ),
                   ),
@@ -74,13 +78,12 @@ class BookmarkScreen extends StatelessWidget {
           final articles = provider.bookmarkedArticles;
 
           if (articles.isEmpty) {
-            return _buildEmptyState();
+            return _buildEmptyState(isDark);
           }
 
-          return ListView.separated(
+          return ListView.builder(
             padding: const EdgeInsets.all(12),
             itemCount: articles.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 8),
             itemBuilder: (context, index) {
               final article = articles[index];
               return Dismissible(
@@ -89,28 +92,19 @@ class BookmarkScreen extends StatelessWidget {
                 background: Container(
                   alignment: Alignment.centerRight,
                   padding: const EdgeInsets.only(right: 20),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppTheme.primaryAccent.withValues(alpha: 0.0),
-                        AppTheme.primaryAccent.withValues(alpha: 0.2),
-                      ],
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  color: AppTheme.primaryContainer.withValues(alpha: 0.2),
                   child: const Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.delete_outline_rounded, color: AppTheme.primaryAccent, size: 24),
+                      Icon(Icons.delete_outline_rounded,
+                          color: AppTheme.primaryContainer, size: 24),
                       SizedBox(height: 2),
                       Text(
                         'HAPUS',
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.w700,
-                          color: AppTheme.primaryAccent,
+                          color: AppTheme.primaryContainer,
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -119,14 +113,7 @@ class BookmarkScreen extends StatelessWidget {
                 ),
                 confirmDismiss: (_) => _confirmDismiss(context, provider, article.url),
                 onDismissed: (_) {},
-                child: NewsCard(
-                  article: article,
-                  onTap: () {
-                    Navigator.of(context).push(
-                      SlideRightRoute(page: DetailScreen(article: article)),
-                    );
-                  },
-                ),
+                child: _buildBookmarkCard(context, article, isDark),
               );
             },
           );
@@ -135,31 +122,139 @@ class BookmarkScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildBookmarkCard(BuildContext context, NewsArticle article, bool isDark) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: AppTheme.cardBgFor(isDark),
+        border: Border.all(
+          color: AppTheme.dividerFor(isDark).withValues(alpha: 0.5),
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).push(
+            SlideRightRoute(page: DetailScreen(article: article)),
+          );
+        },
+        borderRadius: BorderRadius.circular(4),
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Thumbnail
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: SizedBox(
+                  width: 100,
+                  height: 100,
+                  child: article.urlToImage != null && article.urlToImage!.isNotEmpty
+                      ? ColorFiltered(
+                          colorFilter: const ColorFilter.matrix(<double>[
+                            0.33, 0.33, 0.33, 0, 0,
+                            0.33, 0.33, 0.33, 0, 0,
+                            0.33, 0.33, 0.33, 0, 0,
+                            0, 0, 0, 1, 0,
+                          ]),
+                          child: CachedNetworkImage(
+                            imageUrl: article.urlToImage!,
+                            fit: BoxFit.cover,
+                            placeholder: (_, __) => Container(
+                              color: AppTheme.cardBgFor(isDark),
+                            ),
+                            errorWidget: (_, __, ___) => Container(
+                              color: AppTheme.cardBgFor(isDark),
+                              child: const Icon(Icons.broken_image,
+                                  color: AppTheme.textSecondary),
+                            ),
+                          ),
+                        )
+                      : Container(
+                          color: AppTheme.cardBgFor(isDark),
+                          child: const Icon(Icons.image_not_supported,
+                              color: AppTheme.textSecondary),
+                        ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: SizedBox(
+                  height: 100,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  article.sourceName?.toUpperCase() ?? 'NEWS',
+                                  style: AppTheme.labelBold.copyWith(
+                                    fontSize: 10,
+                                    color: AppTheme.primaryContainer,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              BookmarkButton(
+                                article: article,
+                                iconSize: 18,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            article.title,
+                            style: AppTheme.headlineMd.copyWith(
+                              fontSize: 16,
+                              color: AppTheme.textPrimaryFor(isDark),
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                      Text(
+                        DateFormatter.getRelativeTime(article.publishedAt).toUpperCase(),
+                        style: AppTheme.labelSm.copyWith(
+                          fontSize: 10,
+                          color: AppTheme.textSecondaryFor(isDark),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(bool isDark) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Animated icon container
             Container(
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    AppTheme.primaryAccent.withValues(alpha: 0.15),
-                    AppTheme.secondaryAccent.withValues(alpha: 0.05),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(32),
                 border: Border.all(
-                  color: AppTheme.primaryAccent.withValues(alpha: 0.15),
-                  width: 1.5,
+                  color: AppTheme.primaryContainer.withValues(alpha: 0.2),
+                  width: 2,
                 ),
+                borderRadius: BorderRadius.circular(4),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -167,56 +262,35 @@ class BookmarkScreen extends StatelessWidget {
                   Icon(
                     Icons.bookmark_rounded,
                     size: 48,
-                    color: AppTheme.primaryAccent.withValues(alpha: 0.5),
+                    color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.5),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     '0',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w900,
-                      color: AppTheme.textSecondary.withValues(alpha: 0.4),
+                    style: AppTheme.headlineMd.copyWith(
+                      fontSize: 24,
+                      color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.4),
                     ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 28),
-            const Text(
-              'Belum Ada Artikel Tersimpan',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
-                color: AppTheme.textPrimary,
-                letterSpacing: -0.3,
+            Text(
+              'BENCH IS EMPTY',
+              style: AppTheme.headlineMd.copyWith(
+                fontSize: 22,
+                color: AppTheme.textPrimaryFor(isDark),
               ),
             ),
             const SizedBox(height: 12),
             Text(
-              'Tap ikon hati ❤️ pada setiap berita untuk\nmenyimpannya di sini.',
-              style: TextStyle(
+              'Tap bookmark button on any article\nto save it here.',
+              style: AppTheme.bodyMd.copyWith(
                 fontSize: 14,
-                color: AppTheme.textSecondary.withValues(alpha: 0.7),
-                height: 1.6,
+                color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.7),
               ),
               textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 32),
-            // Decorative dots
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                5,
-                (i) => Container(
-                  width: 6 + i * 2.0,
-                  height: 6 + i * 2.0,
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryAccent.withValues(alpha: 0.15 - i * 0.025),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
             ),
           ],
         ),
@@ -233,16 +307,15 @@ class BookmarkScreen extends StatelessWidget {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text(
-          'Artikel dihapus dari tersimpan',
-          style: TextStyle(color: AppTheme.textPrimary),
-        ),
+        content: Text('Artikel dihapus dari tersimpan',
+            style: TextStyle(
+                color: AppTheme.textPrimaryFor(Theme.of(context).brightness == Brightness.dark))),
         behavior: SnackBarBehavior.floating,
-        backgroundColor: AppTheme.surface,
+        backgroundColor: AppTheme.cardBgFor(Theme.of(context).brightness == Brightness.dark),
         duration: const Duration(seconds: 3),
         action: SnackBarAction(
           label: 'BATAL',
-          textColor: AppTheme.primaryAccent,
+          textColor: AppTheme.primaryContainer,
           onPressed: () {
             completer.complete(false);
           },
@@ -261,35 +334,43 @@ class BookmarkScreen extends StatelessWidget {
   }
 
   void _confirmClearAll(BuildContext context, BookmarkProvider provider) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.surface,
+        backgroundColor: AppTheme.cardBgFor(isDark),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(4),
         ),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.delete_sweep_outlined, color: AppTheme.primaryAccent, size: 22),
-            SizedBox(width: 10),
+            const Icon(Icons.delete_sweep_outlined,
+                color: AppTheme.primaryContainer, size: 22),
+            const SizedBox(width: 10),
             Text(
               'Hapus Semua',
-              style: TextStyle(color: AppTheme.textPrimary, fontSize: 18),
+              style: AppTheme.headlineMd.copyWith(
+                fontSize: 18,
+                color: AppTheme.textPrimaryFor(isDark),
+              ),
             ),
           ],
         ),
-        content: const Text(
+        content: Text(
           'Semua artikel tersimpan akan dihapus. Tindakan ini tidak dapat dibatalkan.',
-          style: TextStyle(color: AppTheme.textSecondary, fontSize: 14, height: 1.4),
+          style: AppTheme.bodyMd.copyWith(
+            fontSize: 14,
+            color: AppTheme.textSecondaryFor(isDark),
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: const Text(
-                'Batal',
-                style: TextStyle(color: AppTheme.textSecondary, fontWeight: FontWeight.w600),
+            child: Text(
+              'Batal',
+              style: AppTheme.labelBold.copyWith(
+                color: AppTheme.textSecondaryFor(isDark),
               ),
             ),
           ),
@@ -302,22 +383,18 @@ class BookmarkScreen extends StatelessWidget {
                 SnackBar(
                   content: const Text('Semua bookmark berhasil dihapus'),
                   behavior: SnackBarBehavior.floating,
-                  backgroundColor: AppTheme.surface,
+                  backgroundColor: AppTheme.cardBgFor(isDark),
                   duration: const Duration(seconds: 2),
                 ),
               );
             },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: AppTheme.primaryAccent.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Text(
-                'Hapus Semua',
-                style: TextStyle(
-                  color: AppTheme.primaryAccent,
-                  fontWeight: FontWeight.w700,
+              color: AppTheme.primaryContainer,
+              child: Text(
+                'HAPUS SEMUA',
+                style: AppTheme.labelBold.copyWith(
+                  color: Colors.white,
                 ),
               ),
             ),

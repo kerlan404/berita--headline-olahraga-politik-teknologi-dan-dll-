@@ -86,13 +86,14 @@ class _CategoryBarState extends State<CategoryBar> {
   @override
   Widget build(BuildContext context) {
     final categories = ApiConstants.categories;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       height: 52,
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: AppTheme.cardBgFor(isDark),
         border: Border(
-          bottom: BorderSide(color: AppTheme.divider.withValues(alpha: 0.5)),
+          bottom: BorderSide(color: AppTheme.dividerFor(isDark).withValues(alpha: 0.5)),
         ),
       ),
       child: Consumer<NewsListProvider>(
@@ -105,15 +106,12 @@ class _CategoryBarState extends State<CategoryBar> {
 
               return Row(
                 children: [
-                  // Left scroll arrow (mobile only)
                   if (isMobile)
                     _buildArrowButton(
                       icon: Icons.chevron_left_rounded,
                       onTap: _scrollCategoryLeft,
                       isVisible: _showLeftArrow,
                     ),
-
-                  // Categories horizontal scroll
                   Expanded(
                     child: ListView.builder(
                       controller: _categoryScrollController,
@@ -131,6 +129,7 @@ class _CategoryBarState extends State<CategoryBar> {
                           label: label,
                           icon: _getCategoryIcon(label),
                           isSelected: isSelected,
+                          isDark: isDark,
                           onTap: () {
                             final apiKeyName = ApiConstants.categoryMap[label] ?? 'all';
                             provider.setCategory(apiKeyName);
@@ -140,8 +139,6 @@ class _CategoryBarState extends State<CategoryBar> {
                       },
                     ),
                   ),
-
-                  // Right scroll arrow (mobile only)
                   if (isMobile)
                     _buildArrowButton(
                       icon: Icons.chevron_right_rounded,
@@ -173,8 +170,8 @@ class _CategoryBarState extends State<CategoryBar> {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.surface,
-                AppTheme.surface.withValues(alpha: 0.0),
+                AppTheme.cardBgFor(Theme.of(context).brightness == Brightness.dark),
+                AppTheme.cardBgFor(Theme.of(context).brightness == Brightness.dark).withValues(alpha: 0.0),
               ],
               begin: icon == Icons.chevron_left_rounded
                   ? Alignment.centerLeft
@@ -189,11 +186,8 @@ class _CategoryBarState extends State<CategoryBar> {
             child: InkWell(
               onTap: isVisible ? onTap : null,
               borderRadius: BorderRadius.circular(8),
-              child: Icon(
-                icon,
-                size: 20,
-                color: AppTheme.textSecondary,
-              ),
+              child: Icon(icon, size: 20,
+                  color: AppTheme.textSecondaryFor(Theme.of(context).brightness == Brightness.dark)),
             ),
           ),
         ),
@@ -205,6 +199,7 @@ class _CategoryBarState extends State<CategoryBar> {
     required String label,
     required IconData icon,
     required bool isSelected,
+    required bool isDark,
     required VoidCallback onTap,
   }) {
     return Padding(
@@ -220,13 +215,13 @@ class _CategoryBarState extends State<CategoryBar> {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
               color: isSelected
-                  ? AppTheme.primaryAccent.withValues(alpha: 0.15)
+                  ? AppTheme.primaryContainer.withValues(alpha: 0.15)
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
                 color: isSelected
-                    ? AppTheme.primaryAccent.withValues(alpha: 0.4)
-                    : AppTheme.divider.withValues(alpha: 0.3),
+                    ? AppTheme.primaryContainer.withValues(alpha: 0.4)
+                    : AppTheme.dividerFor(isDark).withValues(alpha: 0.3),
                 width: isSelected ? 1.5 : 1.0,
               ),
             ),
@@ -236,16 +231,16 @@ class _CategoryBarState extends State<CategoryBar> {
                 Icon(
                   icon,
                   size: 16,
-                  color: isSelected ? AppTheme.primaryAccent : AppTheme.textSecondary,
+                  color: isSelected ? AppTheme.primaryContainer : AppTheme.textSecondaryFor(isDark),
                 ),
                 const SizedBox(width: 6),
                 Text(
                   label,
-                  style: TextStyle(
+                  style: AppTheme.labelBold.copyWith(
                     fontSize: 13,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    color: isSelected ? AppTheme.textPrimary : AppTheme.textSecondary,
-                    letterSpacing: 0.3,
+                    color: isSelected
+                        ? AppTheme.textPrimaryFor(isDark)
+                        : AppTheme.textSecondaryFor(isDark),
                   ),
                 ),
               ],
