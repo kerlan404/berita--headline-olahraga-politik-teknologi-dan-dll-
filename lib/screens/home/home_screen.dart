@@ -543,8 +543,12 @@ class StaggeredListAnimation extends StatelessWidget {
     return AnimatedBuilder(
       animation: controller,
       builder: (context, child) {
-        final delay = index * 0.05;
-        final value = (controller.value - delay).clamp(0.0, 1.0);
+        final delay = (index * 0.05).clamp(0.0, 1.0);
+        // Once controller.value >= delay, item is FULLY visible (opacity 1.0)
+        // No more "makin ilang" bug!
+        final value = controller.value >= delay 
+            ? 1.0 
+            : (delay > 0 ? (controller.value / delay) : 1.0);
         return Opacity(
           opacity: value,
           child: Transform.translate(

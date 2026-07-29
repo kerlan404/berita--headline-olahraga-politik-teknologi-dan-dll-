@@ -42,22 +42,14 @@ class CompactGridCard extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   if (article.urlToImage != null && article.urlToImage!.isNotEmpty)
-                    ColorFiltered(
-                      colorFilter: const ColorFilter.matrix(<double>[
-                        0.33, 0.33, 0.33, 0, 0,
-                        0.33, 0.33, 0.33, 0, 0,
-                        0.33, 0.33, 0.33, 0, 0,
-                        0, 0, 0, 1, 0,
-                      ]),
-                      child: CachedNetworkImage(
-                        imageUrl: article.urlToImage!,
-                        fit: BoxFit.cover,
-                        placeholder: (_, __) => Container(color: AppTheme.cardBgFor(isDark)),
-                        errorWidget: (_, __, ___) => Container(
-                          color: AppTheme.cardBgFor(isDark),
-                          child: const Icon(Icons.broken_image,
-                              color: AppTheme.textSecondary, size: 28),
-                        ),
+                    CachedNetworkImage(
+                      imageUrl: article.urlToImage!,
+                      fit: BoxFit.cover,
+                      placeholder: (_, __) => Container(color: AppTheme.cardBgFor(isDark)),
+                      errorWidget: (_, __, ___) => Container(
+                        color: AppTheme.cardBgFor(isDark),
+                        child: const Icon(Icons.broken_image,
+                            color: AppTheme.textSecondary, size: 28),
                       ),
                     )
                   else

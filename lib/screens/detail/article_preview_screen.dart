@@ -98,23 +98,15 @@ class ArticlePreviewScreen extends StatelessWidget {
                   ? Stack(
                       fit: StackFit.expand,
                       children: [
-                        ColorFiltered(
-                          colorFilter: const ColorFilter.matrix(<double>[
-                            0.33, 0.33, 0.33, 0, 0,
-                            0.33, 0.33, 0.33, 0, 0,
-                            0.33, 0.33, 0.33, 0, 0,
-                            0, 0, 0, 1, 0,
-                          ]),
-                          child: CachedNetworkImage(
-                            imageUrl: article.urlToImage!,
-                            fit: BoxFit.cover,
-                            placeholder: (_, __) =>
-                                Container(color: AppTheme.cardBgFor(isDark)),
-                            errorWidget: (_, __, ___) => Container(
-                              color: AppTheme.cardBgFor(isDark),
-                              child: const Icon(Icons.image_not_supported_rounded,
-                                  size: 48, color: AppTheme.textSecondary),
-                            ),
+                        CachedNetworkImage(
+                          imageUrl: article.urlToImage!,
+                          fit: BoxFit.cover,
+                          placeholder: (_, __) =>
+                              Container(color: AppTheme.cardBgFor(isDark)),
+                          errorWidget: (_, __, ___) => Container(
+                            color: AppTheme.cardBgFor(isDark),
+                            child: const Icon(Icons.image_not_supported_rounded,
+                                size: 48, color: AppTheme.textSecondary),
                           ),
                         ),
                         Positioned(

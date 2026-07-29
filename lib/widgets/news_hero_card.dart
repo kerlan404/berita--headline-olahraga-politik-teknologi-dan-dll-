@@ -46,24 +46,16 @@ class NewsHeroCard extends StatelessWidget {
                     ClipRect(
                       child: Transform.translate(
                         offset: Offset(0, -scrollOffset * 0.15),
-                        child: ColorFiltered(
-                          colorFilter: const ColorFilter.matrix(<double>[
-                            0.33, 0.33, 0.33, 0, 0,
-                            0.33, 0.33, 0.33, 0, 0,
-                            0.33, 0.33, 0.33, 0, 0,
-                            0, 0, 0, 1, 0,
-                          ]),
-                          child: CachedNetworkImage(
-                            imageUrl: article.urlToImage!,
-                            fit: BoxFit.cover,
-                            placeholder: (_, __) => Container(
-                              color: AppTheme.cardBgFor(isDark),
-                            ),
-                            errorWidget: (_, __, ___) => Container(
-                              color: AppTheme.cardBgFor(isDark),
-                              child: const Icon(Icons.broken_image, size: 40,
-                                  color: AppTheme.textSecondary),
-                            ),
+                        child: CachedNetworkImage(
+                          imageUrl: article.urlToImage!,
+                          fit: BoxFit.cover,
+                          placeholder: (_, __) => Container(
+                            color: AppTheme.cardBgFor(isDark),
+                          ),
+                          errorWidget: (_, __, ___) => Container(
+                            color: AppTheme.cardBgFor(isDark),
+                            child: const Icon(Icons.broken_image, size: 40,
+                                color: AppTheme.textSecondary),
                           ),
                         ),
                       ),

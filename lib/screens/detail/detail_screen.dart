@@ -2,15 +2,19 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
+import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/date_formatter.dart';
+import '../../core/utils/route_transitions.dart';
 import '../../data/models/article_analysis.dart';
 import '../../data/models/news_article.dart';
 import '../../data/services/article_analysis_service.dart';
+import '../../providers/news_list_provider.dart';
 import '../../widgets/bookmark_button.dart';
+import '../../widgets/news_card.dart';
 
 class DetailScreen extends StatefulWidget {
   final NewsArticle article;
@@ -174,7 +178,7 @@ class _DetailScreenState extends State<DetailScreen> {
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
       slivers: [
-        // Hero image with grayscale
+        // Hero image with full color
         SliverAppBar(
           expandedHeight: hasImage ? 300 : 100,
           pinned: true,
@@ -185,24 +189,16 @@ class _DetailScreenState extends State<DetailScreen> {
                 ? Stack(
                     fit: StackFit.expand,
                     children: [
-                      ColorFiltered(
-                        colorFilter: const ColorFilter.matrix(<double>[
-                          0.33, 0.33, 0.33, 0, 0,
-                          0.33, 0.33, 0.33, 0, 0,
-                          0.33, 0.33, 0.33, 0, 0,
-                          0, 0, 0, 1, 0,
-                        ]),
-                        child: CachedNetworkImage(
-                          imageUrl: widget.article.urlToImage!,
-                          fit: BoxFit.cover,
-                          placeholder: (_, __) => Container(
-                            color: AppTheme.cardBgFor(isDark),
-                          ),
-                          errorWidget: (_, __, ___) => Container(
-                            color: AppTheme.cardBgFor(isDark),
-                            child: const Icon(Icons.image_not_supported_rounded,
-                                size: 48, color: AppTheme.textSecondary),
-                          ),
+                      CachedNetworkImage(
+                        imageUrl: widget.article.urlToImage!,
+                        fit: BoxFit.cover,
+                        placeholder: (_, __) => Container(
+                          color: AppTheme.cardBgFor(isDark),
+                        ),
+                        errorWidget: (_, __, ___) => Container(
+                          color: AppTheme.cardBgFor(isDark),
+                          child: const Icon(Icons.image_not_supported_rounded,
+                              size: 48, color: AppTheme.textSecondary),
                         ),
                       ),
                       // Bottom gradient
@@ -259,7 +255,7 @@ class _DetailScreenState extends State<DetailScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Meta: Author + Time
+                // Meta: Author + Time + Reading time
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -306,14 +302,28 @@ class _DetailScreenState extends State<DetailScreen> {
                                   color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.7)),
                               ),
                               const SizedBox(width: 12),
-                              Icon(Icons.source_rounded, size: 11,
+                              Icon(Icons.timer_outlined, size: 11,
                                   color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.7)),
                               const SizedBox(width: 4),
                               Text(
-                                widget.article.sourceName ?? 'Sumber',
+                                '${_getReadingTime()} MENIT BACA',
                                 style: AppTheme.labelSm.copyWith(
                                   fontSize: 10,
                                   color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.7)),
+                              ),
+                              const SizedBox(width: 12),
+                              Icon(Icons.source_rounded, size: 11,
+                                  color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.7)),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  widget.article.sourceName ?? 'Sumber',
+                                  style: AppTheme.labelSm.copyWith(
+                                    fontSize: 10,
+                                    color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.7)),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                             ],
                           ),
@@ -366,6 +376,10 @@ class _DetailScreenState extends State<DetailScreen> {
                     ],
                   ),
                 ),
+                const SizedBox(height: 32),
+
+                // Related Articles
+                _buildRelatedArticles(isDark),
               ],
             ),
           ),
@@ -733,6 +747,77 @@ class _DetailScreenState extends State<DetailScreen> {
       final minute = dt.minute.toString().padLeft(2, '0');
       return '${dt.day} ${months[dt.month - 1]} ${dt.year}, $hour:$minute';
     } catch (_) { return dateStr; }
+  }
+
+  Widget _buildRelatedArticles(bool isDark) {
+    return Consumer<NewsListProvider>(
+      builder: (context, provider, child) {
+        // Get related articles (exclude current)
+        final related = provider.articles
+            .where((a) => a.url != widget.article.url)
+            .take(5)
+            .toList();
+
+        if (related.isEmpty) return const SizedBox.shrink();
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 20,
+                  color: AppTheme.primaryContainer,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'BERITA TERKAIT',
+                  style: AppTheme.labelBold.copyWith(
+                    fontSize: 14,
+                    color: AppTheme.textPrimaryFor(isDark),
+                    letterSpacing: 1.5,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Artikel lain yang mungkin menarik untuk Anda',
+              style: AppTheme.labelSm.copyWith(
+                fontSize: 11,
+                color: AppTheme.textSecondaryFor(isDark),
+              ),
+            ),
+            const SizedBox(height: 12),
+            ...related.map((article) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: NewsCard(
+                article: article,
+                onTap: () {
+                  Navigator.of(context).push(
+                    SlideRightRoute(page: DetailScreen(article: article)),
+                  );
+                },
+              ),
+            )),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Calculate estimated reading time based on content length
+  int _getReadingTime() {
+    final textParts = [
+      widget.article.title,
+      widget.article.description ?? '',
+      widget.article.content ?? '',
+    ];
+    final totalLength = textParts.fold<int>(0, (sum, t) => sum + t.length);
+    // Average reading speed: 250 words per minute, ~5 chars per word
+    final minutes = (totalLength / (250 * 5)).ceil();
+    return minutes.clamp(1, 15);
   }
 
   Widget _buildBottomBar(bool isDark) {

@@ -22,7 +22,7 @@ class NewsListProvider with ChangeNotifier {
   String _currentCategory = 'all'; // Default category — Semua
   List<NewsArticle> _articles = [];
   int _page = 1;
-  final int _pageSize = 15;
+  final int _pageSize = 10;
 
   bool _isLoading = false;
   bool _isLoadingMore = false;
@@ -87,8 +87,10 @@ class NewsListProvider with ChangeNotifier {
       _lastFetchTime = DateTime.now();
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
-      _articles = [];
-      _hasMore = false;
+      // Keep existing articles on error, don't clear them!
+      if (_articles.isEmpty) {
+        _hasMore = false;
+      }
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -124,6 +126,7 @@ class NewsListProvider with ChangeNotifier {
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
       _page--; // Rollback page on failure
+      _hasMore = false; // Stop further loading attempts
     } finally {
       _isLoadingMore = false;
       notifyListeners();

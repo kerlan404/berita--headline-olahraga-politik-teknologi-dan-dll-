@@ -36,31 +36,23 @@ class NewsCard extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Thumbnail with grayscale filter
+              // Thumbnail with full color
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
                 child: SizedBox(
                   width: 100,
                   height: 100,
                   child: article.urlToImage != null && article.urlToImage!.isNotEmpty
-                      ? ColorFiltered(
-                          colorFilter: const ColorFilter.matrix(<double>[
-                            0.33, 0.33, 0.33, 0, 0,
-                            0.33, 0.33, 0.33, 0, 0,
-                            0.33, 0.33, 0.33, 0, 0,
-                            0, 0, 0, 1, 0,
-                          ]),
-                          child: CachedNetworkImage(
-                            imageUrl: article.urlToImage!,
-                            fit: BoxFit.cover,
-                            placeholder: (_, __) => Container(
-                              color: AppTheme.cardBgFor(isDark),
-                            ),
-                            errorWidget: (_, __, ___) => Container(
-                              color: AppTheme.cardBgFor(isDark),
-                              child: const Icon(Icons.broken_image,
-                                  color: AppTheme.textSecondary),
-                            ),
+                      ? CachedNetworkImage(
+                          imageUrl: article.urlToImage!,
+                          fit: BoxFit.cover,
+                          placeholder: (_, __) => Container(
+                            color: AppTheme.cardBgFor(isDark),
+                          ),
+                          errorWidget: (_, __, ___) => Container(
+                            color: AppTheme.cardBgFor(isDark),
+                            child: const Icon(Icons.broken_image,
+                                color: AppTheme.textSecondary),
                           ),
                         )
                       : Container(
