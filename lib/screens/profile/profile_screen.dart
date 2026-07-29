@@ -40,6 +40,10 @@ class ProfileScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               children: [
+                // Team Identity
+                _buildTeamIdentity(isDark),
+                const SizedBox(height: 20),
+
                 // Stats
                 Consumer<BookmarkProvider>(
                   builder: (context, bookmark, child) {
@@ -173,6 +177,146 @@ class ProfileScreen extends StatelessWidget {
                 style: AppTheme.labelBold.copyWith(
                     fontSize: 11, color: AppTheme.primaryContainer, letterSpacing: 0.5)),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTeamIdentity(bool isDark) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: AppTheme.primaryContainer.withValues(alpha: 0.3),
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Column(
+        children: [
+          // Header
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+            color: AppTheme.primaryContainer,
+            child: Text('IDENTITAS KELOMPOK',
+                style: AppTheme.labelBold.copyWith(
+                    fontSize: 10, color: Colors.white, letterSpacing: 2)),
+          ),
+          const SizedBox(height: 16),
+
+          // Kelompok & Kelas
+          Row(
+            children: [
+              _buildTeamItem(Icons.group_rounded, 'Kelompok', 'Kelompok 2', isDark),
+              Container(width: 1, height: 40,
+                  color: AppTheme.dividerFor(isDark).withValues(alpha: 0.3)),
+              _buildTeamItem(Icons.school_rounded, 'Kelas', 'XII RPL 2', isDark),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Divider(height: 1,
+              color: AppTheme.dividerFor(isDark).withValues(alpha: 0.3)),
+          const SizedBox(height: 14),
+
+          // Member 1
+          Row(
+            children: [
+              Container(
+                width: 36, height: 36,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: AppTheme.primaryContainer.withValues(alpha: 0.3), width: 1,
+                  ),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Center(
+                  child: Text('1',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 14,
+                          color: AppTheme.primaryContainer)),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Mochammad Rezy Alfarabi',
+                        style: AppTheme.labelBold.copyWith(
+                            fontSize: 13, color: AppTheme.textPrimaryFor(isDark))),
+                    const SizedBox(height: 2),
+                    Text('Manajer Proyek & Developer',
+                        style: AppTheme.labelSm.copyWith(
+                          fontSize: 10,
+                          color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.7),
+                        )),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // Member 2
+          Row(
+            children: [
+              Container(
+                width: 36, height: 36,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: AppTheme.primaryContainer.withValues(alpha: 0.3), width: 1,
+                  ),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Center(
+                  child: Text('2',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 14,
+                          color: AppTheme.primaryContainer)),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Ahmad Fahmi',
+                        style: AppTheme.labelBold.copyWith(
+                            fontSize: 13, color: AppTheme.textPrimaryFor(isDark))),
+                    const SizedBox(height: 2),
+                    Text('Anggota Tim',
+                        style: AppTheme.labelSm.copyWith(
+                          fontSize: 10,
+                          color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.7),
+                        )),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTeamItem(IconData icon, String label, String value, bool isDark) {
+    return Expanded(
+      child: Column(
+        children: [
+          Icon(icon, size: 20, color: AppTheme.primaryContainer),
+          const SizedBox(height: 6),
+          Text(label,
+              style: AppTheme.labelSm.copyWith(
+                fontSize: 10,
+                color: AppTheme.textSecondaryFor(isDark).withValues(alpha: 0.7),
+              )),
+          const SizedBox(height: 2),
+          Text(value,
+              style: AppTheme.labelBold.copyWith(
+                fontSize: 13,
+                color: AppTheme.textPrimaryFor(isDark),
+              )),
         ],
       ),
     );

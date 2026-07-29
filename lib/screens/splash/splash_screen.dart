@@ -194,6 +194,21 @@ class _SplashScreenState extends State<SplashScreen>
                             letterSpacing: 2.5,
                           ),
                         ),
+                        const SizedBox(height: 14),
+                        Container(
+                          height: 1,
+                          width: 40,
+                          color: AppTheme.primaryContainer.withValues(alpha: 0.3),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'XII RPL 2',
+                          style: AppTheme.labelBold.copyWith(
+                            color: Colors.white,
+                            fontSize: 14,
+                            letterSpacing: 4,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -248,15 +263,28 @@ class _SplashScreenState extends State<SplashScreen>
             bottom: 32,
             left: 0,
             right: 0,
-            child: Center(
-              child: Text(
-                '© 2026 REEDFEEDS | LIVE DATA FEED',
-                style: AppTheme.labelSm.copyWith(
-                  color: AppTheme.secondaryFixedDim.withValues(alpha: 0.5),
-                  fontSize: 9,
-                  letterSpacing: 1.5,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Mochammad Rezy Alfarabi  ·  Ahmad Fahmi',
+                  style: AppTheme.labelSm.copyWith(
+                    color: AppTheme.secondaryFixedDim.withValues(alpha: 0.5),
+                    fontSize: 9,
+                    letterSpacing: 1,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-              ),
+                const SizedBox(height: 6),
+                Text(
+                  '© 2026 REEDFEEDS | LIVE DATA FEED',
+                  style: AppTheme.labelSm.copyWith(
+                    color: AppTheme.secondaryFixedDim.withValues(alpha: 0.4),
+                    fontSize: 8,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
