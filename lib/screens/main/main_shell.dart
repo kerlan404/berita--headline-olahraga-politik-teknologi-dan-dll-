@@ -4,7 +4,7 @@ import '../../core/theme/app_theme.dart';
 import '../../providers/bookmark_provider.dart';
 import '../bookmark/bookmark_screen.dart';
 import '../home/home_screen.dart';
-import '../profile/profile_screen.dart';
+import '../about/about_screen.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -22,7 +22,7 @@ class _MainShellState extends State<MainShell>
   final List<Widget> _screens = const [
     HomeScreen(),
     BookmarkScreen(),
-    ProfileScreen(),
+    AboutScreen(),
   ];
 
   @override
@@ -94,9 +94,9 @@ class _MainShellState extends State<MainShell>
             label: 'SAVED',
           ),
           BottomNavigationBarItem(
-            icon: _buildNavItem(Icons.person_outline, Icons.person_rounded, 2),
-            activeIcon: _buildNavItem(Icons.person_rounded, Icons.person_rounded, 2),
-            label: 'PROFILE',
+            icon: _buildNavItem(Icons.info_outline, Icons.info_rounded, 2),
+            activeIcon: _buildNavItem(Icons.info_rounded, Icons.info_rounded, 2),
+            label: 'ABOUT',
           ),
         ],
       ),
